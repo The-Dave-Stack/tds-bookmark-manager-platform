@@ -1,0 +1,284 @@
+{
+  "app": {
+    "title": "The Dave Stack Bookmark Manager",
+    "tagline": "Manage your bookmarks with ease"
+  },
+  "landing": {
+    "hero": {
+      "title": "Reclaim Your Browser: Smart Bookmarking is Here",
+      "subtitle": "Organize, find, and use your web links like never before with a clean, intuitive interface that helps you stay focused and productive.",
+      "cta": "Get Started Free"
+    },
+    "features": {
+      "title": "Everything You Need to Stay Organized",
+      "subtitle": "Powerful features designed to help you manage your digital world effortlessly",
+      "organization": {
+        "title": "Intuitive Organization",
+        "description": "Effortlessly categorize your links with simple, clear folders. Find what you need, when you need it."
+      },
+      "insights": {
+        "title": "Usage Insights",
+        "description": "Discover your most-used resources and declutter with smart usage statistics."
+      },
+      "quickAdd": {
+        "title": "Quick Add",
+        "description": "Save links from anywhere with a single click. No more copy-pasting marathons."
+      },
+      "security": {
+        "title": "Secure & Private",
+        "description": "Your bookmarks are encrypted and protected. Your data stays yours."
+      }
+    },
+    "trust": {
+      "badge": "Built with Security in Mind",
+      "title": "Your Trust is Our Priority",
+      "description": "We take your privacy seriously. Your bookmarks are encrypted, and we never share your data with third parties."
+    },
+    "cta": {
+      "title": "Ready to Organize Your Digital World?",
+      "description": "Join thousands of users who have already transformed their browsing experience.",
+      "button": "Create Your Free Account"
+    },
+    "footer": {
+      "tagline": "Your bookmarks, organized. Your mind, clear.",
+      "product": {
+        "title": "Product",
+        "features": "Features",
+        "security": "Security"
+      },
+      "company": {
+        "title": "Company",
+        "about": "About Us",
+        "contact": "Contact"
+      },
+      "legal": {
+        "title": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service"
+      },
+      "copyright": "All rights reserved."
+    }
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "login": {
+      "title": "Login",
+      "button": "Sign In",
+      "noAccount": "Don't have an account?",
+      "register": "Register here",
+      "success": "Logged in successfully",
+      "error": "Login failed"
+    },
+    "register": {
+      "title": "Create Your Account",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastNamePlaceholder": "Enter your last name",
+      "emailPlaceholder": "Enter your email address",
+      "passwordPlaceholder": "Create a strong password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter your password",
+      "button": "Create Account",
+      "hasAccount": "Already have an account?",
+      "login": "Login here",
+      "success": "Registration successful",
+      "error": "Registration failed",
+      "password": {
+        "minLength": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "lowercase": "One lowercase letter",
+        "number": "One number",
+        "special": "One special character"
+      },
+      "errors": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordRequirements": "Password does not meet requirements",
+        "passwordMatch": "Passwords do not match"
+      }
+    },
+    "logout": {
+      "button": "Log out",
+      "success": "Logged out successfully"
+    }
+  },
+  "navigation": {
+    "bookmarks": "Bookmarks",
+    "archived": "Archived",
+    "admin": "Admin Panel",
+    "profile": "Profile Settings"
+  },
+  "bookmarks": {
+    "title": "My Bookmarks",
+    "archivedTitle": "Archived Bookmarks",
+    "add": "Add Bookmark",
+    "search": "Search bookmarks...",
+    "sort": {
+      "label": "Sort by",
+      "date": "Date Added",
+      "title": "Title",
+      "clicks": "Most Clicked"
+    },
+    "empty": "No bookmarks found",
+    "emptyArchived": "No archived bookmarks found",
+    "mostClicked": "Most Clicked Bookmarks",
+    "form": {
+      "url": "URL",
+      "title": "Title",
+      "folder": "Folder",
+      "noFolder": "No folder (root)",
+      "submit": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "urlRequired": "URL is required",
+      "titleRequired": "Title is required"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "visitSite": "Visit Site",
+      "clickCount": "{{count}} clicks"
+    },
+    "notifications": {
+      "added": "Bookmark added",
+      "updated": "Bookmark updated",
+      "deleted": "Bookmark deleted",
+      "archived": "Bookmark archived",
+      "unarchived": "Bookmark restored"
+    }
+  },
+  "folders": {
+    "title": "Folders",
+    "all": "All Bookmarks",
+    "add": "New Folder",
+    "edit": "Edit Folder",
+    "empty": "No folders found",
+    "addSubfolder": "Add Subfolder",
+    "form": {
+      "name": "Folder Name",
+      "submit": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete Folder",
+      "nameRequired": "Name is required",
+      "parent": "Parent Folder",
+      "noParent": "Root (No parent)"
+    },
+    "confirmDelete": {
+      "title": "Delete Folder?",
+      "message": "This will move all bookmarks to root. Are you sure?",
+      "confirm": "Yes, Delete",
+      "cancel": "Cancel"
+    },
+    "notifications": {
+      "added": "Folder created",
+      "updated": "Folder updated",
+      "deleted": "Folder deleted"
+    }
+  },
+  "statistics": {
+    "dateRange": {
+      "title": "Date Range",
+      "presets": "Presets",
+      "custom": "Custom",
+      "start": "Start Date",
+      "end": "End Date",
+      "presetOptions": {
+        "lastHour": "Last hour",
+        "last3Hours": "Last 3 hours",
+        "last6Hours": "Last 6 hours",
+        "last12Hours": "Last 12 hours",
+        "last24Hours": "Last 24 hours",
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days",
+        "thisWeek": "This week",
+        "thisMonth": "This month",
+        "thisYear": "This year"
+      }
+    },
+    "user": {
+      "title": "Your Bookmark Statistics",
+      "totalBookmarks": "Total Bookmarks",
+      "totalClicks": "Total Clicks",
+      "avgClicks": "Avg. Clicks/Bookmark",
+      "mostClicked": "Most Clicked",
+      "noBookmarks": "No bookmarks yet"
+    },
+    "admin": {
+      "title": "Global Statistics",
+      "totalUsers": "Total Users",
+      "totalBookmarks": "Total Bookmarks",
+      "totalClicks": "Total Clicks",
+      "avgBookmarks": "Avg. Bookmarks/User",
+      "topUsers": "Top Users",
+      "userEmail": "User Email",
+      "bookmarkCount": "Bookmarks",
+      "clickCount": "Clicks"
+    }
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "users": "User Management",
+    "usersCount": "{{count}} users registered",
+    "userTable": {
+      "id": "ID",
+      "email": "Email",
+      "role": "Role",
+      "actions": "Actions"
+    },
+    "changeRole": {
+      "button": "Change Role",
+      "success": "User role updated",
+      "error": "Failed to update user role"
+    }
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "personalInfo": {
+      "title": "Personal Information",
+      "description": "Update your personal information and password",
+      "save": "Save Changes",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Leave blank to keep current password",
+      "emailNotEditable": "Email address cannot be changed"
+    },
+    "webhookSection": {
+      "title": "Webhook Integration",
+      "description": "Use this URL and token to add bookmarks via API",
+      "url": "Webhook URL",
+      "token": "API Token",
+      "copy": "Copy",
+      "copied": "Copied to clipboard",
+      "bookmarklet": {
+        "title": "Bookmarklet",
+        "description": "Drag this link to your bookmarks bar to quickly save pages:",
+        "link": "Save to Bookmarks"
+      }
+    },
+    "notifications": {
+      "updated": "Profile updated successfully",
+      "error": "Failed to update profile"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "confirmDelete": {
+      "title": "Confirm Delete",
+      "message": "Are you sure you want to delete this item?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "language": {
+    "select": "Language",
+    "en": "English",
+    "es": "Spanish"
+  }
+}

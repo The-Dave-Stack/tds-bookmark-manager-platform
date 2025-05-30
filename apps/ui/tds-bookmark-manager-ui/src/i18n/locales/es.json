@@ -1,0 +1,284 @@
+{
+  "app": {
+    "title": "Gestor de Marcadores Dave Stack",
+    "tagline": "Gestiona tus marcadores con facilidad"
+  },
+  "landing": {
+    "hero": {
+      "title": "Recupera tu Navegador: La Gestión Inteligente de Marcadores está Aquí",
+      "subtitle": "Organiza, encuentra y utiliza tus enlaces web como nunca antes con una interfaz limpia e intuitiva que te ayuda a mantener el enfoque y la productividad.",
+      "cta": "Comienza Gratis"
+    },
+    "features": {
+      "title": "Todo lo que Necesitas para Mantenerte Organizado",
+      "subtitle": "Potentes funciones diseñadas para ayudarte a gestionar tu mundo digital sin esfuerzo",
+      "organization": {
+        "title": "Organización Intuitiva",
+        "description": "Categoriza tus enlaces fácilmente con carpetas simples y claras. Encuentra lo que necesitas, cuando lo necesitas."
+      },
+      "insights": {
+        "title": "Estadísticas de Uso",
+        "description": "Descubre tus recursos más utilizados y organiza con estadísticas inteligentes de uso."
+      },
+      "quickAdd": {
+        "title": "Añadir Rápido",
+        "description": "Guarda enlaces desde cualquier lugar con un solo clic. No más copiar y pegar."
+      },
+      "security": {
+        "title": "Seguro y Privado",
+        "description": "Tus marcadores están encriptados y protegidos. Tus datos siguen siendo tuyos."
+      }
+    },
+    "trust": {
+      "badge": "Construido Pensando en la Seguridad",
+      "title": "Tu Confianza es Nuestra Prioridad",
+      "description": "Nos tomamos tu privacidad en serio. Tus marcadores están encriptados y nunca compartimos tus datos con terceros."
+    },
+    "cta": {
+      "title": "¿Listo para Organizar tu Mundo Digital?",
+      "description": "Únete a miles de usuarios que ya han transformado su experiencia de navegación.",
+      "button": "Crea tu Cuenta Gratuita"
+    },
+    "footer": {
+      "tagline": "Tus marcadores, organizados. Tu mente, clara.",
+      "product": {
+        "title": "Producto",
+        "features": "Características",
+        "security": "Seguridad"
+      },
+      "company": {
+        "title": "Empresa",
+        "about": "Sobre Nosotros",
+        "contact": "Contacto"
+      },
+      "legal": {
+        "title": "Legal",
+        "privacy": "Política de Privacidad",
+        "terms": "Términos de Servicio"
+      },
+      "copyright": "Todos los derechos reservados."
+    }
+  },
+  "auth": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "login": {
+      "title": "Iniciar Sesión",
+      "button": "Acceder",
+      "noAccount": "¿No tienes una cuenta?",
+      "register": "Regístrate aquí",
+      "success": "Sesión iniciada correctamente",
+      "error": "Error al iniciar sesión"
+    },
+    "register": {
+      "title": "Crea tu Cuenta",
+      "firstName": "Nombre",
+      "lastName": "Apellidos",
+      "firstNamePlaceholder": "Ingresa tu nombre",
+      "lastNamePlaceholder": "Ingresa tus apellidos",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "passwordPlaceholder": "Crea una contraseña segura",
+      "confirmPassword": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Vuelve a ingresar tu contraseña",
+      "button": "Crear Cuenta",
+      "hasAccount": "¿Ya tienes una cuenta?",
+      "login": "Inicia sesión aquí",
+      "success": "Registro exitoso",
+      "error": "Error en el registro",
+      "password": {
+        "minLength": "Al menos 8 caracteres",
+        "uppercase": "Una letra mayúscula",
+        "lowercase": "Una letra minúscula",
+        "number": "Un número",
+        "special": "Un carácter especial"
+      },
+      "errors": {
+        "firstNameRequired": "El nombre es obligatorio",
+        "lastNameRequired": "Los apellidos son obligatorios",
+        "emailRequired": "El correo electrónico es obligatorio",
+        "emailInvalid": "Por favor, ingresa un correo electrónico válido",
+        "passwordRequired": "La contraseña es obligatoria",
+        "passwordRequirements": "La contraseña no cumple con los requisitos",
+        "passwordMatch": "Las contraseñas no coinciden"
+      }
+    },
+    "logout": {
+      "button": "Cerrar sesión",
+      "success": "Sesión cerrada correctamente"
+    }
+  },
+  "navigation": {
+    "bookmarks": "Marcadores",
+    "archived": "Archivados",
+    "admin": "Panel de Administración",
+    "profile": "Ajustes de Perfil"
+  },
+  "bookmarks": {
+    "title": "Mis Marcadores",
+    "archivedTitle": "Marcadores Archivados",
+    "add": "Añadir Marcador",
+    "search": "Buscar marcadores...",
+    "sort": {
+      "label": "Ordenar por",
+      "date": "Fecha de Creación",
+      "title": "Título",
+      "clicks": "Más Visitados"
+    },
+    "empty": "No se encontraron marcadores",
+    "emptyArchived": "No hay marcadores archivados",
+    "mostClicked": "Marcadores Más Visitados",
+    "form": {
+      "url": "URL",
+      "title": "Título",
+      "folder": "Carpeta",
+      "noFolder": "Sin carpeta (raíz)",
+      "submit": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "urlRequired": "La URL es obligatoria",
+      "titleRequired": "El título es obligatorio"
+    },
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "archive": "Archivar",
+      "unarchive": "Restaurar",
+      "visitSite": "Visitar Sitio",
+      "clickCount": "{{count}} clics"
+    },
+    "notifications": {
+      "added": "Marcador añadido",
+      "updated": "Marcador actualizado",
+      "deleted": "Marcador eliminado",
+      "archived": "Marcador archivado",
+      "unarchived": "Marcador restaurado"
+    }
+  },
+  "folders": {
+    "title": "Carpetas",
+    "all": "Todos los Marcadores",
+    "add": "Nueva Carpeta",
+    "edit": "Editar Carpeta",
+    "empty": "No se encontraron carpetas",
+    "addSubfolder": "Añadir Subcarpeta",
+    "form": {
+      "name": "Nombre de la Carpeta",
+      "submit": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar Carpeta",
+      "nameRequired": "El nombre es obligatorio",
+      "parent": "Carpeta Principal",
+      "noParent": "Raíz (Sin carpeta principal)"
+    },
+    "confirmDelete": {
+      "title": "¿Eliminar Carpeta?",
+      "message": "Esto moverá todos los marcadores a la raíz. ¿Estás seguro?",
+      "confirm": "Sí, Eliminar",
+      "cancel": "Cancelar"
+    },
+    "notifications": {
+      "added": "Carpeta creada",
+      "updated": "Carpeta actualizada",
+      "deleted": "Carpeta eliminada"
+    }
+  },
+  "statistics": {
+    "dateRange": {
+      "title": "Rango de Fechas",
+      "presets": "Predefinidos",
+      "custom": "Personalizado",
+      "start": "Fecha Inicial",
+      "end": "Fecha Final",
+      "presetOptions": {
+        "lastHour": "Última hora",
+        "last3Hours": "Últimas 3 horas",
+        "last6Hours": "Últimas 6 horas",
+        "last12Hours": "Últimas 12 horas",
+        "last24Hours": "Últimas 24 horas",
+        "last7Days": "Últimos 7 días",
+        "last30Days": "Últimos 30 días",
+        "thisWeek": "Esta semana",
+        "thisMonth": "Este mes",
+        "thisYear": "Este año"
+      }
+    },
+    "user": {
+      "title": "Estadísticas de tus Marcadores",
+      "totalBookmarks": "Total de Marcadores",
+      "totalClicks": "Total de Clics",
+      "avgClicks": "Promedio Clics/Marcador",
+      "mostClicked": "Más Visitado",
+      "noBookmarks": "Aún no hay marcadores"
+    },
+    "admin": {
+      "title": "Estadísticas Globales",
+      "totalUsers": "Total de Usuarios",
+      "totalBookmarks": "Total de Marcadores",
+      "totalClicks": "Total de Clics",
+      "avgBookmarks": "Promedio Marcadores/Usuario",
+      "topUsers": "Usuarios Principales",
+      "userEmail": "Correo del Usuario",
+      "bookmarkCount": "Marcadores",
+      "clickCount": "Clics"
+    }
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "users": "Gestión de Usuarios",
+    "usersCount": "{{count}} usuarios registrados",
+    "userTable": {
+      "id": "ID",
+      "email": "Correo",
+      "role": "Rol",
+      "actions": "Acciones"
+    },
+    "changeRole": {
+      "button": "Cambiar Rol",
+      "success": "Rol de usuario actualizado",
+      "error": "Error al actualizar el rol de usuario"
+    }
+  },
+  "profile": {
+    "title": "Ajustes de Perfil",
+    "personalInfo": {
+      "title": "Información Personal",
+      "description": "Actualiza tu información personal y contraseña",
+      "save": "Guardar Cambios",
+      "newPassword": "Nueva Contraseña",
+      "newPasswordPlaceholder": "Dejar en blanco para mantener la contraseña actual",
+      "emailNotEditable": "El correo electrónico no se puede cambiar"
+    },
+    "webhookSection": {
+      "title": "Integración Webhook",
+      "description": "Usa esta URL y token para añadir marcadores vía API",
+      "url": "URL de Webhook",
+      "token": "Token API",
+      "copy": "Copiar",
+      "copied": "Copiado al portapapeles",
+      "bookmarklet": {
+        "title": "Bookmarklet",
+        "description": "Arrastra este enlace a tu barra de marcadores para guardar páginas rápidamente:",
+        "link": "Guardar en Marcadores"
+      }
+    },
+    "notifications": {
+      "updated": "Perfil actualizado correctamente",
+      "error": "Error al actualizar el perfil"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Se produjo un error",
+    "confirmDelete": {
+      "title": "Confirmar Eliminación",
+      "message": "¿Estás seguro de que quieres eliminar este elemento?",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    }
+  },
+  "language": {
+    "select": "Idioma",
+    "en": "Inglés",
+    "es": "Español"
+  }
+}
