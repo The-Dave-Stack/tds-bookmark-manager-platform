@@ -2,11 +2,7 @@
 import { IsString, IsNotEmpty, MinLength, IsEmail } from 'class-validator';
 import { UserEntity } from '../user.entity';
 
-export class CreateUserDto implements Pick<UserEntity, 'username' | 'password' | 'email'> {
-  @IsString()
-  @IsNotEmpty({ message: 'Username is required' })
-  username: string;
-
+export class LoginUserDto implements Pick<UserEntity, 'password' | 'email'> {
   @IsString()
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(8, { message: 'Password must be at least 8 characters long' })

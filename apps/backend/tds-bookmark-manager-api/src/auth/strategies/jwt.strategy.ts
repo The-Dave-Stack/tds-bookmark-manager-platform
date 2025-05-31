@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { jwtConstants } from './constants';
+import { jwtConstants } from '../constants';
+import { JwtPayloadDto } from '../dto/jwtpayload.dto';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -13,9 +16,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async validate(payload: any): Promise<JwtPayloadDto> {
     return {
-      userId: payload.sub,
+      sub: payload.sub,
       username: payload.username,
       roles: payload.roles,
     };

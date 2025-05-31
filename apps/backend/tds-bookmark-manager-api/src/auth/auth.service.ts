@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { UserEntity, UserEntityWithoutPassword } from '../users/user.entity';
+import { TokenDto } from './dto/token.dto';
+import { JwtPayloadDto } from './dto/jwtpayload.dto';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { LoginUserDto } from 'src/users/dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -10,34 +15,42 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
-    const user = this.usersService.findOne(username); // Removed await
-    if (user && (await bcrypt.compare(pass, user.password))) {
-      const { password, ...result } = user;
-      return result;
+  async validateUser(
+    data: Pick<UserEntity, 'email' | 'password'>,
+    options: { returnUser: boolean } = { returnUser: false },
+  ): Promise<UserEntityWithoutPassword | boolean> {
+    const foundUser = (await this.usersService.findOne({ email: data.email }, { withoutPassword: false })) as UserEntity | undefined;
+    const result = foundUser && (await bcrypt.compare(data.password, foundUser.password));
+
+    if (!result) {
+      return false;
     }
-    return null;
+
+    if (options.returnUser) {
+      return foundUser as UserEntityWithoutPassword;
+    }
+
+    return !!foundUser;
   }
 
-  async login(user: any) {
-    const payload = {
-      username: user.username,
-      sub: user.userId,
-      roles: user.roles,
+  async login(user: LoginUserDto): Promise<TokenDto> {
+    const userFound = (await this.validateUser({ email: user.email, password: user.password }, { returnUser: true })) as UserEntityWithoutPassword;
+    if (!userFound) {
+      throw new UnauthorizedException();
+    }
+    const payload: JwtPayloadDto = {
+      username: userFound.username,
+      sub: `${userFound.userId}`,
+      roles: userFound.roles,
     };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
 
-  async register(
-    username: string,
-    password: string,
-    roles: string[] = ['user'],
-  ) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = this.usersService.create(username, hashedPassword, roles); // Removed await
-    const { password: _, ...result } = newUser;
-    return result;
+  // TODO: Maybe not needed to return the created user
+  async register(data: CreateUserDto): Promise<UserEntityWithoutPassword> {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    return await this.usersService.create({ ...data, password: hashedPassword, roles: ['user'] });
   }
 }

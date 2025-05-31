@@ -3,6 +3,6 @@ import { UsersService } from './users.service';
 
 @Module({
   providers: [UsersService],
-  exports: [UsersService], // Export UsersService to be used in other modules (e.g., AuthModule)
+  exports: [UsersService],
 })
 export class UsersModule {}

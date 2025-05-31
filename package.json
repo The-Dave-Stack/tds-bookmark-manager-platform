@@ -6,6 +6,11 @@
   "scripts": {
     "clean:all": "pnpm -r run clean:all && rimraf node_modules pnpm-lock.yaml",
     "build": "pnpm -r run build",
+    "build:ui": "pnpm -filter=tds-bookmark-manager-ui run build",
+    "build:api": "pnpm --filter=tds-bookmark-manager-api run build",
+    "test:api": "pnpm --filter=tds-bookmark-manager-api run test",
+    "test:api:cov": "pnpm --filter=tds-bookmark-manager-api run test:cov",
+    "test:api:e2e": "pnpm --filter=tds-bookmark-manager-api run test:e2e",
     "format": "pnpm -r run format",
     "start:ui:dev": "pnpm --filter=tds-bookmark-manager-ui run dev",
     "start:api:dev": "pnpm --filter=tds-bookmark-manager-api run start:dev",
