@@ -1,15 +1,23 @@
 // main.ts - Application entry point for NestJS API
 // This file bootstraps the NestJS application, sets up global middlewares, logging, validation, CORS, security headers, and Swagger documentation.
 
-import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger, PinoLogger } from 'nestjs-pino';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
+
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
-import { Logger, PinoLogger } from 'nestjs-pino';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 
 async function bootstrap() {
+  // Log all environment variables before starting the application
+  // Only log in non-production environments for security
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line no-console
+    console.log('Loaded environment variables:', process.env);
+  }
+
   // Create the NestJS application with buffered logs
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const configService = app.get(ConfigService);

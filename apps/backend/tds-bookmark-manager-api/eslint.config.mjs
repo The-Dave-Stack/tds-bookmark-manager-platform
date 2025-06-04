@@ -3,6 +3,7 @@ import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import pluginImport from 'eslint-plugin-import';
 
 export default tseslint.config(
   {
@@ -12,6 +13,19 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
   eslintPluginPrettierRecommended,
   {
+    plugins: {
+      import: pluginImport,
+    },
+    extends: [
+      'plugin:import/recommended',
+      'plugin:import/typescript',
+    ],
+    settings: {
+      'import/resolver': {
+        typescript: true,
+        node: true,
+      },
+    },
     languageOptions: {
       globals: {
         ...globals.node,
@@ -28,7 +42,34 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+      '@typescript-eslint/no-unsafe-argument': 'warn',
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+            'object',
+            'type',
+          ],
+          pathGroups: [
+            {
+              pattern: '@nestjs/**',
+              group: 'external',
+              position: 'before',
+            },
+          ],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
     },
   },
 );

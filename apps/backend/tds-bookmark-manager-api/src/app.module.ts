@@ -1,12 +1,11 @@
-import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { LoggerModule } from 'nestjs-pino';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+
 import { APP_GUARD } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module';
+import { LoggerModule } from 'nestjs-pino';
+import { Module } from '@nestjs/common';
+import { UsersModule } from './users/users.module';
 import { configurations } from './config';
 import { randomBytes } from 'crypto';
 
@@ -78,9 +77,8 @@ import { randomBytes } from 'crypto';
     AuthModule,
     UsersModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
