@@ -97,6 +97,8 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
             <button
               onClick={onClose}
               className="text-mainText/70 hover:text-mainText transition-colors duration-200"
+              aria-label="Close"
+              data-testid="close-button"
             >
               <X className="h-5 w-5" />
             </button>
@@ -118,6 +120,8 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
                     'border-lightBorder focus:border-primary focus:ring-primary'
                   }`}
                   placeholder="Enter folder name"
+                  aria-label="Folder Name"
+                  data-testid="folder-name-input"
                 />
                 {error && <p className="mt-1 text-sm text-danger">{error}</p>}
               </div>
@@ -131,6 +135,8 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
                   value={selectedParentId || ''}
                   onChange={(e) => setSelectedParentId(e.target.value || null)}
                   className="mt-1 block w-full rounded-md border-lightBorder shadow-sm focus:border-primary focus:ring-primary text-mainText"
+                  data-testid="parent-folder-select"
+                  aria-label="Parent Folder"
                 >
                   <option value="">Root (No parent)</option>
                   {availableParents.map((folder) => (
@@ -147,12 +153,16 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 text-sm font-medium text-mainText bg-lightBg hover:bg-lightBorder rounded-md transition-colors duration-200"
+                data-testid="cancel-button"
+                aria-label="Cancel"
               >
                 {t('folders.form.cancel')}
               </button>
               <button
                 type="submit"
                 className="px-4 py-2 text-sm font-medium text-invertedText bg-primary hover:bg-secondary rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
+                aria-label="Save Folder"
+                id="save-folder-button"
               >
                 {t('folders.form.submit')}
               </button>

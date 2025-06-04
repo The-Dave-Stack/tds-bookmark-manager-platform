@@ -1,6 +1,6 @@
+import { Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Clock } from 'lucide-react';
 
 export type DateRange = {
   start: Date;
@@ -58,6 +58,10 @@ const DateRangeSelector = ({ onChange }: DateRangeSelectorProps) => {
                 ? 'bg-primary text-invertedText'
                 : 'text-mainText hover:bg-lightBg'
             }`}
+            aria-label="Presets"
+            role="tab"
+            aria-selected={!isCustomRange}
+            id="presets-tab"
           >
             <Clock className="h-4 w-4 inline-block mr-1" />
             {t('statistics.dateRange.presets')}
@@ -69,6 +73,10 @@ const DateRangeSelector = ({ onChange }: DateRangeSelectorProps) => {
                 ? 'bg-primary text-invertedText'
                 : 'text-mainText hover:bg-lightBg'
             }`}
+            aria-label="Custom"
+            role="tab"
+            aria-selected={isCustomRange}
+            id="custom-tab"
           >
             <Calendar className="h-4 w-4 inline-block mr-1" />
             {t('statistics.dateRange.custom')}
@@ -79,10 +87,11 @@ const DateRangeSelector = ({ onChange }: DateRangeSelectorProps) => {
       {isCustomRange ? (
         <div className="flex items-center space-x-4">
           <div>
-            <label className="block text-sm text-mainText/70 mb-1">
+            <label className="block text-sm text-mainText/70 mb-1" htmlFor="start-date">
               {t('statistics.dateRange.start')}
             </label>
             <input
+              id="start-date"
               type="date"
               value={startDate}
               onChange={(e) => {
@@ -91,13 +100,16 @@ const DateRangeSelector = ({ onChange }: DateRangeSelectorProps) => {
               }}
               max={endDate}
               className="px-3 py-1 border border-lightBorder rounded-md text-mainText focus:outline-none focus:ring-2 focus:ring-primary"
+              aria-label="Start Date"
+              data-testid="start-date-input"
             />
           </div>
           <div>
-            <label className="block text-sm text-mainText/70 mb-1">
+            <label className="block text-sm text-mainText/70 mb-1" htmlFor="end-date">
               {t('statistics.dateRange.end')}
             </label>
             <input
+              id="end-date"
               type="date"
               value={endDate}
               onChange={(e) => {
@@ -107,16 +119,20 @@ const DateRangeSelector = ({ onChange }: DateRangeSelectorProps) => {
               min={startDate}
               max={new Date().toISOString().split('T')[0]}
               className="px-3 py-1 border border-lightBorder rounded-md text-mainText focus:outline-none focus:ring-2 focus:ring-primary"
+              aria-label="End Date"
+              data-testid="end-date-input"
             />
           </div>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-2">
-          {PRESET_RANGES.map(({ i18n, hours }) => (
+        <div className="flex flex-wrap gap-2" role="tabpanel" aria-labelledby="presets-tab">
+          {PRESET_RANGES.map(({ i18n, hours }, _index) => (
             <button
               key={hours}
               onClick={() => handlePresetClick(hours)}
               className="px-4 py-2 bg-lightBg hover:bg-lightBorder text-mainText rounded-md text-sm transition-colors duration-200"
+              data-testid={`preset-${i18n}`}
+              aria-label={t(`statistics.dateRange.presetOptions.${i18n}`)}
             >
               {t(`statistics.dateRange.presetOptions.${i18n}`)}
             </button>

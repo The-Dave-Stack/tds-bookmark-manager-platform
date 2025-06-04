@@ -6,7 +6,7 @@
   "scripts": {
     "clean:all": "pnpm -r run clean:all && rimraf node_modules pnpm-lock.yaml",
     "build": "pnpm -r run build",
-    "build:ui": "pnpm -filter=tds-bookmark-manager-ui run build",
+    "build:ui": "pnpm --filter=tds-bookmark-manager-ui run build",
     "build:api": "pnpm --filter=tds-bookmark-manager-api run build",
     "test:api": "pnpm --filter=tds-bookmark-manager-api run test",
     "test:api:cov": "pnpm --filter=tds-bookmark-manager-api run test:cov",
@@ -19,7 +19,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.11.1",
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"

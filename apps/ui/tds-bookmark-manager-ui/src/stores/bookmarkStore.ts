@@ -33,7 +33,7 @@ export const useBookmarkStore = create<BookmarkState>((set) => ({
       set({ bookmarks, loading: false });
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
-      set({ error: 'Failed to fetch bookmarks', loading: false });
+      set({ error: `Failed to fetch bookmarks: ${(error as Error).message}`, loading: false });
     }
   },
   

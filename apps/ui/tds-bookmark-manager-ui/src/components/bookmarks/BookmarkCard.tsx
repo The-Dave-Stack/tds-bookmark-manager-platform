@@ -72,7 +72,10 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
   
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md">
+      <div 
+        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer"
+        onClick={handleVisit}
+      >
         <div className="p-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center">
@@ -95,8 +98,13 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
             
             <div className="relative">
               <button
-                onClick={() => setShowMenu(!showMenu)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu(!showMenu);
+                }}
                 className="p-1 rounded-full text-gray-500 hover:bg-gray-100"
+                aria-label="Menu"
+                data-testid={`menu-button-${bookmark.id}`}
               >
                 <MoreHorizontal className="h-5 w-5" />
               </button>
@@ -105,19 +113,25 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
                 <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 ring-1 ring-black ring-opacity-5">
                   <div className="py-1">
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setIsEditModalOpen(true);
                         setShowMenu(false);
                       }}
                       className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      data-testid={`edit-button-${bookmark.id}`}
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       {t('bookmarks.actions.edit')}
                     </button>
                     
                     <button
-                      onClick={toggleArchive}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleArchive();
+                      }}
                       className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      data-testid={`archive-button-${bookmark.id}`}
                     >
                       {bookmark.isHidden ? (
                         <>
@@ -133,11 +147,13 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
                     </button>
                     
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setIsDeleteDialogOpen(true);
                         setShowMenu(false);
                       }}
                       className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      data-testid={`delete-button-${bookmark.id}`}
                     >
                       <Trash className="h-4 w-4 mr-2" />
                       {t('bookmarks.actions.delete')}
@@ -156,8 +172,13 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
             </div>
             
             <button
-              onClick={handleVisit}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleVisit();
+              }}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+              aria-label="Visit Site"
+              data-testid={`visit-site-button-${bookmark.id}`}
             >
               {t('bookmarks.actions.visitSite')}
               <ExternalLink className="h-4 w-4 ml-1" />
