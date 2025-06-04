@@ -31,6 +31,7 @@ export interface Folder {
   parentId: string | null;
   createdAt: string;
   updatedAt: string;
+  bookmarkCount: number;
 }
 
 export interface FolderWithChildren extends Folder {

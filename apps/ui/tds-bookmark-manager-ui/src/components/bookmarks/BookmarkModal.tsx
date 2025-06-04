@@ -1,11 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+
 import { Dialog } from '@headlessui/react';
-import { X, ChevronRight, ChevronDown } from 'lucide-react';
+
+import type { Bookmark, FolderWithChildren } from '../../api/types';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
-import type { Bookmark, FolderWithChildren } from '../../api/types';
-import toast from 'react-hot-toast';
 
 interface BookmarkModalProps {
   isOpen: boolean;
@@ -74,19 +76,38 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
   
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
+  const [faviconUrl, setFaviconUrl] = useState('');
   const [folderId, setFolderId] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState({
     url: '',
     title: ''
   });
+
+  // Try to extract favicon from URL
+  const getFaviconUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      return `${urlObj.protocol}//${urlObj.hostname}/favicon.ico`;
+    } catch {
+      return '';
+    }
+  };
   
   useEffect(() => {
     if (bookmark) {
       setUrl(bookmark.url);
       setTitle(bookmark.title);
+      setFaviconUrl(bookmark.faviconUrl || '');
       setFolderId(bookmark.folderId);
     }
   }, [bookmark]);
+
+  // When URL changes, try to get favicon
+  useEffect(() => {
+    if (url && !faviconUrl) {
+      setFaviconUrl(getFaviconUrl(url));
+    }
+  }, [url, faviconUrl]);
   
   // Build folder hierarchy
   const folderHierarchy = useMemo(() => {
@@ -133,6 +154,7 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
         await updateBookmark(user.id, bookmark.id, {
           url,
           title,
+          faviconUrl,
           folderId
         });
         toast.success(t('bookmarks.notifications.updated'));
@@ -140,6 +162,7 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
         await addBookmark(user.id, {
           url,
           title,
+          faviconUrl,
           folderId,
           isHidden: false
         });
@@ -206,6 +229,44 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
                   }`}
                 />
                 {errors.title && <p className="mt-1 text-sm text-danger">{errors.title}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="faviconUrl" className="block text-sm font-medium text-mainText">
+                  {t('bookmarks.form.favicon')}
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="url"
+                    id="faviconUrl"
+                    value={faviconUrl}
+                    onChange={(e) => setFaviconUrl(e.target.value)}
+                    className="mt-1 block w-full rounded-md shadow-sm text-mainText border-lightBorder focus:border-primary focus:ring-primary"
+                    placeholder="https://example.com/favicon.ico"
+                  />
+                  {faviconUrl && (
+                    <div className="flex-shrink-0 w-6 h-6 rounded bg-gray-100 flex items-center justify-center">
+                      <img
+                        src={faviconUrl}
+                        alt="Favicon preview"
+                        className="w-4 h-4"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            const fallback = document.createElement('div');
+                            fallback.className = 'w-4 h-4 flex items-center justify-center';
+                            fallback.innerHTML = '<svg class="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
+                            parent.appendChild(fallback);
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  {t('bookmarks.form.faviconHelp')}
+                </p>
               </div>
               
               <div>
