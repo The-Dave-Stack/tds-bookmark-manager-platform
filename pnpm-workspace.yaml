@@ -3,6 +3,8 @@ packages:
   - apps/backend/tds-bookmark-manager-api
 onlyBuiltDependencies:
   - '@nestjs/core'
+  - '@scarf/scarf'
   - '@swc/core'
   - bcrypt
   - esbuild
+  - nestjs-pino
