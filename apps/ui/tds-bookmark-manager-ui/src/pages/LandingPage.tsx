@@ -1,6 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { ArrowRight, BarChart3, Bookmark, Folder, Link2, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Bookmark, Folder, BarChart3, Link2, Shield, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
 const LandingPage = () => {
@@ -38,8 +39,11 @@ const LandingPage = () => {
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
               <Bookmark className="h-8 w-8 text-primary" />
-              <span className="ml-2 text-xl font-semibold text-gray-900">
-                {t('app.title')}
+              <span className="ml-2 text-xl font-semibold text-gray-900 hidden md:block">
+                {t('app.title.desktop')}
+              </span>
+              <span className="ml-2 text-xl font-semibold text-gray-900 md:hidden">
+                {t('app.title.mobile')}
               </span>
             </div>
             <div className="flex items-center space-x-4">
@@ -166,8 +170,11 @@ const LandingPage = () => {
             <div>
               <div className="flex items-center mb-4">
                 <Bookmark className="h-8 w-8 text-primary" />
-                <span className="ml-2 text-xl font-semibold">
-                  {t('app.title')}
+                <span className="ml-2 text-xl font-semibold hidden md:block">
+                  {t('app.title.desktop')}
+                </span>
+                <span className="ml-2 text-xl font-semibold md:hidden">
+                  {t('app.title.mobile')}
                 </span>
               </div>
               <p className="text-gray-400">

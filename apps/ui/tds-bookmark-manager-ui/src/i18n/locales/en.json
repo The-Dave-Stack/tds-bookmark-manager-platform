@@ -1,6 +1,10 @@
 {
   "app": {
-    "title": "TDS Bookmark Manager",
+    "title": {
+      "desktop": "TDS Bookmark Manager",
+      "tablet": "TDS Bookmark Manager",
+      "mobile":"TDS BM"
+    },
     "tagline": "Manage your bookmarks with ease"
   },
   "landing": {

@@ -1,6 +1,10 @@
 {
   "app": {
-    "title": "TDS Gestor de Marcadores",
+    "title": {
+      "desktop": "TDS Gestor de Marcadores",
+      "tablet": "TDS Gestor de Marcadores",
+      "mobile": "TDS GM"
+    },
     "tagline": "Gestiona tus marcadores con facilidad"
   },
   "landing": {
