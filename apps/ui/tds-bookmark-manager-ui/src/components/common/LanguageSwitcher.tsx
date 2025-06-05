@@ -37,6 +37,7 @@ const LanguageSwitcher = () => {
             {Object.entries(LANGUAGES).map(([code, { name, flag }]) => (
               <button
                 key={code}
+                role="menuitem" // Add role for better accessibility and testing
                 className={`w-full text-left px-4 py-2 text-sm hover:bg-lightBg flex items-center transition-colors duration-200 ${
                   i18n.language === code 
                     ? 'text-primary bg-lightBg font-medium' 

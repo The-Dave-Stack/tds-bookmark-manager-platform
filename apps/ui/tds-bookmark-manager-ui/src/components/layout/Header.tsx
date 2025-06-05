@@ -1,9 +1,10 @@
+import { Bookmark, ChevronDown, LogOut, Menu, User } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../../stores/authStore';
 import toast from 'react-hot-toast';
-import { Menu, User, ChevronDown, LogOut, Bookmark } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { useAuthStore } from '../../stores/authStore';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 
 interface HeaderProps {
@@ -36,6 +37,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
               type="button"
               className="p-2 rounded-md text-mainText hover:bg-lightBg md:hidden transition-colors duration-200"
               onClick={toggleSidebar}
+              aria-label="Toggle sidebar" // Added aria-label for accessibility and testing
             >
               <Menu className="h-6 w-6" />
             </button>
@@ -81,6 +83,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
                         to="/admin"
                         className="block px-4 py-2 text-sm text-mainText hover:bg-lightBg transition-colors duration-200"
                         onClick={() => setUserMenuOpen(false)}
+                        data-testid="link-admin"
                       >
                         {t('navigation.admin')}
                       </Link>

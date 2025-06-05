@@ -1,4 +1,4 @@
-import type { User, Bookmark, Folder } from './types';
+import type { Bookmark, Folder, User } from './types';
 
 // Mock data
 export const mockUsers: User[] = [
@@ -13,6 +13,18 @@ export const mockUsers: User[] = [
     webhookUrl: 'https://api.example.com/webhook/admin123',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: 'user-123',
+    email: 'user@example.com',
+    firstName: 'Regular',
+    lastName: 'User',
+    password: 'password123',
+    role: 'user',
+    apiToken: 'user-token-123',
+    webhookUrl: 'https://api.example.com/webhook/user123',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z'
   }
 ];
 
@@ -23,7 +35,8 @@ export const mockFolders: Folder[] = [
     name: 'Development',
     parentId: null,
     createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z'
+    updatedAt: '2024-01-01T00:00:00Z',
+    bookmarkCount: 0
   },
   {
     id: 'folder-2',
@@ -31,7 +44,8 @@ export const mockFolders: Folder[] = [
     name: 'Reading List',
     parentId: null,
     createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z'
+    updatedAt: '2024-01-01T00:00:00Z',
+    bookmarkCount: 0
   },
   {
     id: 'folder-3',
@@ -39,7 +53,8 @@ export const mockFolders: Folder[] = [
     name: 'React',
     parentId: 'folder-1',
     createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z'
+    updatedAt: '2024-01-01T00:00:00Z',
+    bookmarkCount: 0
   },
   {
     id: 'folder-4',
@@ -47,7 +62,8 @@ export const mockFolders: Folder[] = [
     name: 'TypeScript',
     parentId: 'folder-1',
     createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z'
+    updatedAt: '2024-01-01T00:00:00Z',
+    bookmarkCount: 0
   }
 ];
 

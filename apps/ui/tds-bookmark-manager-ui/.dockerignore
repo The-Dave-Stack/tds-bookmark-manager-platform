@@ -25,6 +25,8 @@ yarn-error.log
 dist
 build
 coverage
+results
+html
 
 # System
 .DS_Store

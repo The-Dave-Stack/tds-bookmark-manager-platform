@@ -99,6 +99,13 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
       setTitle(bookmark.title);
       setFaviconUrl(bookmark.faviconUrl || '');
       setFolderId(bookmark.folderId);
+    } else {
+      // Reset form when bookmark is undefined (for add mode or after close)
+      setUrl('');
+      setTitle('');
+      setFaviconUrl('');
+      setFolderId(undefined);
+      setErrors({ url: '', title: '' }); // Also clear errors
     }
   }, [bookmark]);
 

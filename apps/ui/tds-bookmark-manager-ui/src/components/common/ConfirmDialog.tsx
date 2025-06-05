@@ -1,5 +1,6 @@
-import { Dialog } from '@headlessui/react';
 import { AlertTriangle } from 'lucide-react';
+
+import { Dialog } from '@headlessui/react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -37,7 +38,7 @@ const ConfirmDialog = ({
             <div className="flex items-center mb-4">
               {isDestructive && (
                 <div className="mr-3 flex-shrink-0 bg-red-100 rounded-full p-1">
-                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                  <AlertTriangle className="h-5 w-5 text-red-600" data-testid="alert-triangle-icon" />
                 </div>
               )}
               <Dialog.Title className="text-lg font-medium text-gray-900">

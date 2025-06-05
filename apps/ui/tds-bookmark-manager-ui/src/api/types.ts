@@ -3,10 +3,10 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  password: string;
+  password?: string; // Password might not be returned in all API calls
   role: 'user' | 'admin';
-  apiToken: string;
-  webhookUrl: string;
+  apiToken?: string;
+  webhookUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,8 +32,4 @@ export interface Folder {
   createdAt: string;
   updatedAt: string;
   bookmarkCount: number;
-}
-
-export interface FolderWithChildren extends Folder {
-  children: FolderWithChildren[];
 }

@@ -1,9 +1,9 @@
 import type { DateRange } from '../components/statistics/DateRangeSelector';
-import { mockUsers, mockFolders, mockBookmarks } from './mockData';
-import type { User, Bookmark, Folder } from './types';
+import { mockBookmarks, mockFolders, mockUsers } from './mockData';
+import type { Bookmark, Folder, User } from './types';
 
 // Simulate API delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = () => Promise.resolve();
 
 // Helper to generate IDs
 const generateId = () => Math.random().toString(36).substring(2, 15);
@@ -12,14 +12,14 @@ const generateId = () => Math.random().toString(36).substring(2, 15);
 export const api = {
   // Auth
   login: async (email: string, password: string): Promise<User> => {
-    await delay(500);
+    await delay();
     const user = mockUsers.find(u => u.email === email && u.password === password);
     if (!user) throw new Error('Invalid credentials');
     return user;
   },
 
   register: async (email: string, password: string, firstName: string, lastName: string, isAdmin = false): Promise<User> => {
-    await delay(500);
+    await delay();
     if (mockUsers.some(u => u.email === email)) {
       throw new Error('User already exists');
     }
@@ -42,7 +42,7 @@ export const api = {
   },
 
   updateProfile: async (userId: string, data: { firstName?: string; lastName?: string; password?: string }): Promise<User> => {
-    await delay(500);
+    await delay();
     const userIndex = mockUsers.findIndex(u => u.id === userId);
     if (userIndex === -1) throw new Error('User not found');
 
@@ -57,12 +57,12 @@ export const api = {
 
   // User Management (Admin)
   getUsers: async (): Promise<User[]> => {
-    await delay(300);
+    await delay();
     return mockUsers;
   },
 
   updateUserRole: async (userId: string, role: 'user' | 'admin'): Promise<User> => {
-    await delay(300);
+    await delay();
     const userIndex = mockUsers.findIndex(u => u.id === userId);
     if (userIndex === -1) throw new Error('User not found');
 
@@ -77,8 +77,7 @@ export const api = {
 
   // TODO: Use dateRange parameter to filter statistics
   getAdminStatistics: async (dateRange: DateRange) => {
-    console.log('Fetching admin statistics for date range:', dateRange);
-    await delay(300);
+    await delay();
     const totalUsers = mockUsers.length;
     const totalBookmarks = mockBookmarks.length;
     const totalClicks = mockBookmarks.reduce((sum, bm) => sum + bm.clickCount, 0);
@@ -101,12 +100,12 @@ export const api = {
 
   // Bookmarks
   getBookmarks: async (userId: string): Promise<Bookmark[]> => {
-    await delay(300);
+    await delay();
     return mockBookmarks.filter(b => b.userId === userId);
   },
 
   createBookmark: async (userId: string, data: Partial<Bookmark>): Promise<Bookmark> => {
-    await delay(300);
+    await delay();
     const newBookmark: Bookmark = {
       id: `bookmark-${generateId()}`,
       userId,
@@ -125,7 +124,7 @@ export const api = {
   },
 
   updateBookmark: async (userId: string, id: string, data: Partial<Bookmark>): Promise<Bookmark> => {
-    await delay(300);
+    await delay();
     const index = mockBookmarks.findIndex(b => b.id === id && b.userId === userId);
     if (index === -1) throw new Error('Bookmark not found');
 
@@ -134,14 +133,14 @@ export const api = {
   },
 
   deleteBookmark: async (userId: string, id: string): Promise<void> => {
-    await delay(300);
+    await delay();
     const index = mockBookmarks.findIndex(b => b.id === id && b.userId === userId);
     if (index === -1) throw new Error('Bookmark not found');
     mockBookmarks.splice(index, 1);
   },
 
   incrementBookmarkClicks: async (userId: string, id: string): Promise<Bookmark> => {
-    await delay(100);
+    await delay();
     const bookmark = mockBookmarks.find(b => b.id === id && b.userId === userId);
     if (!bookmark) throw new Error('Bookmark not found');
     bookmark.clickCount++;
@@ -151,19 +150,20 @@ export const api = {
 
   // Folders
   getFolders: async (userId: string): Promise<Folder[]> => {
-    await delay(300);
+    await delay();
     return mockFolders.filter(f => f.userId === userId);
   },
 
   createFolder: async (userId: string, name: string, parentId: string | null = null): Promise<Folder> => {
-    await delay(300);
+    await delay();
     const newFolder: Folder = {
       id: `folder-${generateId()}`,
       userId,
       name,
       parentId,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      bookmarkCount: 0 // Add missing property
     };
 
     mockFolders.push(newFolder);
@@ -171,7 +171,7 @@ export const api = {
   },
 
   updateFolder: async (userId: string, id: string, name: string, parentId: string | null = null): Promise<Folder> => {
-    await delay(300);
+    await delay();
     const index = mockFolders.findIndex(f => f.id === id && f.userId === userId);
     if (index === -1) throw new Error('Folder not found');
 
@@ -196,26 +196,25 @@ export const api = {
   },
 
   deleteFolder: async (userId: string, id: string): Promise<void> => {
-    await delay(300);
-    const index = mockFolders.findIndex(f => f.id === id && f.userId === userId);
-    if (index === -1) throw new Error('Folder not found');
+    await delay();
+    const folderToDelete = mockFolders.find(f => f.id === id && f.userId === userId);
+    if (!folderToDelete) throw new Error('Folder not found');
 
-    // Delete all child folders recursively
-    const deleteChildren = (folderId: string) => {
+    const folderIdsToDelete: string[] = [];
+    const collectChildren = (folderId: string) => {
+      folderIdsToDelete.push(folderId);
       const children = mockFolders.filter(f => f.parentId === folderId);
-      children.forEach(child => {
-        deleteChildren(child.id);
-        const childIndex = mockFolders.findIndex(f => f.id === child.id);
-        if (childIndex !== -1) mockFolders.splice(childIndex, 1);
-      });
+      children.forEach(child => collectChildren(child.id));
     };
 
-    deleteChildren(id);
-    mockFolders.splice(index, 1);
+    collectChildren(id);
+
+    // Filter out deleted folders
+    mockFolders.splice(0, mockFolders.length, ...mockFolders.filter(f => !folderIdsToDelete.includes(f.id)));
 
     // Update bookmarks to remove folder reference
     mockBookmarks.forEach(bookmark => {
-      if (bookmark.folderId === id) {
+      if (bookmark.folderId && folderIdsToDelete.includes(bookmark.folderId)) {
         bookmark.folderId = undefined;
       }
     });

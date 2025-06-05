@@ -13,7 +13,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   }
 
   if (user?.role !== 'admin') {
-    return <Navigate to="/\" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
