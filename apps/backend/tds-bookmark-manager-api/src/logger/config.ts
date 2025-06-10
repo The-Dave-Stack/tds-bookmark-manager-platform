@@ -1,15 +1,15 @@
-import { Params } from "nestjs-pino";
+import { Params } from 'nestjs-pino';
 
 const pinoHttpCommonOptions = {
   // Redact sensitive information from logs
-redact: {
+  redact: {
     paths: ['req.headers.authorization', 'req.headers["x-api-key"]', 'req.body.password', 'req.body.currentPassword', 'req.body.newPassword'],
     censor: '[REDACTED]',
   },
   // Disable success log for /health endpoint (if you have a health check)
-      // autoLogging: {
-      //   ignore: (req) => req.originalUrl === '/health',
-      // },
+  // autoLogging: {
+  //   ignore: (req) => req.originalUrl === '/health',
+  // },
 };
 
 const pinoHttpDefaultOptions = {
@@ -29,10 +29,11 @@ const pinoHttpDefaultOptions = {
 const pinoHttpProductionOptions = {
   level: 'info',
   transport: undefined, // Default to JSON in production
+  ...pinoHttpCommonOptions,
 };
 
-export function getPinoLoggerOptions(options: { env: string | undefined, context: string }): Params {
-  const pinoHttpOptions = options.env === 'production' ? pinoHttpProductionOptions : pinoHttpDefaultOptions; 
+export function getPinoLoggerOptions(options: { env: string | undefined; context: string }): Params {
+  const pinoHttpOptions = options.env === 'production' ? pinoHttpProductionOptions : pinoHttpDefaultOptions;
   return {
     pinoHttp: {
       ...pinoHttpOptions,
@@ -40,6 +41,6 @@ export function getPinoLoggerOptions(options: { env: string | undefined, context
       customProps: () => ({
         context: options.context || 'UndefinedContext',
       }),
-    }
+    },
   };
 }

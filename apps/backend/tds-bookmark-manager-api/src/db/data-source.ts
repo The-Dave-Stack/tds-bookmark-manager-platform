@@ -6,7 +6,7 @@ import { join, resolve } from 'path';
 import { PinoLogger } from 'nestjs-pino';
 import databaseConfig from '../config/database.config';
 import { existsSync } from 'fs';
-import { getPinoLoggerOptions } from '../logger/constants';
+import { getPinoLoggerOptions } from '../logger/config';
 
 const pinoLogger = new PinoLogger(getPinoLoggerOptions({ env: 'development', context: 'DataSource' }));
 

@@ -1,6 +1,6 @@
 import { DataSourceOptions } from 'typeorm';
 import { PinoLogger } from 'nestjs-pino';
-import { getPinoLoggerOptions } from '../logger/constants';
+import { getPinoLoggerOptions } from '../logger/config';
 import { join } from 'path';
 import { registerAs } from '@nestjs/config';
 

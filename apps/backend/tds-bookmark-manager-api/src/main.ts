@@ -8,7 +8,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { getPinoLoggerOptions } from './logger/constants';
+import { getPinoLoggerOptions } from './logger/config';
 import helmet from 'helmet';
 
 async function bootstrap() {
