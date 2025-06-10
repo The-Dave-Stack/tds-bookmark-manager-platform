@@ -1,12 +1,16 @@
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { FoldersModule } from './folders/folders.module';
 import { LoggerModule } from 'nestjs-pino';
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { configurations } from './config';
+import databaseConfig from './config/database.config';
 import { randomBytes } from 'crypto';
 
 @Module({
@@ -16,6 +20,18 @@ import { randomBytes } from 'crypto';
       load: configurations,
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
       ignoreEnvFile: process.env.NODE_ENV === 'docker',
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (config: ConfigType<typeof databaseConfig>) => ({
+        ...config,
+        // Using autoLoadEntities is the recommended way.
+        // It automatically discovers entities registered via forFeature() in other modules.
+        // This avoids manual path management which can be fragile.
+        autoLoadEntities: true,
+        synchronize: false, // NEVER true when using migrations
+      }),
+      inject: [databaseConfig.KEY],
     }),
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
@@ -76,6 +92,8 @@ import { randomBytes } from 'crypto';
     }),
     AuthModule,
     UsersModule,
+    BookmarksModule,
+    FoldersModule,
   ],
   controllers: [],
   providers: [

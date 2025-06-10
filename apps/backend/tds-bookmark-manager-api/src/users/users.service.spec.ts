@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
@@ -36,7 +37,7 @@ describe('UsersService', () => {
       const initialLength = users.length;
       const newUser = await service.create({
         username: 'testuser',
-        password: 'testpass',
+        passwordHash: 'testpass',
         email: 'test2@test.com',
         roles: ['user'],
       });
@@ -45,7 +46,7 @@ describe('UsersService', () => {
       expect(newUser.username).toBe('testuser');
       expect(newUser.email).toBe('test2@test.com');
       expect(newUser.roles).toEqual(['user']);
-      expect(newUser.userId).toBe(initialLength + 1);
+      expect(newUser.id).toBe(initialLength + 1);
     });
   });
 });

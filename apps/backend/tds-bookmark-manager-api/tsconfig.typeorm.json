@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    // Specifies a separate output directory for the CLI build artifacts.
+    // This avoids conflicts with your main webpack build.
+    "outDir": "./dist/cli",
+    // We only need to compile the source files, not test files.
+    "rootDir": "./src",
+    // This tells TypeScript to emit the actual .js files IN ADDITION to the .d.ts files.
+    // We do NOT disable declaration emit, we just stop it from being the ONLY thing emitted.
+    "emitDeclarationOnly": false
+  },
+  // Include all source files so TypeORM can find entities, data-source, etc.
+  "include": ["src/**/*.ts"],
+  // Exclude test files and anything inside node_modules from this build.
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}

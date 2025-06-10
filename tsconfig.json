@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/ui/tds-bookmark-manager-ui"
+    },
+    {
+      "path": "./apps/backend/tds-bookmark-manager-api-e2e"
+    },
+    {
+      "path": "./apps/backend/tds-bookmark-manager-api"
+    },
+    {
+      "path": "./apps/ui/tds-bookmark-manager-ui-e2e"
+    }
+  ]
+}

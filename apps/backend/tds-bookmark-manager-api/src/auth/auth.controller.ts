@@ -7,7 +7,7 @@ import { TokenDto } from './dto/token.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from './decorators/user.decorator';
-import { UserEntityWithoutPassword } from 'src/users/user.entity';
+import type { UserEntityWithoutPassword } from '../users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -16,15 +16,13 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Request() req): Promise<TokenDto> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+  async login(@Request() req: any): Promise<TokenDto> {
     return this.authService.login(req.user);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('auth/logout')
-  logout(@Request() req): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  logout(@Request() req: any): void {
     console.log('User logged out:', req.user);
     // TODO: Implement logout logic if needed, e.g., invalidate session or token
   }
@@ -36,15 +34,14 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('profile')
-  getProfile(@User() user): UserEntityWithoutPassword {
+  getProfile(@User() user: any): UserEntityWithoutPassword {
     return user as UserEntityWithoutPassword;
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post('admin-data')
-  getAdminData(@Request() req) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+  getAdminData(@Request() req: any) {
     return { message: 'This is admin-only data', user: req.user };
   }
 }

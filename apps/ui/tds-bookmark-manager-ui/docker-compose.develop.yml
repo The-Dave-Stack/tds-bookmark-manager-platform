@@ -1,8 +1,0 @@
-services:
-  tds-bookmark-manager:
-    container_name: tds-bookmark-manager
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:80"

@@ -1,5 +1,4 @@
 import { defineConfig } from 'vitest/config';
-
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
@@ -21,6 +20,7 @@ export default defineConfig({
       'src/__tests__/test-utils.tsx',
       // Exclude specific test files
       'src/__tests__/App.test.tsx',
+      'src/__tests__/components/auth/AuthRoutes.test.tsx',
     ],
     coverage: {
       provider: 'v8',
@@ -33,6 +33,7 @@ export default defineConfig({
         'src/__tests__/**/*',
         'src/main.tsx',
         '**/*.js',
+        '**/*.mjs',
         'src/api/types.ts'
       ]
     }

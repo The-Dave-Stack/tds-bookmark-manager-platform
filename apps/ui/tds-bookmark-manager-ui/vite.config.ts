@@ -1,11 +1,43 @@
-import { defineConfig } from 'vite'
+/// <reference types='vitest' />
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-import react from '@vitejs/plugin-react'
-
-// https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(() => ({
+  root: __dirname,
+  cacheDir: '../../../node_modules/.vite/apps/ui/tds-bookmark-manager-ui',
+  server: {
+    port: 4200,
+    host: 'localhost',
+  },
+  preview: {
+    port: 4300,
+    host: 'localhost',
+  },
   plugins: [react()],
+  // Uncomment this if you are using workers.
+  // worker: {
+  //  plugins: [ nxViteTsPaths() ],
+  // },
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
-})
+  build: {
+    outDir: './dist',
+    emptyOutDir: true,
+    reportCompressedSize: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
+  test: {
+    watch: false,
+    globals: true,
+    environment: 'jsdom',
+    include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    reporters: ['default'],
+    coverage: {
+      reportsDirectory: './test-output/vitest/coverage',
+      provider: 'v8' as const,
+    },
+  },
+}));

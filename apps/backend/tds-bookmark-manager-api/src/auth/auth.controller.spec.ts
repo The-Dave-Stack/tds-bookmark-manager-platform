@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from './guards/roles.guard';
+import { AuthService } from './auth.service';
 import { Reflector } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -81,11 +82,20 @@ describe('AuthController', () => {
   });
 
   describe('getProfile', () => {
-    xit('should return the user from request', () => {
-      const mockUser = { userId: 1, username: 'testuser', roles: ['user'] };
+    it('should return the user from request', () => {
+      const mockUser = {
+        userId: 1,
+        username: 'testuser',
+        password: 'hashedpassword',
+        email: 'testuser@test.com',
+        isActive: true,
+        createdAt: new Date(),
+        roles: ['user'],
+      };
       const req = { user: mockUser };
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = authController.getProfile(req);
+      console.log('getProfile result:', result);
       expect(result).toEqual(mockUser);
     });
   });

@@ -1,10 +1,14 @@
 packages:
-  - apps/ui/tds-bookmark-manager-ui
-  - apps/backend/tds-bookmark-manager-api
+  - apps/*
+  - libs/*
+
 onlyBuiltDependencies:
   - '@nestjs/core'
+  - '@parcel/watcher'
   - '@scarf/scarf'
   - '@swc/core'
   - bcrypt
   - esbuild
   - nestjs-pino
+  - nx
+  - sqlite3
