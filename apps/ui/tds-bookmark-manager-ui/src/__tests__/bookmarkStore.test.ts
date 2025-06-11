@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { api } from '../api';
 import { useBookmarkStore } from '../stores/bookmarkStore';
-import { api } from '../api/apiService';
 
 // Mock the API
-vi.mock('../api/apiService', () => ({
+vi.mock('../api', () => ({
   api: {
     getBookmarks: vi.fn(),
     createBookmark: vi.fn(),

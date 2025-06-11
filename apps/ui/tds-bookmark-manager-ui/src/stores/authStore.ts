@@ -1,5 +1,5 @@
+import { api } from '../api';
 import { create } from 'zustand';
-import { api } from '../api/apiService';
 
 export interface User {
   id: string;
@@ -13,7 +13,6 @@ export interface User {
 
 interface AuthState {
   user: User | null;
-  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string, isAdmin?: boolean) => Promise<void>;
   updateProfile: (data: { firstName?: string; lastName?: string; password?: string }) => Promise<void>;
@@ -25,7 +24,6 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  isAuthenticated: false,
   
   login: async (email: string, password: string) => {
     const user = await api.login(email, password);
@@ -38,8 +36,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         role: user.role,
         apiToken: user.apiToken,
         webhookUrl: user.webhookUrl
-      }, 
-      isAuthenticated: true 
+      }
     });
   },
   
@@ -54,8 +51,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         role: user.role,
         apiToken: user.apiToken,
         webhookUrl: user.webhookUrl
-      },
-      isAuthenticated: true 
+      }
     });
   },
 
@@ -73,7 +69,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
   },
   
-  setUser: (user) => set({ user, isAuthenticated: true }),
+  setUser: (user) => set({ user }),
   
   updateUserRole: (role) => {
     set((state) => ({
@@ -87,5 +83,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }));
   },
   
-  clearUser: () => set({ user: null, isAuthenticated: false }),
+  clearUser: () => set({ user: null }),
 }));

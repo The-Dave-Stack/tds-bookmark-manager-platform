@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { api } from '../api';
 import { useAuthStore } from '../stores/authStore';
-import { api } from '../api/apiService';
 
 // Mock the API
-vi.mock('../api/apiService', () => ({
+vi.mock('../api', () => ({
   api: {
     login: vi.fn(),
     register: vi.fn(),
@@ -26,7 +27,6 @@ describe('Auth Store', () => {
     // Clear store between tests
     useAuthStore.setState({
       user: null,
-      isAuthenticated: false
     });
     
     // Clear mock calls
@@ -41,7 +41,6 @@ describe('Auth Store', () => {
 
     expect(api.login).toHaveBeenCalledWith('test@example.com', 'password123');
     expect(useAuthStore.getState().user).toEqual(mockUser);
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
   });
 
   it('should register user', async () => {
@@ -58,7 +57,6 @@ describe('Auth Store', () => {
       false
     );
     expect(useAuthStore.getState().user).toEqual(mockUser);
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
   });
 
   it('should update user profile', async () => {
@@ -96,7 +94,6 @@ describe('Auth Store', () => {
     store.clearUser();
 
     expect(useAuthStore.getState().user).toBeNull();
-    expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });
 
   it('should throw error when updating profile without user', async () => {

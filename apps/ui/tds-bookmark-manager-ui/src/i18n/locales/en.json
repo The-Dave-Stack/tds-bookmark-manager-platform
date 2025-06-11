@@ -270,6 +270,10 @@
       "error": "Failed to update profile"
     }
   },
+  "apiErrors": {
+    "AUTH.REGISTER.EMAIL_ALREADY_EXISTS": "This email address is already registered. Please try logging in.",
+    "AUTH.LOGIN.INVALID_CREDENTIALS": "Invalid email or password. Please try again."
+  },
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",

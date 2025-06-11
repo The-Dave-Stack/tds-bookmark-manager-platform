@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { api } from '../../api/apiService';
 import { mockBookmarks, mockFolders, mockUsers } from '../../api/mockData';
+
+import { api } from '../../api';
 
 // Mock the actual mockData to ensure tests are isolated
 const originalMockUsers = [...mockUsers];
@@ -255,7 +255,7 @@ describe('apiService', () => {
 
     it('should create a new folder', async () => {
       const initialCount = mockFolders.length;
-      const newFolderPromise = api.createFolder(userId, 'New Folder', null);
+      const newFolderPromise = api.createFolder(userId, null, { name: 'New Folder' });
       await vi.runAllTimersAsync(); // Advance all pending timers
       const newFolder = await newFolderPromise;
       expect(newFolder).toBeDefined();
@@ -264,7 +264,7 @@ describe('apiService', () => {
     });
 
     it('should update an existing folder', async () => {
-      const updatedFolderPromise = api.updateFolder(userId, 'folder-1', 'Updated Folder', null);
+      const updatedFolderPromise = api.updateFolder(userId, 'folder-1', null, { name: 'Updated Folder' });
       await vi.runAllTimersAsync(); // Advance all pending timers
       const updatedFolder = await updatedFolderPromise;
       expect(updatedFolder.name).toBe('Updated Folder');
@@ -284,7 +284,7 @@ describe('apiService', () => {
         { ...initialFolder, parentId: 'folder-2' }, 
         { ...childFolder, parentId: 'folder-1' }
       );
-      const promise = api.updateFolder(userId, 'folder-1', 'Folder 1', 'folder-2');
+      const promise = api.updateFolder(userId, 'folder-1', 'folder-2', { name: 'Folder 1' });
       const assertionPromise = expect(promise).rejects.toThrow('Circular reference detected');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assertionPromise;

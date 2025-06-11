@@ -1,222 +1,112 @@
-import type { DateRange } from '../components/statistics/DateRangeSelector';
-import { mockBookmarks, mockFolders, mockUsers } from './mockData';
-import type { Bookmark, Folder, User } from './types';
+import type { ApiInterface, Bookmark, Folder, User } from './types'; // Reuse your existing types
 
-// Simulate API delay
-const delay = () => Promise.resolve();
+import { DateRange } from '../components/statistics/DateRangeSelector';
+import axios from 'axios';
+import { useAuthStore } from '../stores/authStore';
 
-// Helper to generate IDs
-const generateId = () => Math.random().toString(36).substring(2, 15);
+// Create an Axios instance with a base URL from environment variables
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1',
+});
 
-// Mock API endpoints
-export const api = {
-  // Auth
-  login: async (email: string, password: string): Promise<User> => {
-    await delay();
-    const user = mockUsers.find(u => u.email === email && u.password === password);
-    if (!user) throw new Error('Invalid credentials');
-    return user;
-  },
-
-  register: async (email: string, password: string, firstName: string, lastName: string, isAdmin = false): Promise<User> => {
-    await delay();
-    if (mockUsers.some(u => u.email === email)) {
-      throw new Error('User already exists');
+// Use an interceptor to automatically add the JWT to every request
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().user?.token; // Assuming token is stored in user object
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-    const newUser: User = {
-      id: `user-${generateId()}`,
-      email,
-      firstName,
-      lastName,
-      password,
-      role: isAdmin ? 'admin' : 'user',
-      apiToken: `token-${generateId()}`,
-      webhookUrl: `https://api.example.com/webhook/${generateId()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    mockUsers.push(newUser);
-    return newUser;
+// Implement the API methods by calling the backend endpoints
+export const api: ApiInterface = {
+  // --- System check ---
+  async checkAdminExists(): Promise<boolean> {
+    throw new Error('Function not implemented.');
+  },
+  async setupAdmin(email: string, password: string, firstName: string, lastName: string): Promise<User> {
+    throw new Error('Function not implemented.');
+  },
+  // --- Auth ---
+  async login(email: string, password: string): Promise<User> {
+    const response = await apiClient.post('/auth/login', { email, password });
+    return response.data;
   },
 
-  updateProfile: async (userId: string, data: { firstName?: string; lastName?: string; password?: string }): Promise<User> => {
-    await delay();
-    const userIndex = mockUsers.findIndex(u => u.id === userId);
-    if (userIndex === -1) throw new Error('User not found');
-
-    mockUsers[userIndex] = {
-      ...mockUsers[userIndex],
-      ...data,
-      updatedAt: new Date().toISOString()
-    };
-
-    return mockUsers[userIndex];
+  async register(email: string, password: string, firstName: string, lastName: string): Promise<User> {
+    const response = await apiClient.post('/auth/register', { email, password, firstName, lastName });
+    return response.data;
   },
 
-  // User Management (Admin)
-  getUsers: async (): Promise<User[]> => {
-    await delay();
-    return mockUsers;
+  async updateProfile(userId: string, data: Partial<User>): Promise<User> {
+    const response = await apiClient.put(`/users/${userId}`, data);
+    return response.data;
   },
 
-  updateUserRole: async (userId: string, role: 'user' | 'admin'): Promise<User> => {
-    await delay();
-    const userIndex = mockUsers.findIndex(u => u.id === userId);
-    if (userIndex === -1) throw new Error('User not found');
-
-    mockUsers[userIndex] = {
-      ...mockUsers[userIndex],
-      role,
-      updatedAt: new Date().toISOString()
-    };
-
-    return mockUsers[userIndex];
+  // --- User Management (Admin) ---
+  async getUsers(): Promise<User[]> {
+    const response = await apiClient.get('/users');
+    return response.data;
   },
 
-  // TODO: Use dateRange parameter to filter statistics
-  getAdminStatistics: async (dateRange: DateRange) => {
-    await delay();
-    const totalUsers = mockUsers.length;
-    const totalBookmarks = mockBookmarks.length;
-    const totalClicks = mockBookmarks.reduce((sum, bm) => sum + bm.clickCount, 0);
-
-    return {
-      totalUsers,
-      totalBookmarks,
-      totalClicks,
-      avgBookmarksPerUser: totalUsers > 0 ? totalBookmarks / totalUsers : 0,
-      avgClicksPerUser: totalUsers > 0 ? totalClicks / totalUsers : 0,
-      topUsers: mockUsers.map(user => ({
-        email: user.email,
-        bookmarkCount: mockBookmarks.filter(b => b.userId === user.id).length,
-        clickCount: mockBookmarks
-          .filter(b => b.userId === user.id)
-          .reduce((sum, b) => sum + b.clickCount, 0)
-      }))
-    };
+  async updateUserRole(userId: string, role: 'user' | 'admin'): Promise<User> {
+    const response = await apiClient.put(`/users/${userId}/role`, { role });
+    return response.data;
   },
 
-  // Bookmarks
-  getBookmarks: async (userId: string): Promise<Bookmark[]> => {
-    await delay();
-    return mockBookmarks.filter(b => b.userId === userId);
+  // --- Statistics ---
+  async getAdminStatistics(dateRange: DateRange): Promise<any> {
+    const response = await apiClient.get('/statistics/admin', { params: dateRange });
+    return response.data;
   },
 
-  createBookmark: async (userId: string, data: Partial<Bookmark>): Promise<Bookmark> => {
-    await delay();
-    const newBookmark: Bookmark = {
-      id: `bookmark-${generateId()}`,
-      userId,
-      url: data.url!,
-      title: data.title!,
-      faviconUrl: data.faviconUrl,
-      folderId: data.folderId,
-      clickCount: 0,
-      isHidden: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    mockBookmarks.push(newBookmark);
-    return newBookmark;
+  // --- Bookmarks ---
+  async getBookmarks(userId: string): Promise<Bookmark[]> {
+    const response = await apiClient.get(`/users/${userId}/bookmarks`);
+    return response.data;
   },
 
-  updateBookmark: async (userId: string, id: string, data: Partial<Bookmark>): Promise<Bookmark> => {
-    await delay();
-    const index = mockBookmarks.findIndex(b => b.id === id && b.userId === userId);
-    if (index === -1) throw new Error('Bookmark not found');
-
-    mockBookmarks[index] = { ...mockBookmarks[index], ...data, updatedAt: new Date().toISOString() };
-    return mockBookmarks[index];
+  async createBookmark(userId: string, data: Partial<Bookmark>): Promise<Bookmark> {
+    const response = await apiClient.post(`/users/${userId}/bookmarks`, data);
+    return response.data;
   },
 
-  deleteBookmark: async (userId: string, id: string): Promise<void> => {
-    await delay();
-    const index = mockBookmarks.findIndex(b => b.id === id && b.userId === userId);
-    if (index === -1) throw new Error('Bookmark not found');
-    mockBookmarks.splice(index, 1);
+  async updateBookmark(userId: string, bookmarkId: string, data: Partial<Bookmark>): Promise<Bookmark> {
+    const response = await apiClient.put(`/users/${userId}/bookmarks/${bookmarkId}`, data);
+    return response.data;
   },
 
-  incrementBookmarkClicks: async (userId: string, id: string): Promise<Bookmark> => {
-    await delay();
-    const bookmark = mockBookmarks.find(b => b.id === id && b.userId === userId);
-    if (!bookmark) throw new Error('Bookmark not found');
-    bookmark.clickCount++;
-    bookmark.updatedAt = new Date().toISOString();
-    return bookmark;
+  async deleteBookmark(userId: string, bookmarkId: string): Promise<void> {
+    await apiClient.delete(`/users/${userId}/bookmarks/${bookmarkId}`);
   },
 
-  // Folders
-  getFolders: async (userId: string): Promise<Folder[]> => {
-    await delay();
-    return mockFolders.filter(f => f.userId === userId);
+  async incrementBookmarkClicks(userId: string, bookmarkId: string): Promise<Bookmark> {
+    const response = await apiClient.post(`/users/${userId}/bookmarks/${bookmarkId}/click`);
+    return response.data;
   },
 
-  createFolder: async (userId: string, name: string, parentId: string | null = null): Promise<Folder> => {
-    await delay();
-    const newFolder: Folder = {
-      id: `folder-${generateId()}`,
-      userId,
-      name,
-      parentId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      bookmarkCount: 0 // Add missing property
-    };
-
-    mockFolders.push(newFolder);
-    return newFolder;
+  // --- Folders ---
+  async getFolders(userId: string): Promise<Folder[]> {
+    const response = await apiClient.get(`/users/${userId}/folders`);
+    return response.data;
   },
 
-  updateFolder: async (userId: string, id: string, name: string, parentId: string | null = null): Promise<Folder> => {
-    await delay();
-    const index = mockFolders.findIndex(f => f.id === id && f.userId === userId);
-    if (index === -1) throw new Error('Folder not found');
-
-    // Check for circular reference
-    if (parentId) {
-      let currentParent = parentId;
-      while (currentParent) {
-        const parent = mockFolders.find(f => f.id === currentParent);
-        if (!parent) break;
-        if (parent.id === id) throw new Error('Circular reference detected');
-        currentParent = parent.parentId as string;
-      }
-    }
-
-    mockFolders[index] = { 
-      ...mockFolders[index], 
-      name, 
-      parentId,
-      updatedAt: new Date().toISOString() 
-    };
-    return mockFolders[index];
+  async createFolder(userId: string, parentId: string | null, data: Partial<Folder>): Promise<Folder> {
+    const response = await apiClient.post(`/users/${userId}/folders`, data);
+    return response.data;
   },
 
-  deleteFolder: async (userId: string, id: string): Promise<void> => {
-    await delay();
-    const folderToDelete = mockFolders.find(f => f.id === id && f.userId === userId);
-    if (!folderToDelete) throw new Error('Folder not found');
+  async updateFolder(userId: string, folderId: string, parentId: string | null, data: Partial<Folder>): Promise<Folder> {
+    const response = await apiClient.put(`/users/${userId}/folders/${folderId}`, data);
+    return response.data;
+  },
 
-    const folderIdsToDelete: string[] = [];
-    const collectChildren = (folderId: string) => {
-      folderIdsToDelete.push(folderId);
-      const children = mockFolders.filter(f => f.parentId === folderId);
-      children.forEach(child => collectChildren(child.id));
-    };
-
-    collectChildren(id);
-
-    // Filter out deleted folders
-    mockFolders.splice(0, mockFolders.length, ...mockFolders.filter(f => !folderIdsToDelete.includes(f.id)));
-
-    // Update bookmarks to remove folder reference
-    mockBookmarks.forEach(bookmark => {
-      if (bookmark.folderId && folderIdsToDelete.includes(bookmark.folderId)) {
-        bookmark.folderId = undefined;
-      }
-    });
+  async deleteFolder(userId: string, folderId: string): Promise<void> {
+    await apiClient.delete(`/users/${userId}/folders/${folderId}`);
   }
 };

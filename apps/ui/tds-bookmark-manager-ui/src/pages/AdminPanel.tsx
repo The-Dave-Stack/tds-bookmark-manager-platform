@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../stores/authStore';
-import { api } from '../api/apiService';
-import toast from 'react-hot-toast';
 import { User, UserCog } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import AdminStats from '../components/statistics/AdminStats';
+import { api } from '../api';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '../stores/authStore';
+import { useTranslation } from 'react-i18next';
 
 interface AdminUser {
   id: string;

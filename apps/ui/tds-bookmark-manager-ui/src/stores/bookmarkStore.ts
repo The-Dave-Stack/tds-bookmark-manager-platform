@@ -1,6 +1,7 @@
-import { create } from 'zustand';
-import { api } from '../api/apiService';
 import type { Bookmark, Folder } from '../api/types';
+
+import { api } from '../api';
+import { create } from 'zustand';
 
 interface BookmarkState {
   bookmarks: Bookmark[];
@@ -108,7 +109,7 @@ export const useBookmarkStore = create<BookmarkState>((set) => ({
   addFolder: async (userId: string, name: string, parentId: string | null) => {
     set({ loading: true, error: null });
     try {
-      const newFolder = await api.createFolder(userId, name, parentId);
+      const newFolder = await api.createFolder(userId, parentId);
       set((state) => ({
         folders: [...state.folders, newFolder],
         loading: false
@@ -122,7 +123,7 @@ export const useBookmarkStore = create<BookmarkState>((set) => ({
   updateFolder: async (userId: string, id: string, name: string, parentId: string | null) => {
     set({ loading: true, error: null });
     try {
-      const updatedFolder = await api.updateFolder(userId, id, name, parentId);
+      const updatedFolder = await api.updateFolder(userId, id, parentId);
       set((state) => ({
         folders: state.folders.map(f =>
           f.id === id ? updatedFolder : f

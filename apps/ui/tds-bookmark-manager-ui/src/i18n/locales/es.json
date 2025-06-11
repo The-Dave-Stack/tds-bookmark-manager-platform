@@ -270,6 +270,10 @@
       "error": "Error al actualizar el perfil"
     }
   },
+  "apiErrors": {
+    "AUTH.REGISTER.EMAIL_ALREADY_EXISTS": "Este email ya esta en uso. Prueba con otro.",
+    "AUTH.LOGIN.INVALID_CREDENTIALS": "Email o contraseña invalidos. Prueba de nuevo."
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Se produjo un error",
