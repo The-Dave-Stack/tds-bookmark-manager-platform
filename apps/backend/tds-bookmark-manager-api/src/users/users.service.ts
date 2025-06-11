@@ -1,3 +1,5 @@
+import * as bcrypt from 'bcrypt';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 
@@ -8,13 +10,10 @@ import { Repository } from 'typeorm';
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly usersRepository: Repository<UserEntity>,
+    private readonly usersRepository: Repository<UserEntity>
   ) {}
 
-  async findOne(
-    data: Pick<UserEntity, 'email'>,
-    options: { withoutPassword: boolean } = { withoutPassword: true },
-  ): Promise<UserEntity | null> {
+  async findOne(data: Pick<UserEntity, 'email'>, options: { withoutPassword: boolean } = { withoutPassword: true }): Promise<UserEntity | null> {
     return this.usersRepository.findOneBy({ email: data.email });
   }
 
@@ -38,4 +37,11 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
+  }
+
+  async comparePassword(password: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(password, hash);
+  }
 }

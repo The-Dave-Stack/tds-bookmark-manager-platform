@@ -1,5 +1,3 @@
-import * as bcrypt from 'bcrypt';
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserEntity, UserEntityWithoutPassword } from '../users/entities/user.entity';
 
@@ -22,7 +20,7 @@ export class AuthService {
     options: { returnUser: boolean } = { returnUser: false },
   ): Promise<UserEntityWithoutPassword | boolean> {
     const foundUser = (await this.usersService.findOne({ email: data.email }, { withoutPassword: false })) as UserEntity | undefined;
-    const result = foundUser && (await bcrypt.compare(data.passwordHash, foundUser.passwordHash));
+    const result = foundUser && (await this.usersService.comparePassword(data.passwordHash, foundUser.passwordHash));
 
     if (!result) {
       return false;
@@ -52,7 +50,7 @@ export class AuthService {
 
   // TODO: Maybe not needed to return the created user
   async register(data: CreateUserDto): Promise<UserEntity> {
-    const hashedPassword = await bcrypt.hash(data.passwordHash, 10);
+    const hashedPassword = await this.usersService.hashPassword(data.passwordHash);
     return await this.usersService.create({ ...data, passwordHash: hashedPassword, roles: ['user'] });
   }
 }
