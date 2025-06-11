@@ -1,82 +1,170 @@
-# Tds
+# TDS Bookmark Manager
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="apps/ui/tds-bookmark-manager-ui/public/favicon.svg" width="45"></a>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+**TDS Bookmark Manager** is a modern, full-stack application designed to help you organize, find, and use your web links like never before. It features a clean, intuitive interface and a powerful backend, all built within a professional monorepo structure.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/react-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+---
 
-## Finish your CI setup
+## Core Features
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/hbNLJqpIGS)
+-   **Secure Authentication**: JWT-based authentication with password hashing using `bcrypt`.
+-   **Role-Based Access Control (RBAC)**: Differentiated roles for `User` and `Admin` with protected routes and functionalities.
+-   **Full Bookmark Management**: Complete CRUD (Create, Read, Update, Delete) operations for bookmarks.
+-   **Hierarchical Folder Organization**: Organize bookmarks into nested folders for better categorization.
+-   **Usage Statistics**: View analytics on your bookmark usage, including click counts and most-used links.
+-   **Quick-Add via Webhook & Bookmarklet**: Easily add bookmarks from anywhere using a unique webhook URL or a browser bookmarklet.
+-   **Multilingual Support**: Fully internationalized interface supporting English and Spanish.
+-   **Admin Panel**: A dedicated section for administrators to manage users and view global statistics.
+-   **Dockerized Environment**: The required database (PostgreSQL) is managed via Docker for consistent development and deployment setups.
 
+## Technology Stack
 
-## Run tasks
+This project is a monorepo managed with **Nx** and **pnpm workspaces**.
 
-To run the dev server for your app, use:
+#### **Backend (`tds-bookmark-manager-api`)**
 
-```sh
-npx nx serve tds-bookmark-manager-ui
-```
+-   **Framework**: [NestJS](https://nestjs.com/)
+-   **Database ORM**: [TypeORM](https://typeorm.io/)
+-   **Database**: [PostgreSQL](https://www.postgresql.org/) (development via Docker)
+-   **Authentication**: [Passport.js](https://www.passportjs.org/) (JWT and Local strategies)
+-   **Validation**: [class-validator](https://github.com/typestack/class-validator), [class-transformer](https://github.com/typestack/class-transformer)
+-   **Logging**: `nestjs-pino`
+-   **Testing**: Jest
 
-To create a production bundle:
+#### **Frontend (`tds-bookmark-manager-ui`)**
 
-```sh
-npx nx build tds-bookmark-manager-ui
-```
+-   **Framework**: [React](https://react.dev/)
+-   **Build Tool**: [Vite](https://vitejs.dev/)
+-   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+-   **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+-   **Routing**: [React Router](https://reactrouter.com/)
+-   **Internationalization**: [i18next](https://www.i18next.com/)
+-   **UI Components**: Headless UI
+-   **Icons**: [Lucide React](https://lucide.dev/)
+-   **Unit & Component Testing**: [Vitest](https://vitest.dev/), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+-   **E2E Testing**: [Playwright](https://playwright.dev/)
 
-To see all available targets to run for a project, run:
+## Getting Started
 
-```sh
-npx nx show project tds-bookmark-manager-ui
-```
+### Prerequisites
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+-   [Node.js](https://nodejs.org/) (v22 or higher is recommended)
+-   [pnpm](https://pnpm.io/)
+-   [Docker](https://www.docker.com/get-started) and Docker Compose
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Installation & Setup
 
-## Add new projects
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/your-username/tds-bookmark-manager-platform.git](https://github.com/your-username/tds-bookmark-manager-platform.git)
+    cd tds-bookmark-manager-platform
+    ```
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+2.  **Install dependencies:**
+    This project uses `pnpm` workspaces. Install all dependencies from the root directory.
+    ```bash
+    pnpm install
+    ```
 
-Use the plugin's generator to create new projects.
+3.  **Configure Environment Variables:**
+    The backend requires environment variables for the database connection, JWT secrets, and the initial admin user.
+    Create a new file `apps/backend/tds-bookmark-manager-api/.env.development` by copying the example below:
 
-To generate a new application, use:
+    ```env
+    # .env.development
 
-```sh
-npx nx g @nx/react:app demo
-```
+    # -- Database Configuration --
+    # Options: 'postgres' or 'sqlite'
+    DB_TYPE=postgres
+    POSTGRES_USER=your_db_user
+    POSTGRES_PASSWORD=your_db_password
+    POSTGRES_DB=tds_bookmarks_db
 
-To generate a new library, use:
+    # -- JWT Configuration --
+    JWT_SECRET=your-super-secret-jwt-key-that-is-long
+    JWT_EXPIRES_IN=1d
 
-```sh
-npx nx g @nx/react:lib mylib
-```
+    # -- Initial Admin User for Seeding --
+    # This user is created when you run migrations for the first time.
+    ADMIN_EMAIL=admin@example.com
+    ADMIN_PASSWORD=your_strong_admin_password
+    ADMIN_USERNAME=admin
+    ADMIN_FIRST_NAME=Admin
+    ADMIN_LAST_NAME=User
+    ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+4.  **Start the Database:**
+    Use Docker Compose to start the PostgreSQL database service.
+    ```bash
+    docker-compose up -d
+    ```
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+5.  **Run Database Migrations:**
+    Apply the initial database schema and seed the admin user.
+    ```bash
+    pnpm migration:run
+    ```
 
+6.  **Run the Development Servers:**
+    You can run the backend and frontend servers in separate terminals for the best development experience.
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+    -   **Terminal 1: Start the Backend API**
+        ```bash
+        pnpm start:api:dev
+        ```
+        The API will be available at `http://localhost:3000`.
 
-## Install Nx Console
+    -   **Terminal 2: Start the Frontend UI**
+        ```bash
+        pnpm start:ui:dev
+        ```
+        The UI will be available at `http://localhost:4200`.
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+## Testing
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This project is configured with unit, integration, and E2E tests.
 
-## Useful links
+-   **Run Frontend Unit/Component Tests:**
+    ```bash
+    pnpm test:ui
+    ```
 
-Learn more:
+-   **Run Frontend Tests with Coverage:**
+    ```bash
+    pnpm test:ui:cov
+    ```
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/react-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+-   **Run Backend Unit/Integration Tests:**
+    ```bash
+    pnpm test:api
+    ```
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Database Migrations
+
+Database schema changes are handled by TypeORM migrations.
+
+-   **Generate a new migration:**
+    (After making changes to your TypeORM entities)
+    ```bash
+    pnpm migration:generate src/db/migrations/YourMigrationName
+    ```
+
+-   **Revert the last migration:**
+    ```bash
+    pnpm migration:revert
+    ```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+## License
+
+This project is distributed under the MIT License. See `LICENSE` file for more information.
