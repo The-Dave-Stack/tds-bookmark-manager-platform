@@ -33,15 +33,15 @@ const baseConfig = databaseConfig();
 
 export const dataSourceOptions: DataSourceOptions = {
   ...baseConfig, // Spread the configuration for either postgres or sqlite
-  
-  // NOTE: These paths are now relative to the root of the 'outDir' 
+
+  // NOTE: These paths are now relative to the root of the 'outDir'
   // specified in tsconfig.cli.json, which is 'dist/cli'.
   // TypeORM will look for 'dist/cli/src/**/*.entity.js'
   // and 'dist/cli/src/db/migrations/*.js'
   // This setup requires the CLI to be run from the workspace root.
   entities: [__dirname + '/../**/*.entity.js'],
   migrations: [__dirname + '/migrations/*.js'],
-  
+
   synchronize: false, // CRITICAL: Always false when using migrations
 };
 

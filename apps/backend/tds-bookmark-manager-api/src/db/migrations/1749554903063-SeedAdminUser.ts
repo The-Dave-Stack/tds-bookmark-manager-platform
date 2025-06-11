@@ -2,8 +2,12 @@ import * as bcrypt from 'bcrypt';
 
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+import { PinoLogger } from 'nestjs-pino';
 import { UserEntity } from '../../users/entities/user.entity';
+import { getPinoLoggerOptions } from '../../logger/config';
 import { randomUUID } from 'crypto'; // Using Node.js built-in crypto module
+
+const pinoLogger = new PinoLogger(getPinoLoggerOptions({ env: 'development', context: 'SeedAdminUser' }));
 
 // This migration is responsible for seeding the initial administrator user into the database.
 // It's a data migration that reads credentials from environment variables.
@@ -17,7 +21,7 @@ export class SeedAdminUser1749554903063 implements MigrationInterface {
     const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (!adminEmail || !adminPassword) {
-      console.log(
+      pinoLogger.info(
         `Skipping admin user seed: ADMIN_EMAIL or ADMIN_PASSWORD environment variables not set.`
       );
       return;
@@ -28,7 +32,7 @@ export class SeedAdminUser1749554903063 implements MigrationInterface {
     const adminExists = await userRepository.findOneBy({ email: adminEmail });
 
     if (adminExists) {
-      console.log(
+      pinoLogger.info(
         `Admin user with email ${adminEmail} already exists. Skipping seed.`
       );
       return;
@@ -47,11 +51,9 @@ export class SeedAdminUser1749554903063 implements MigrationInterface {
       roles: ['ADMIN','USER'], // Provide as an array.
       isActive: true,
     });
-    console.log('ADMIN USER:', adminUser)
 
-    const savedAdminUser = await userRepository.save(adminUser);
-    console.log('SAVED ADMIN USER:', savedAdminUser)
-    console.log(`Successfully seeded admin user: ${adminEmail}`);
+    await userRepository.save(adminUser);
+    pinoLogger.info(`Successfully seeded admin user: ${adminEmail}`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -64,7 +66,7 @@ export class SeedAdminUser1749554903063 implements MigrationInterface {
         [adminEmail]
       );
     } else {
-      console.log(
+      pinoLogger.info(
         `Skipping admin user down-migration because ADMIN_EMAIL environment variable is not set.`
       );
     }

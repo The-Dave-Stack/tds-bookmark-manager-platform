@@ -11,9 +11,9 @@ function getPostgresConfig(): DataSourceOptions {
     type: 'postgres',
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT as string, 10) || 5432,
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
+    username: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DB,
   };
 }
 
@@ -22,7 +22,7 @@ function getSqliteConfig(): DataSourceOptions {
   // It creates a database file in the project root.
   return {
     type: 'sqlite',
-    database: process.env.DB_DATABASE || join(__dirname, '../../..', 'tdb-bookmark-manager.sqlite'),
+    database: process.env.SQLITE_DB || join(__dirname, '../../..', 'tdb-bookmark-manager.sqlite'),
   };
 }
 
