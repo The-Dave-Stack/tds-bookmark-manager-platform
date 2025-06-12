@@ -145,7 +145,7 @@ const Register = () => {
         <div className="flex justify-center">
           <Bookmark className="h-12 w-12 text-primary" />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-mainText">{t('app.title')}</h2>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-mainText">{t('app.title.desktop')}</h2>
         <p className="mt-2 text-center text-sm text-mainText/70">{t('app.tagline')}</p>
       </div>
 

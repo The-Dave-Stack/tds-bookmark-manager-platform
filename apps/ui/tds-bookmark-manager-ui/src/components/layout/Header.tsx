@@ -1,11 +1,11 @@
 import { Bookmark, ChevronDown, LogOut, Menu, User } from 'lucide-react';
-import { useState } from 'react';
-import toast from 'react-hot-toast';
-import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { useAuthStore } from '../../stores/authStore';
 import LanguageSwitcher from '../common/LanguageSwitcher';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '../../stores/authStore';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -45,7 +45,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
             <Link to="/" className="flex items-center">
               <Bookmark className="h-8 w-8 text-primary" />
               <span className="ml-2 text-xl font-semibold text-mainText hidden sm:block">
-                {t('app.title')}
+                {t('app.title.desktop')}
               </span>
             </Link>
           </div>

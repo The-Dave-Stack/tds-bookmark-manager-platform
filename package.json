@@ -33,7 +33,7 @@
     "test:api:watch": "nx run @tds/tds-bookmark-manager-api:test -- --watch",
     "test:ui": "nx run @tds/tds-bookmark-manager-ui:test -- --run",
     "test:ui:cov": "nx run @tds/tds-bookmark-manager-ui:test -- --run --coverage",
-    "test:ui:full": "nx run @tds/tds-bookmark-manager-ui:test -- --ui --coverage",
+    "test:ui:web": "nx run @tds/tds-bookmark-manager-ui:test -- --ui --coverage",
     "typeorm": "typeorm -d apps/backend/tds-bookmark-manager-api/dist/cli/db/data-source.js",
     "typeorm:cli:build": "pnpm tsc -p apps/backend/tds-bookmark-manager-api/tsconfig.typeorm.json"
   },

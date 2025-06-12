@@ -73,7 +73,7 @@ describe('Header', () => {
   it('renders correctly when user is logged in (non-admin)', () => {
     render(<Header toggleSidebar={mockToggleSidebar} />);
     
-    expect(screen.getByText('app.title')).toBeInTheDocument();
+    expect(screen.getByText('app.title.desktop')).toBeInTheDocument();
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
     expect(screen.queryByTestId('link-admin')).not.toBeInTheDocument(); // Admin link should not be visible
   });

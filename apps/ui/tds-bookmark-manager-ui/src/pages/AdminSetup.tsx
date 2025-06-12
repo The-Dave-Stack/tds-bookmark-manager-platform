@@ -161,7 +161,7 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
           <div className="flex items-center justify-center mb-6">
             <Bookmark className="h-8 w-8 text-primary mr-2" />
             <span className="text-xl font-semibold text-mainText">
-              {t('app.title')}
+              {t('app.title.desktop')}
             </span>
           </div>
           
