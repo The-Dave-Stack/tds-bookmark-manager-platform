@@ -1,13 +1,12 @@
 export class User {
-  id?: string;
   username!: string;
-  password!: string;
+  password?: string;
   email!: string;
   firstName?: string;
   lastName?: string;
-  isActive!: boolean;
+  isActive?: boolean;
   roles!: Role[];
-  createdAt!: Date;
+  createdAt?: Date;
   updatedAt?: Date;
   lastLogin?: Date;
   apiToken?: string;

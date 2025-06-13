@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { UserType } from '../api/types';
 import { api } from '../api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -13,12 +14,12 @@ vi.mock('../api', () => ({
 }));
 
 describe('Auth Store', () => {
-  const mockUser = {
-    id: 'test-user-id',
+  const mockUser: UserType = {
+    username: 'test-user',
     email: 'test@example.com',
     firstName: 'Test',
     lastName: 'User',
-    role: 'user' as const,
+    roles: ['USER'],
     apiToken: 'test-token',
     webhookUrl: 'https://example.com/webhook'
   };
@@ -83,9 +84,9 @@ describe('Auth Store', () => {
   it('should update user role', () => {
     const store = useAuthStore.getState();
     store.setUser(mockUser);
-    store.updateUserRole('admin');
+    store.updateUserRoles(['ADMIN']);
 
-    expect(useAuthStore.getState().user?.role).toBe('admin');
+    expect(useAuthStore.getState().user?.roles).toStrictEqual(['ADMIN']);
   });
 
   it('should clear user', () => {

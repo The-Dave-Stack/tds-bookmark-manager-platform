@@ -1,24 +1,16 @@
+import { Role } from '@tds/tds-bm-common';
+import { UserType } from '../api/types';
 import { api } from '../api';
 import { create } from 'zustand';
 
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'user' | 'admin';
-  apiToken?: string;
-  webhookUrl?: string;
-}
-
 interface AuthState {
-  user: User | null;
+  user: UserType | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string, isAdmin?: boolean) => Promise<void>;
   updateProfile: (data: { firstName?: string; lastName?: string; password?: string }) => Promise<void>;
-  setUser: (user: User) => void;
-  updateUserRole: (role: 'user' | 'admin') => void;
-  updateUserProfile: (profile: Partial<User>) => void;
+  setUser: (user: UserType) => void;
+  updateUserRoles: (roles: Role[]) => void;
+  updateUserProfile: (profile: Partial<UserType>) => void;
   clearUser: () => void;
 }
 
@@ -29,11 +21,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const user = await api.login(email, password);
     set({ 
       user: {
-        id: user.id,
+        username: user.username,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role,
+        roles: user.roles,
         apiToken: user.apiToken,
         webhookUrl: user.webhookUrl
       }
@@ -44,11 +36,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const user = await api.register(email, password, firstName, lastName, isAdmin);
     set({ 
       user: {
-        id: user.id,
+        username: user.username,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role,
+        roles: user.roles,
         apiToken: user.apiToken,
         webhookUrl: user.webhookUrl
       }
@@ -57,9 +49,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   updateProfile: async (data) => {
     const currentUser = get().user;
-    if (!currentUser?.id) throw new Error('No user logged in');
+    if (!currentUser?.email) throw new Error('No user logged in');
 
-    const updatedUser = await api.updateProfile(currentUser.id, data);
+    const updatedUser = await api.updateProfile(currentUser.email, data);
     set({ 
       user: {
         ...currentUser,
@@ -71,9 +63,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   
   setUser: (user) => set({ user }),
   
-  updateUserRole: (role) => {
+  updateUserRoles: (roles) => {
     set((state) => ({
-      user: state.user ? { ...state.user, role } : null
+      user: state.user ? { ...state.user, roles } : null
     }));
   },
   
