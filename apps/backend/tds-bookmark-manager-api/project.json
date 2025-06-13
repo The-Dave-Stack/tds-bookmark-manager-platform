@@ -31,7 +31,8 @@
           "buildTarget": "@tds/tds-bookmark-manager-api:build:development"
         },
         "production": {
-          "buildTarget": "@tds/tds-bookmark-manager-api:build:production"
+          "buildTarget": "@tds/tds-bookmark-manager-api:build:production",
+          "watch": true
         }
       }
     },
