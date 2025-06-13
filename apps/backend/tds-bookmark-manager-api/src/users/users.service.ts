@@ -19,7 +19,7 @@ export class UsersService {
   findOneByEmail(data: Pick<User, 'email'>, options: { withoutPassword: true }): Promise<User>;
   async findOneByEmail(
     data: Pick<User, 'email'>,
-    options: { withoutPassword: boolean } = { withoutPassword: true }
+    options?: { withoutPassword: boolean }
   ): Promise<User | UserEntity> {
     const userEntity = await this.usersRepository.findOneBy({ email: data.email });
 
@@ -27,7 +27,7 @@ export class UsersService {
       throw new NotFoundException(`User with mail '${data.email}' not found.`);
     }
 
-    if (options.withoutPassword === false) {
+    if (options?.withoutPassword === false) {
       return userEntity;
     }
 

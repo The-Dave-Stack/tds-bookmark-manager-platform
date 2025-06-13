@@ -5,6 +5,11 @@ module.exports = {
   output: {
     path: join(__dirname, 'dist'),
   },
+  resolve: {
+    alias: {
+      '@tds/tds-bm-common': join(__dirname, '../../../libs/tds-bm-common/dist'),
+    },
+  },
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',

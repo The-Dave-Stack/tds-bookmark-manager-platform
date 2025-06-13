@@ -37,9 +37,8 @@ describe('UsersService', () => {
       const initialLength = users.length;
       const newUser = await service.create({
         username: 'testuser',
-        passwordHash: 'testpass',
+        password: 'testpass',
         email: 'test2@test.com',
-        roles: ['user'],
       });
       expect(newUser).toBeDefined();
       expect('password' in newUser).toBe(false);
