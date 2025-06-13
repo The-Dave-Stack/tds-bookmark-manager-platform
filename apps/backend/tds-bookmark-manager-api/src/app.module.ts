@@ -22,15 +22,17 @@ import { randomBytes } from 'crypto';
       ignoreEnvFile: process.env.NODE_ENV === 'docker',
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (config: ConfigType<typeof databaseConfig>) => ({
-        ...config,
-        // Using autoLoadEntities is the recommended way.
-        // It automatically discovers entities registered via forFeature() in other modules.
-        // This avoids manual path management which can be fragile.
-        autoLoadEntities: true,
-        synchronize: false, // NEVER true when using migrations
-      }),
+      imports: [ConfigModule.forFeature(databaseConfig)],
+      useFactory: (config: ConfigType<typeof databaseConfig>) => {
+        if (!config) {
+          throw new Error('Database configuration not found');
+        }
+        return {
+          ...config,
+          autoLoadEntities: true,
+          synchronize: false,
+        };
+      },
       inject: [databaseConfig.KEY],
     }),
     LoggerModule.forRootAsync({
