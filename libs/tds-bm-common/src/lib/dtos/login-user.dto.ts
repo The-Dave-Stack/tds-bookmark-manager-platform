@@ -1,17 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-import { UserEntity } from '../entities/user.entity';
+import { User } from '../interfaces/user.interface.js';
 
-export class CreateUserDto implements Pick<UserEntity, 'username' | 'passwordHash' | 'email'> {
-  @IsString()
-  @IsNotEmpty({ message: 'Username is required' })
-  username!: string;
-
+export class LoginUserDto implements Pick<User, 'password' | 'email'> {
   @IsString()
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  passwordHash!: string;
+  password!: string;
 
   @IsString()
   @IsEmail({}, { message: 'Invalid email format' })

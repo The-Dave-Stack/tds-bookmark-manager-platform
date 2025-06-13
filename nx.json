@@ -82,10 +82,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": [
-        "apps/backend/tds-bookmark-manager-api-e2e/**/*",
-        "apps/backend/tds-bookmark-manager-api-e2e/**/*"
-      ]
+      "exclude": ["apps/backend/tds-bookmark-manager-api-e2e/**/*", "apps/backend/tds-bookmark-manager-api-e2e/**/*"]
     }
   ],
   "targetDefaults": {

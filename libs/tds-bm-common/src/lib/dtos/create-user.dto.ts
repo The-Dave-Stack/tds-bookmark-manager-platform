@@ -1,12 +1,16 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-import { UserEntity } from '../entities/user.entity';
+import { User } from '../interfaces/user.interface.js';
 
-export class LoginUserDto implements Pick<UserEntity, 'passwordHash' | 'email'> {
+export class CreateUserDto implements Pick<User, 'username' | 'password' | 'email'> {
+  @IsString()
+  @IsNotEmpty({ message: 'Username is required' })
+  username!: string;
+
   @IsString()
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  passwordHash!: string;
+  password!: string;
 
   @IsString()
   @IsEmail({}, { message: 'Invalid email format' })
