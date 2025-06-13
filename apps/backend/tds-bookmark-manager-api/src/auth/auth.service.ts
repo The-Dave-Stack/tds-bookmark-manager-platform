@@ -1,40 +1,29 @@
+import type { CreateUserDto, JwtPayloadDto, LoginUserDto, TokenDto, User } from '@tds/tds-bm-common';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserEntity, UserEntityWithoutPassword } from '../users/entities/user.entity';
 
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { JwtPayloadDto } from './dto/jwtpayload.dto';
 import { JwtService } from '@nestjs/jwt';
-import { LoginUserDto } from '../users/dto/login-user.dto';
-import { TokenDto } from './dto/token.dto';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private usersService: UsersService, private jwtService: JwtService) {}
 
-  async validateUser(
-    data: Pick<UserEntity, 'email' | 'passwordHash'>,
-    options: { returnUser: boolean } = { returnUser: false },
-  ): Promise<UserEntityWithoutPassword | boolean> {
-    const foundUser = (await this.usersService.findOne({ email: data.email }, { withoutPassword: false })) as UserEntity | undefined;
-    const result = foundUser && (await this.usersService.comparePassword(data.passwordHash, foundUser.passwordHash));
+  async validateUser(data: Pick<User, 'email' | 'password'>, options: { returnUser: boolean } = { returnUser: false }): Promise<User | boolean> {
+    const result = await this.usersService.validateUserCredentials(data);
 
     if (!result) {
       return false;
     }
 
     if (options.returnUser) {
-      return foundUser as UserEntityWithoutPassword;
+      return result as User;
     }
 
-    return !!foundUser;
+    return !!result;
   }
 
   async login(user: LoginUserDto): Promise<TokenDto> {
-    const userFound = (await this.validateUser({ email: user.email, passwordHash: user.passwordHash }, { returnUser: true })) as UserEntityWithoutPassword;
+    const userFound = (await this.validateUser({ email: user.email, password: user.password }, { returnUser: true })) as User;
     if (!userFound) {
       throw new UnauthorizedException();
     }
@@ -49,8 +38,7 @@ export class AuthService {
   }
 
   // TODO: Maybe not needed to return the created user
-  async register(data: CreateUserDto): Promise<UserEntity> {
-    const hashedPassword = await this.usersService.hashPassword(data.passwordHash);
-    return await this.usersService.create({ ...data, passwordHash: hashedPassword, roles: ['user'] });
+  async register(data: CreateUserDto): Promise<User> {
+    return await this.usersService.create({ ...data });
   }
 }

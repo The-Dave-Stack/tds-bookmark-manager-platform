@@ -1,4 +1,4 @@
-import type { ApiInterface, Bookmark, Folder, User } from './types'; // Reuse your existing types
+import type { ApiInterface, BookmarkType, FolderType, UserType } from './types'; // Reuse your existing types
 
 import { DateRange } from '../components/statistics/DateRangeSelector';
 import axios from 'axios';
@@ -29,32 +29,32 @@ export const api: ApiInterface = {
   async checkAdminExists(): Promise<boolean> {
     throw new Error('Function not implemented.');
   },
-  async setupAdmin(email: string, password: string, firstName: string, lastName: string): Promise<User> {
+  async setupAdmin(email: string, password: string, firstName: string, lastName: string): Promise<UserType> {
     throw new Error('Function not implemented.');
   },
   // --- Auth ---
-  async login(email: string, password: string): Promise<User> {
+  async login(email: string, password: string): Promise<UserType> {
     const response = await apiClient.post('/auth/login', { email, password });
     return response.data;
   },
 
-  async register(email: string, password: string, firstName: string, lastName: string): Promise<User> {
+  async register(email: string, password: string, firstName: string, lastName: string): Promise<UserType> {
     const response = await apiClient.post('/auth/register', { email, password, firstName, lastName });
     return response.data;
   },
 
-  async updateProfile(userId: string, data: Partial<User>): Promise<User> {
+  async updateProfile(userId: string, data: Partial<UserType>): Promise<UserType> {
     const response = await apiClient.put(`/users/${userId}`, data);
     return response.data;
   },
 
   // --- User Management (Admin) ---
-  async getUsers(): Promise<User[]> {
+  async getUsers(): Promise<UserType[]> {
     const response = await apiClient.get('/users');
     return response.data;
   },
 
-  async updateUserRole(userId: string, role: 'user' | 'admin'): Promise<User> {
+  async updateUserRole(userId: string, role: 'user' | 'admin'): Promise<UserType> {
     const response = await apiClient.put(`/users/${userId}/role`, { role });
     return response.data;
   },
@@ -66,17 +66,17 @@ export const api: ApiInterface = {
   },
 
   // --- Bookmarks ---
-  async getBookmarks(userId: string): Promise<Bookmark[]> {
+  async getBookmarks(userId: string): Promise<BookmarkType[]> {
     const response = await apiClient.get(`/users/${userId}/bookmarks`);
     return response.data;
   },
 
-  async createBookmark(userId: string, data: Partial<Bookmark>): Promise<Bookmark> {
+  async createBookmark(userId: string, data: Partial<BookmarkType>): Promise<BookmarkType> {
     const response = await apiClient.post(`/users/${userId}/bookmarks`, data);
     return response.data;
   },
 
-  async updateBookmark(userId: string, bookmarkId: string, data: Partial<Bookmark>): Promise<Bookmark> {
+  async updateBookmark(userId: string, bookmarkId: string, data: Partial<BookmarkType>): Promise<BookmarkType> {
     const response = await apiClient.put(`/users/${userId}/bookmarks/${bookmarkId}`, data);
     return response.data;
   },
@@ -85,23 +85,23 @@ export const api: ApiInterface = {
     await apiClient.delete(`/users/${userId}/bookmarks/${bookmarkId}`);
   },
 
-  async incrementBookmarkClicks(userId: string, bookmarkId: string): Promise<Bookmark> {
+  async incrementBookmarkClicks(userId: string, bookmarkId: string): Promise<BookmarkType> {
     const response = await apiClient.post(`/users/${userId}/bookmarks/${bookmarkId}/click`);
     return response.data;
   },
 
   // --- Folders ---
-  async getFolders(userId: string): Promise<Folder[]> {
+  async getFolders(userId: string): Promise<FolderType[]> {
     const response = await apiClient.get(`/users/${userId}/folders`);
     return response.data;
   },
 
-  async createFolder(userId: string, parentId: string | null, data: Partial<Folder>): Promise<Folder> {
+  async createFolder(userId: string, parentId: string | null, data: Partial<FolderType>): Promise<FolderType> {
     const response = await apiClient.post(`/users/${userId}/folders`, data);
     return response.data;
   },
 
-  async updateFolder(userId: string, folderId: string, parentId: string | null, data: Partial<Folder>): Promise<Folder> {
+  async updateFolder(userId: string, folderId: string, parentId: string | null, data: Partial<FolderType>): Promise<FolderType> {
     const response = await apiClient.put(`/users/${userId}/folders/${folderId}`, data);
     return response.data;
   },

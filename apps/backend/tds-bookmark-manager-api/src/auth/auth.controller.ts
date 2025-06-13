@@ -1,13 +1,12 @@
 import { Controller, Request, Post, UseGuards, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guards/roles.guard';
-import { TokenDto } from './dto/token.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from './decorators/user.decorator';
-import type { UserEntityWithoutPassword } from '../users/entities/user.entity';
+
+import type { CreateUserDto, TokenDto, UserWithoutPassword } from '@tds/tds-bm-common';
 
 @Controller('auth')
 export class AuthController {
@@ -34,8 +33,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('profile')
-  getProfile(@User() user: any): UserEntityWithoutPassword {
-    return user as UserEntityWithoutPassword;
+  getProfile(@User() user: any): UserWithoutPassword {
+    return user as UserWithoutPassword;
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

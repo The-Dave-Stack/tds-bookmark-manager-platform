@@ -1,13 +1,12 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Role, UserWithoutPassword } from '@tds/tds-bm-common';
 
 import { BookmarkEntity } from '../../bookmarks/entities/bookmark.entity';
 import { Exclude } from 'class-transformer';
 import { FolderEntity } from '../../folders/entities/folder.entity';
 
-export type UserEntityWithoutPassword = Omit<UserEntity, 'password'>;
-
 @Entity({ name: 'users' })
-export class UserEntity {
+export class UserEntity implements UserWithoutPassword {
   @PrimaryGeneratedColumn('uuid')
   id?: string;
 
@@ -43,7 +42,7 @@ export class UserEntity {
   lastLogin?: Date;
 
   @Column('simple-array')
-  roles!: string[];
+  roles!: Role[];
 
   @OneToMany(() => FolderEntity, (folder) => folder.user)
   folders?: FolderEntity[];

@@ -50,7 +50,7 @@ describe('AuthService', () => {
   describe('validateUser', () => {
     it('should return user without password if credentials are valid', async () => {
       const mockUser: UserEntity = {
-        id: 1,
+        id: '1',
         username: 'testuser',
         passwordHash: 'hashedpassword',
         email: 'testuser@test.com',
@@ -58,21 +58,21 @@ describe('AuthService', () => {
         createdAt: new Date(),
         roles: ['user'],
       };
-      (usersService.findOne as jest.Mock).mockReturnValue(mockUser);
+      (usersService.findOneByEmail as jest.Mock).mockReturnValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await authService.validateUser({ email: 'testuser@test.com', passwordHash: 'validpassword' });
       expect(result).toBeTruthy();
-      expect(usersService.findOne).toHaveBeenCalledWith({ email: 'testuser@test.com' }, { withoutPassword: false });
+      expect(usersService.findOneByEmail).toHaveBeenCalledWith({ email: 'testuser@test.com' }, { withoutPassword: false });
       expect(bcrypt.compare).toHaveBeenCalledWith('validpassword', 'hashedpassword');
     });
 
     it('should return null if user not found', async () => {
-      (usersService.findOne as jest.Mock).mockReturnValue(undefined);
+      (usersService.findOneByEmail as jest.Mock).mockReturnValue(undefined);
 
       const result = await authService.validateUser({ email: 'nonexistent', passwordHash: 'anypass' });
       expect(result).toBeFalsy();
-      expect(usersService.findOne).toHaveBeenCalledWith({ email: 'nonexistent' }, { withoutPassword: false });
+      expect(usersService.findOneByEmail).toHaveBeenCalledWith({ email: 'nonexistent' }, { withoutPassword: false });
     });
 
     it('should return null if password is invalid', async () => {
@@ -85,12 +85,12 @@ describe('AuthService', () => {
         createdAt: new Date(),
         roles: ['user'],
       };
-      (usersService.findOne as jest.Mock).mockReturnValue(mockUser);
+      (usersService.findOneByEmail as jest.Mock).mockReturnValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       const result = await authService.validateUser({ email: 'testuser@test.com', passwordHash: 'invalidpassword' });
       expect(result).toBeFalsy();
-      expect(usersService.findOne).toHaveBeenCalledWith({ email: 'testuser@test.com' }, { withoutPassword: false });
+      expect(usersService.findOneByEmail).toHaveBeenCalledWith({ email: 'testuser@test.com' }, { withoutPassword: false });
       expect(bcrypt.compare).toHaveBeenCalledWith('invalidpassword', 'hashedpassword');
     });
   });
@@ -107,7 +107,7 @@ describe('AuthService', () => {
         createdAt: new Date(),
         roles: ['user'],
       };
-      (usersService.findOne as jest.Mock).mockReturnValue(mockUser);
+      (usersService.findOneByEmail as jest.Mock).mockReturnValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await authService.login(user);

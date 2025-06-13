@@ -1,7 +1,7 @@
-import type { Bookmark, Folder, User } from './types';
+import type { BookmarkType, FolderType, UserType } from './types';
 
 // Mock data
-export const mockUsers: User[] = [
+export const mockUsers: UserType[] = [
   {
     id: 'admin-123',
     email: 'admin@example.com',
@@ -28,7 +28,7 @@ export const mockUsers: User[] = [
   }
 ];
 
-export const mockFolders: Folder[] = [
+export const mockFolders: FolderType[] = [
   {
     id: 'folder-1',
     userId: 'admin-123',
@@ -67,7 +67,7 @@ export const mockFolders: Folder[] = [
   }
 ];
 
-export const mockBookmarks: Bookmark[] = [
+export const mockBookmarks: BookmarkType[] = [
   {
     id: 'bookmark-1',
     userId: 'admin-123',

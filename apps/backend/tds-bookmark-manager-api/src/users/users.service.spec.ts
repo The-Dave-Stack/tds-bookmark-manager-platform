@@ -19,13 +19,13 @@ describe('UsersService', () => {
 
   describe('findOne', () => {
     it('should return a user if found', async () => {
-      const user = await service.findOne({ email: 'john@test.com' });
+      const user = await service.findOneByEmail({ email: 'john@test.com' });
       expect(user).toBeDefined();
       expect(user?.email).toBe('john@test.com');
     });
 
     it('should return undefined if user not found', async () => {
-      const user = await service.findOne({ email: 'nonexistent' });
+      const user = await service.findOneByEmail({ email: 'nonexistent' });
       expect(user).toBeUndefined();
     });
   });
