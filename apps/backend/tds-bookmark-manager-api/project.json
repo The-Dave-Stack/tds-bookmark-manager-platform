@@ -32,7 +32,7 @@
         },
         "production": {
           "buildTarget": "@tds/tds-bookmark-manager-api:build:production",
-          "watch": true
+          "watch": false
         }
       }
     },

@@ -9,6 +9,11 @@ export default defineConfig(() => ({
   server: {
     port: 4200,
     host: 'localhost',
+    strictPort: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+    },
   },
   preview: {
     port: 4300,

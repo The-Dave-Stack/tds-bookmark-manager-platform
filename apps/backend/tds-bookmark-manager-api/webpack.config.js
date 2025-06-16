@@ -10,6 +10,9 @@ module.exports = {
       '@tds/tds-bm-common': join(__dirname, '../../../libs/tds-bm-common/dist'),
     },
   },
+  watchOptions: {
+    ignored: ['**/*.sqlite'],
+  },
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',

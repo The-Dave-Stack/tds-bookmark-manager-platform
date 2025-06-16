@@ -16,7 +16,7 @@ import { randomBytes } from 'crypto';
 
 @Module({
   imports: [
-    CacheModule.register(),
+    CacheModule.register({ isGlobal: true }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: configurations,

@@ -14,7 +14,7 @@ const pinoLogger = new PinoLogger(getPinoLoggerOptions({ env: 'development', con
 
 // 1. Determine the environment. Default to 'development' if NODE_ENV is not set.
 const nodeEnv = process.env.NODE_ENV || 'development';
-const envFilePath = resolve(join(__dirname, '../../..'), `.env.${nodeEnv}`);
+const envFilePath = resolve(join('apps/backend/tds-bookmark-manager-api'), `.env.${nodeEnv}`);
 
 // 2. Check if the environment-specific .env file exists and load it.
 if (existsSync(envFilePath)) {

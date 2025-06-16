@@ -28,6 +28,7 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
   const { t } = useTranslation();
   const { setUser } = useAuthStore();
   
+  const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,6 +38,7 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({
+    username: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -62,6 +64,7 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
 
   const validateForm = () => {
     const newErrors = {
+      username: '',
       firstName: '',
       lastName: '',
       email: '',
@@ -70,6 +73,11 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
     };
 
     let isValid = true;
+
+    if (!firstName.trim()) {
+      newErrors.username = t('auth.register.errors.usernameRequired');
+      isValid = false;
+    }
 
     if (!firstName.trim()) {
       newErrors.firstName = t('auth.register.errors.firstNameRequired');
@@ -114,13 +122,14 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
     setLoading(true);
     
     try {
-      const adminUser = await api.setupAdmin(email, password, firstName, lastName);
+      // TODO: add username to the form
+      const adminUser = await api.setupAdmin({ username: 'test', email, password, firstName, lastName });
       setUser({
-        id: adminUser.id,
+        username: adminUser.username,
         email: adminUser.email,
         firstName: adminUser.firstName,
         lastName: adminUser.lastName,
-        role: adminUser.role,
+        roles: adminUser.roles,
         apiToken: adminUser.apiToken,
         webhookUrl: adminUser.webhookUrl
       });
@@ -170,6 +179,26 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
           </h3>
           
           <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-mainText">
+                {t('auth.username')}
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={`mt-1 block w-full rounded-md shadow-sm ${
+                  errors.username 
+                    ? 'border-danger focus:border-danger focus:ring-danger' 
+                    : 'border-lightBorder focus:border-primary focus:ring-primary'
+                }`}
+                placeholder={t('auth.register.usernamePlaceholder')}
+              />
+              {errors.username && (
+                <p className="mt-1 text-sm text-danger">{errors.username}</p>
+              )}
+            </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-mainText">

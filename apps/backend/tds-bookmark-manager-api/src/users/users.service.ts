@@ -4,16 +4,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ArrayContains, Repository } from 'typeorm';
+import { ArrayContains, Like, Repository } from 'typeorm';
 
-import { CreateUserDto, mapEntityToDto, Role, User } from '@tds/tds-bm-common';
+import { CreateUserDto, mapEntityToDto, User } from '@tds/tds-bm-common';
 import { PinoLogger } from 'nestjs-pino';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
+    private readonly configService: ConfigService,
     private readonly logger: PinoLogger
   ) {
     this.logger.setContext(UsersService.name);
@@ -21,25 +23,31 @@ export class UsersService {
 
   async hasAdmins(): Promise<boolean> {
     // TODO: Use a better approach
-    const adminCount = await this.usersRepository.count({
-      where: {
-        roles: ArrayContains<Role>(['ADMIN']),
-      },
-    });
+    const dbType = this.configService.get<string>('database.type');
+    const databasePath = this.configService.get<string>('database.database');
+
+    this.logger.debug(`${__dirname}: Database type: ${dbType}; Database path: ${databasePath}`);
+
+    let whereClause: any;
+
+    if (dbType === 'postgres') {
+      whereClause = { roles: ArrayContains(['ADMIN']) };
+    } else {
+      whereClause = { roles: Like('%ADMIN%') };
+    }
+
+    const adminCount = await this.usersRepository.count({ where: whereClause });
 
     return adminCount > 0;
   }
 
   async setupAdmin(createUserDto: CreateUserDto): Promise<User> {
-    return await this.create({ ...createUserDto, roles: ['ADMIN']});
+    return await this.create({ ...createUserDto, roles: ['ADMIN'] });
   }
 
   findOneByEmail(data: Pick<User, 'email'>, options: { withoutPassword: false }): Promise<UserEntity>;
   findOneByEmail(data: Pick<User, 'email'>, options: { withoutPassword: true }): Promise<User>;
-  async findOneByEmail(
-    data: Pick<User, 'email'>,
-    options?: { withoutPassword: boolean }
-  ): Promise<User | UserEntity> {
+  async findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: boolean }): Promise<User | UserEntity> {
     const userEntity = await this.usersRepository.findOneBy({ email: data.email });
 
     this.logger.debug(`User with email '${data.email}' found: %o`, userEntity);
