@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt'; // Import bcrypt
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { NotFoundException } from '@nestjs/common'; // Import NotFoundException
+import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm';
 import { User } from '@tds/tds-bm-common'; // Import User DTO
 import { UserEntity } from './entities/user.entity';
@@ -56,6 +57,16 @@ describe('UsersService', () => {
             find: jest.fn(),
             save: jest.fn(),
             remove: jest.fn(),
+          },
+        },
+        {
+          provide: PinoLogger,
+          useValue: {
+            setContext: jest.fn(),
+            debug: jest.fn(),
+            info: jest.fn(),
+            warn: jest.fn(),
+            error: jest.fn(),
           },
         },
       ],

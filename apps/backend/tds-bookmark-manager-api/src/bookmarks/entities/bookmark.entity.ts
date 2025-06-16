@@ -43,7 +43,7 @@ export class BookmarkEntity {
   // --- RELATIONSHIPS ---
 
   // Many-to-One relationship with User. Many bookmarks can belong to one user.
-  @ManyToOne(() => UserEntity, (user) => user.bookmarks, {
+  @ManyToOne('UserEntity', (user: UserEntity) => user.bookmarks, {
     onDelete: 'CASCADE', // If a user is deleted, their bookmarks are also deleted.
     nullable: false,
   })
@@ -51,7 +51,7 @@ export class BookmarkEntity {
   user!: UserEntity;
 
   // Many-to-One relationship with Folder. Many bookmarks can belong to one folder.
-  @ManyToOne(() => FolderEntity, (folder) => folder.bookmarks, {
+  @ManyToOne('FolderEntity', (folder: FolderEntity) => folder.bookmarks, {
     onDelete: 'SET NULL', // If a folder is deleted, set folder_id to NULL.
     nullable: true, // A bookmark can exist without a folder (in the root).
   })

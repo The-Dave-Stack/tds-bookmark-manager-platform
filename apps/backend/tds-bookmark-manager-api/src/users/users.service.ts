@@ -58,12 +58,12 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  async create(data: Omit<User, 'id' | 'isActive' | 'createdAt'>): Promise<User> {
+  async create(data: Partial<User>): Promise<User> {
     const date = new Date();
     const newUser: UserEntity = {
-      username: data.username,
+      username: data.username as string,
       passwordHash: await this.hashPassword(data.password as string),
-      email: data.email,
+      email: data.email as string,
       firstName: data.firstName,
       lastName: data.lastName,
       isActive: true,

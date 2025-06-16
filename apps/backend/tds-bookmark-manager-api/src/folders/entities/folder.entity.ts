@@ -36,7 +36,7 @@ export class FolderEntity {
   // --- RELATIONSHIPS ---
 
   // Many-to-One relationship with User. Many folders can belong to one user.
-  @ManyToOne(() => UserEntity, (user) => user.folders, {
+  @ManyToOne('UserEntity', (user: UserEntity) => user.folders, {
     onDelete: 'CASCADE', // If a user is deleted, their folders are also deleted.
     nullable: false,
   })
@@ -44,6 +44,6 @@ export class FolderEntity {
   user!: UserEntity;
 
   // One-to-Many relationship with Bookmark. One folder can contain many bookmarks.
-  @OneToMany(() => BookmarkEntity, (bookmark) => bookmark.folder)
+  @OneToMany('BookmarkEntity', (bookmark: BookmarkEntity) => bookmark.folder)
   bookmarks?: BookmarkEntity[];
 }

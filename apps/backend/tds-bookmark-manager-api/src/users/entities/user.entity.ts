@@ -44,9 +44,9 @@ export class UserEntity implements UserWithoutPassword {
   @Column('simple-array')
   roles!: Role[];
 
-  @OneToMany(() => FolderEntity, (folder) => folder.user)
+  @OneToMany('FolderEntity', (folder: FolderEntity) => folder.user)
   folders?: FolderEntity[];
 
-  @OneToMany(() => BookmarkEntity, (bookmark) => bookmark.user)
+  @OneToMany('BookmarkEntity', (bookmark: BookmarkEntity) => bookmark.user)
   bookmarks?: BookmarkEntity[];
 }

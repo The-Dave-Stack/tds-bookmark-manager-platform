@@ -52,7 +52,6 @@ describe('AuthService', () => {
   describe('validateUser', () => {
     it('should return user DTO if credentials are valid', async () => {
       const mockUserDto: User = {
-        id: '1',
         username: 'testuser',
         email: 'testuser@test.com',
         isActive: true,
@@ -68,7 +67,6 @@ describe('AuthService', () => {
 
     it('should return true if credentials are valid and returnUser is false', async () => {
       const mockUserDto: User = {
-        id: '1',
         username: 'testuser',
         email: 'testuser@test.com',
         isActive: true,
@@ -102,7 +100,6 @@ describe('AuthService', () => {
   describe('login', () => {
     it('should return an access token', async () => {
       const mockUserDto: User = {
-        id: '1',
         username: 'testuser',
         email: 'testuser@test.com',
         isActive: true,
@@ -125,7 +122,7 @@ describe('AuthService', () => {
       expect(usersService.validateUserCredentials).toHaveBeenCalledWith({ email: 'testuser@test.com', password: 'validpassword' });
       expect(jwtService.sign).toHaveBeenCalledWith({
         username: 'testuser',
-        sub: '1',
+        sub: 'testuser@test.com',
         roles: ['USER'],
       });
     });
@@ -142,7 +139,6 @@ describe('AuthService', () => {
     it('should create a new user and return user DTO', async () => {
       const createUserDto = { username: 'newuser', password: 'newpassword', email: 'newuser@test.com' };
       const mockNewUserDto: User = {
-        id: 'uuid-1',
         username: 'newuser',
         email: 'newuser@test.com',
         isActive: true,

@@ -29,7 +29,7 @@ export class AuthService {
     }
     const payload: JwtPayloadDto = {
       username: userFound.username,
-      sub: `${userFound.id}`,
+      sub: `${userFound.email}`,
       roles: userFound.roles,
     };
     return {
