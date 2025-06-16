@@ -2,7 +2,7 @@ import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 import { User } from '../interfaces/user.interface.js';
 
-export class CreateUserDto implements Pick<User, 'username' | 'password' | 'email'> {
+export class CreateUserDto implements Pick<User, 'username' | 'password' | 'email' | 'firstName' | 'lastName'> {
   @IsString()
   @IsNotEmpty({ message: 'Username is required' })
   username!: string;
@@ -16,4 +16,10 @@ export class CreateUserDto implements Pick<User, 'username' | 'password' | 'emai
   @IsEmail({}, { message: 'Invalid email format' })
   @IsNotEmpty({ message: 'Email is required' })
   email!: string;
+
+  @IsString()
+  firstName?: string;
+
+  @IsString()
+  lastName?: string;
 }
