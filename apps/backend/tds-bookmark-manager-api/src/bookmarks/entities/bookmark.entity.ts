@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { FolderEntity } from '../../folders/entities/folder.entity';
-import { UserEntity } from '../../users/entities/user.entity';
+import type { FolderEntity } from '../../folders/entities/folder.entity';
+import type { UserEntity } from '../../users/entities/user.entity';
 
 @Entity({ name: 'bookmarks' })
 export class BookmarkEntity {

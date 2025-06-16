@@ -10,8 +10,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { BookmarkEntity } from '../../bookmarks/entities/bookmark.entity';
-import { UserEntity } from '../../users/entities/user.entity';
+import type { BookmarkEntity } from '../../bookmarks/entities/bookmark.entity';
+import type { UserEntity } from '../../users/entities/user.entity';
 
 @Entity({ name: 'folders' })
 @Unique(['user', 'name', 'parentId']) // A user cannot have two folders with the same name within the same parent.

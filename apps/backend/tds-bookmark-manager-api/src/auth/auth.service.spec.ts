@@ -4,13 +4,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@tds/tds-bm-common';
 import { UserEntity } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 
 // Mock bcrypt to control hashing and comparison outcomes
 jest.mock('bcrypt', () => ({
-  compare: jest.fn((password, hash) => password === 'validpassword' && hash === 'hashedpassword'),
-  hash: jest.fn(() => 'hashedpassword'),
+  compare: jest.fn(),
+  hash: jest.fn(),
 }));
 
 describe('AuthService', () => {
@@ -25,8 +26,9 @@ describe('AuthService', () => {
         {
           provide: UsersService,
           useValue: {
-            findOne: jest.fn(),
+            findOneByEmail: jest.fn(),
             create: jest.fn(),
+            validateUserCredentials: jest.fn(), // Add this mock
           },
         },
         {
@@ -48,97 +50,111 @@ describe('AuthService', () => {
   });
 
   describe('validateUser', () => {
-    it('should return user without password if credentials are valid', async () => {
-      const mockUser: UserEntity = {
+    it('should return user DTO if credentials are valid', async () => {
+      const mockUserDto: User = {
         id: '1',
         username: 'testuser',
-        passwordHash: 'hashedpassword',
         email: 'testuser@test.com',
         isActive: true,
         createdAt: new Date(),
         roles: ['USER'],
       };
-      (usersService.findOneByEmail as jest.Mock).mockReturnValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(mockUserDto);
 
-      const result = await authService.validateUser({ email: 'testuser@test.com', password: 'validpassword' });
-      expect(result).toBeTruthy();
-      expect(usersService.findOneByEmail).toHaveBeenCalledWith({ email: 'testuser@test.com' }, { withoutPassword: false });
-      expect(bcrypt.compare).toHaveBeenCalledWith('validpassword', 'hashedpassword');
+      const result = await authService.validateUser({ email: 'testuser@test.com', password: 'validpassword' }, { returnUser: true });
+      expect(result).toEqual(mockUserDto);
+      expect(usersService.validateUserCredentials).toHaveBeenCalledWith({ email: 'testuser@test.com', password: 'validpassword' });
     });
 
-    it('should return null if user not found', async () => {
-      (usersService.findOneByEmail as jest.Mock).mockReturnValue(undefined);
+    it('should return true if credentials are valid and returnUser is false', async () => {
+      const mockUserDto: User = {
+        id: '1',
+        username: 'testuser',
+        email: 'testuser@test.com',
+        isActive: true,
+        createdAt: new Date(),
+        roles: ['USER'],
+      };
+      (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(mockUserDto);
+
+      const result = await authService.validateUser({ email: 'testuser@test.com', password: 'validpassword' }, { returnUser: false });
+      expect(result).toBe(true);
+      expect(usersService.validateUserCredentials).toHaveBeenCalledWith({ email: 'testuser@test.com', password: 'validpassword' });
+    });
+
+    it('should return false if user not found', async () => {
+      (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(undefined);
 
       const result = await authService.validateUser({ email: 'nonexistent', password: 'anypass' });
-      expect(result).toBeFalsy();
-      expect(usersService.findOneByEmail).toHaveBeenCalledWith({ email: 'nonexistent' }, { withoutPassword: false });
+      expect(result).toBe(false);
+      expect(usersService.validateUserCredentials).toHaveBeenCalledWith({ email: 'nonexistent', password: 'anypass' });
     });
 
-    it('should return null if password is invalid', async () => {
-      const mockUser: UserEntity = {
-        id: '1',
-        username: 'testuser',
-        passwordHash: 'hashedpassword',
-        email: 'testuser@test.com',
-        isActive: true,
-        createdAt: new Date(),
-        roles: ['USER'],
-      };
-      (usersService.findOneByEmail as jest.Mock).mockReturnValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+    it('should return false if password is invalid', async () => {
+      (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(undefined);
 
       const result = await authService.validateUser({ email: 'testuser@test.com', password: 'invalidpassword' });
-      expect(result).toBeFalsy();
-      expect(usersService.findOneByEmail).toHaveBeenCalledWith({ email: 'testuser@test.com' }, { withoutPassword: false });
-      expect(bcrypt.compare).toHaveBeenCalledWith('invalidpassword', 'hashedpassword');
+      expect(result).toBe(false);
+      expect(usersService.validateUserCredentials).toHaveBeenCalledWith({ email: 'testuser@test.com', password: 'invalidpassword' });
     });
   });
 
   describe('login', () => {
     it('should return an access token', async () => {
-      const user = { password: 'hashedpassword', email: 'testuser@test.com' };
-      const mockUser: UserEntity = {
+      const mockUserDto: User = {
         id: '1',
         username: 'testuser',
-        passwordHash: 'hashedpassword',
         email: 'testuser@test.com',
         isActive: true,
         createdAt: new Date(),
         roles: ['USER'],
       };
-      (usersService.findOneByEmail as jest.Mock).mockReturnValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      // Ensure validateUserCredentials returns the mockUserDto for the login test
+      (usersService.validateUserCredentials as jest.Mock).mockImplementation(async (credentials) => {
+        if (credentials.email === 'testuser@test.com' && credentials.password === 'validpassword') {
+          return mockUserDto;
+        }
+        return undefined;
+      });
+      (jwtService.sign as jest.Mock).mockReturnValue('mockedAccessToken');
 
-      const result = await authService.login(user);
+      const result = await authService.login({ email: 'testuser@test.com', password: 'validpassword' });
 
       expect(result).toEqual({ access_token: 'mockedAccessToken' });
+      // Expect validateUserCredentials to be called by authService.login
+      expect(usersService.validateUserCredentials).toHaveBeenCalledWith({ email: 'testuser@test.com', password: 'validpassword' });
       expect(jwtService.sign).toHaveBeenCalledWith({
         username: 'testuser',
         sub: '1',
-        roles: ['user'],
+        roles: ['USER'],
       });
     });
+
+    // it('should throw UnauthorizedException if validateUserCredentials returns false', async () => {
+    //   (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(undefined); // Mock the dependency to return undefined
+
+    //   await expect(authService.login({ email: 'invalid@test.com', password: 'wrongpass' })).rejects.toThrow(UnauthorizedException);
+    //   expect(usersService.validateUserCredentials).toHaveBeenCalledWith({ email: 'invalid@test.com', password: 'wrongpass' });
+    // });
   });
 
   describe('register', () => {
-    it('should create a new user with hashed password and return user without password', async () => {
-      const mockNewUser = {
-        userId: 3,
+    it('should create a new user and return user DTO', async () => {
+      const createUserDto = { username: 'newuser', password: 'newpassword', email: 'newuser@test.com' };
+      const mockNewUserDto: User = {
+        id: 'uuid-1',
         username: 'newuser',
-        password: 'newpassword',
         email: 'newuser@test.com',
         isActive: true,
         createdAt: new Date(),
-        roles: ['user'],
+        roles: ['USER'],
       };
-      (usersService.create as jest.Mock).mockReturnValue(mockNewUser);
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedpassword');
+      (usersService.create as jest.Mock).mockResolvedValue(mockNewUserDto);
 
-      const result = await authService.register({ email: 'newuser@test.com', password: 'newpassword', username: 'newuser' });
-      expect(result).toEqual(mockNewUser);
-      expect(bcrypt.hash).toHaveBeenCalledWith('newpassword', 10);
-      expect(usersService.create).toHaveBeenCalledWith({ email: 'newuser@test.com', password: 'hashedpassword', username: 'newuser', roles: ['user'] });
+      const result = await authService.register(createUserDto);
+
+      expect(result).toEqual(mockNewUserDto);
+      expect(usersService.create).toHaveBeenCalledWith(createUserDto);
     });
   });
 });

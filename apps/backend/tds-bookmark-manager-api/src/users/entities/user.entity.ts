@@ -1,9 +1,9 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Role, UserWithoutPassword } from '@tds/tds-bm-common';
 
-import { BookmarkEntity } from '../../bookmarks/entities/bookmark.entity';
+import type { BookmarkEntity } from '../../bookmarks/entities/bookmark.entity';
 import { Exclude } from 'class-transformer';
-import { FolderEntity } from '../../folders/entities/folder.entity';
+import type { FolderEntity } from '../../folders/entities/folder.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity implements UserWithoutPassword {

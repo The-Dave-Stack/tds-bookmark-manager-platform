@@ -4,16 +4,35 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { ArrayContains, Repository } from 'typeorm';
 
-import { mapEntityToDto, User } from '@tds/tds-bm-common';
+import { CreateUserDto, mapEntityToDto, Role, User } from '@tds/tds-bm-common';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly usersRepository: Repository<UserEntity>
-  ) {}
+    private readonly usersRepository: Repository<UserEntity>,
+    private readonly logger: PinoLogger
+  ) {
+    this.logger.setContext(UsersService.name);
+  }
+
+  async hasAdmins(): Promise<boolean> {
+    // TODO: Use a better approach
+    const adminCount = await this.usersRepository.count({
+      where: {
+        roles: ArrayContains<Role>(['ADMIN']),
+      },
+    });
+
+    return adminCount > 0;
+  }
+
+  async setupAdmin(createUserDto: CreateUserDto): Promise<User> {
+    return await this.create({ ...createUserDto, roles: ['ADMIN']});
+  }
 
   findOneByEmail(data: Pick<User, 'email'>, options: { withoutPassword: false }): Promise<UserEntity>;
   findOneByEmail(data: Pick<User, 'email'>, options: { withoutPassword: true }): Promise<User>;
@@ -23,6 +42,7 @@ export class UsersService {
   ): Promise<User | UserEntity> {
     const userEntity = await this.usersRepository.findOneBy({ email: data.email });
 
+    this.logger.debug(`User with email '${data.email}' found: %o`, userEntity);
     if (!userEntity) {
       throw new NotFoundException(`User with mail '${data.email}' not found.`);
     }
@@ -38,27 +58,35 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  async create(data: Omit<User, 'id' | 'isActive' | 'createdAt' | 'roles'>): Promise<User> {
+  async create(data: Omit<User, 'id' | 'isActive' | 'createdAt'>): Promise<User> {
     const date = new Date();
     const newUser: UserEntity = {
       username: data.username,
-      passwordHash: await this.hashPassword(data.password),
+      passwordHash: await this.hashPassword(data.password as string),
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
       isActive: true,
       createdAt: date,
       updatedAt: date,
-      roles: ['USER'],
+      roles: data.roles || ['USER'],
     };
     return mapEntityToDto(await this.usersRepository.save(newUser), User);
   }
 
   async validateUserCredentials(credentials: Pick<User, 'email' | 'password'>): Promise<User | undefined> {
-    const userEntity = await this.findOneByEmail({ email: credentials.email }, { withoutPassword: false });
+    let userEntity: UserEntity;
+    try {
+      userEntity = await this.findOneByEmail({ email: credentials.email }, { withoutPassword: false });
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return undefined; // User not found, return undefined as per requirement
+      }
+      throw error; // Re-throw other exceptions
+    }
 
-    if (!userEntity || !(await this.comparePassword(credentials.password, userEntity.passwordHash))) {
-      return undefined;
+    if (!(await this.comparePassword(credentials.password as string, userEntity.passwordHash))) {
+      return undefined; // Invalid password
     }
 
     return mapEntityToDto(userEntity, User);

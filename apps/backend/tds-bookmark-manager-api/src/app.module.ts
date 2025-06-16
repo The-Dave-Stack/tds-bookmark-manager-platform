@@ -4,6 +4,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { CacheModule } from '@nestjs/cache-manager';
 import { FoldersModule } from './folders/folders.module';
 import { LoggerModule } from 'nestjs-pino';
 import { Module } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { randomBytes } from 'crypto';
 
 @Module({
   imports: [
+    CacheModule.register(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: configurations,
