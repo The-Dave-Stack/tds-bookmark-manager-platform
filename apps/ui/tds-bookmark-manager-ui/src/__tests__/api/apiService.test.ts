@@ -41,7 +41,7 @@ describe('apiService', () => {
 
     it('should register a new user successfully', async () => {
       const initialUserCount = mockUsers.length;
-      const newUserPromise = api.register('newuser@example.com', 'newpassword', 'New', 'User');
+      const newUserPromise = api.register({ username: 'newuser', email: 'newuser@example.com', password: 'newpassword', firstName: 'New', lastName: 'User' });
       await vi.runAllTimersAsync(); // Advance all pending timers
       const newUser = await newUserPromise;
       expect(newUser).toBeDefined();
@@ -51,23 +51,23 @@ describe('apiService', () => {
     });
 
     it('should throw error if user already exists during registration', async () => {
-      const promise = api.register('user@example.com', 'password123', 'Existing', 'User');
+      const promise = api.register({ username: 'existinguser', email: 'user@example.com', password: 'password123', firstName: 'Existing', lastName: 'User'});
       const assetionPromise = expect(promise).rejects.toThrow('User already exists');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assetionPromise;
     });
 
     it('should update user profile', async () => {
-      const updatedUserPromise = api.updateProfile('user-123', { firstName: 'Updated', lastName: 'Name' });
+      const updatedUserPromise = api.updateProfile('user@example.com', { firstName: 'Updated', lastName: 'Name' });
       await vi.runAllTimersAsync(); // Advance all pending timers
       const updatedUser = await updatedUserPromise;
       expect(updatedUser.firstName).toBe('Updated');
       expect(updatedUser.lastName).toBe('Name');
-      expect(mockUsers.find(u => u.id === 'user-123')?.firstName).toBe('Updated');
+      expect(mockUsers.find(u => u.email === 'user@example.com')?.firstName).toBe('Updated');
     });
 
     it('should throw error if user not found during profile update', async () => {
-      const promise = api.updateProfile('nonexistent-user', { firstName: 'Test' });
+      const promise = api.updateProfile('nonexistent-user@example.com', { firstName: 'Test' });
       const assertionPromise = expect(promise).rejects.toThrow('User not found');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assertionPromise;      
@@ -86,15 +86,15 @@ describe('apiService', () => {
     });
 
     it('should update user role', async () => {
-      const updatedUserPromise = api.updateUserRole('user-123', 'admin');
+      const updatedUserPromise = api.updateUserRole('user@example.com', 'ADMIN');
       await vi.runAllTimersAsync(); // Advance all pending timers
       const updatedUser = await updatedUserPromise;
-      expect(updatedUser.role).toBe('admin');
-      expect(mockUsers.find(u => u.id === 'user-123')?.role).toBe('admin');
+      expect(updatedUser.roles).toContain('ADMIN');
+      expect(mockUsers.find(u => u.email === 'user@example.com')?.roles).toContain('ADMIN');
     });
 
     it('should throw error if user not found during role update', async () => {
-      const promise = api.updateUserRole('nonexistent-user', 'admin');
+      const promise = api.updateUserRole('nonexistent-user@example.com', 'ADMIN');
       const assetionPromise = expect(promise).rejects.toThrow('User not found');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assetionPromise;
@@ -114,35 +114,37 @@ describe('apiService', () => {
 
   // Bookmarks tests
   describe('Bookmarks', () => {
-    const userId = 'admin-123'; // Changed from user-1
+    const userEmail = 'admin@example.com';
     let initialBookmark = { // Changed to let to allow modification in beforeEach
       id: 'bookmark-1',
-      userId: 'admin-123', // Changed from user-1
+      userEmail: 'admin@example.com',
       url: 'https://example.com/bookmark1',
       title: 'Bookmark 1',
+      folderId: 'folder-1',
       clickCount: 0,
       isHidden: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     beforeEach(() => {
       // Ensure mockBookmarks is reset to a known state for bookmark tests
       initialBookmark = { // Reset initialBookmark to ensure clickCount is 0
         id: 'bookmark-1',
-        userId: 'admin-123',
+        userEmail: 'admin@example.com',
         url: 'https://example.com/bookmark1',
         title: 'Bookmark 1',
+        folderId: 'folder-1',
         clickCount: 0,
         isHidden: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       mockBookmarks.splice(0, mockBookmarks.length, initialBookmark);
     });
 
     it('should get bookmarks for a user', async () => {
-      const bookmarksPromise = api.getBookmarks(userId);
+      const bookmarksPromise = api.getBookmarks(userEmail);
       await vi.runAllTimersAsync(); // Advance all pending timers
       const bookmarks = await bookmarksPromise;
       expect(bookmarks).toBeDefined();
@@ -152,7 +154,7 @@ describe('apiService', () => {
 
     it('should create a new bookmark', async () => {
       const initialCount = mockBookmarks.length;
-      const newBookmarkPromise = api.createBookmark(userId, { url: 'https://new.com', title: 'New Bookmark' });
+      const newBookmarkPromise = api.createBookmark(userEmail, { url: 'https://new.com', title: 'New Bookmark' });
       await vi.runAllTimersAsync(); // Advance all pending timers
       const newBookmark = await newBookmarkPromise;
       expect(newBookmark).toBeDefined();
@@ -161,7 +163,7 @@ describe('apiService', () => {
     });
 
     it('should update an existing bookmark', async () => {
-      const updatedBookmarkPromise = api.updateBookmark(userId, 'bookmark-1', { title: 'Updated Bookmark' });
+      const updatedBookmarkPromise = api.updateBookmark(userEmail, 'bookmark-1', { title: 'Updated Bookmark' });
       await vi.runAllTimersAsync(); // Advance all pending timers
       const updatedBookmark = await updatedBookmarkPromise;
       expect(updatedBookmark.title).toBe('Updated Bookmark');
@@ -169,7 +171,7 @@ describe('apiService', () => {
     });
 
     it('should throw error if bookmark not found during update', async () => {
-      const promise = api.updateBookmark(userId, 'nonexistent-bookmark', { title: 'Test' });
+      const promise = api.updateBookmark(userEmail, 'nonexistent-bookmark', { title: 'Test' });
       const assertionPromise = expect(promise).rejects.toThrow('Bookmark not found');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assertionPromise;
@@ -177,21 +179,21 @@ describe('apiService', () => {
 
     it('should delete a bookmark', async () => {
       const initialCount = mockBookmarks.length;
-      await api.deleteBookmark(userId, 'bookmark-1');
+      await api.deleteBookmark(userEmail, 'bookmark-1');
       await vi.runAllTimersAsync(); // Advance all pending timers
       expect(mockBookmarks.length).toBe(initialCount - 1);
       expect(mockBookmarks.some(b => b.id === 'bookmark-1')).toBe(false);
     }, 15000); // Increased timeout
 
     it('should throw error if bookmark not found during delete', async () => {
-      const promise = api.deleteBookmark(userId, 'nonexistent-bookmark');
+      const promise = api.deleteBookmark(userEmail, 'nonexistent-bookmark');
       const assertionPromise = expect(promise).rejects.toThrow('Bookmark not found');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assertionPromise;
     });
 
     it('should increment bookmark click count', async () => {
-      const bookmarkPromise = api.incrementBookmarkClicks(userId, 'bookmark-1');
+      const bookmarkPromise = api.incrementBookmarkClicks(userEmail, 'bookmark-1');
       await vi.runAllTimersAsync(); // Advance all pending timers
       const bookmark = await bookmarkPromise;
       expect(bookmark.clickCount).toBe(1);
@@ -199,7 +201,7 @@ describe('apiService', () => {
     });
 
     it('should throw error if bookmark not found during click increment', async () => {
-      const promise = api.incrementBookmarkClicks(userId, 'nonexistent-bookmark');
+      const promise = api.incrementBookmarkClicks(userEmail, 'nonexistent-bookmark');
       const assertionPromise = expect(promise).rejects.toThrow('Bookmark not found');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assertionPromise;
@@ -208,35 +210,35 @@ describe('apiService', () => {
 
   // Folders tests
   describe('Folders', () => {
-    const userId = 'admin-123'; // Changed from user-1
+    const userEmail = 'admin@example.com';
     const initialFolder = {
       id: 'folder-1',
-      userId: 'admin-123', // Changed from user-1
+      userEmail: userEmail,
       name: 'Folder 1',
       parentId: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       bookmarkCount: 0
     };
     const childFolder = {
       id: 'folder-2',
-      userId: 'admin-123', // Changed from user-1
+      userEmail: userEmail,
       name: 'Folder 2',
       parentId: 'folder-1',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       bookmarkCount: 0
     };
     const bookmarkInFolder = {
       id: 'bookmark-in-folder',
-      userId: 'admin-123', // Changed from user-1
+      userEmail: userEmail,
       url: 'https://example.com/in-folder',
       title: 'Bookmark In Folder',
       folderId: 'folder-1',
       clickCount: 0,
       isHidden: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     beforeEach(() => {
@@ -245,7 +247,7 @@ describe('apiService', () => {
     });
 
     it('should get folders for a user', async () => {
-      const foldersPromise = api.getFolders(userId);
+      const foldersPromise = api.getFolders(userEmail);
       await vi.runAllTimersAsync(); // Advance all pending timers
       const folders = await foldersPromise;
       expect(folders).toBeDefined();
@@ -255,7 +257,7 @@ describe('apiService', () => {
 
     it('should create a new folder', async () => {
       const initialCount = mockFolders.length;
-      const newFolderPromise = api.createFolder(userId, null, { name: 'New Folder' });
+      const newFolderPromise = api.createFolder(userEmail, null, { name: 'New Folder' });
       await vi.runAllTimersAsync(); // Advance all pending timers
       const newFolder = await newFolderPromise;
       expect(newFolder).toBeDefined();
@@ -264,7 +266,7 @@ describe('apiService', () => {
     });
 
     it('should update an existing folder', async () => {
-      const updatedFolderPromise = api.updateFolder(userId, 'folder-1', null, { name: 'Updated Folder' });
+      const updatedFolderPromise = api.updateFolder(userEmail, 'folder-1', null, { name: 'Updated Folder' });
       await vi.runAllTimersAsync(); // Advance all pending timers
       const updatedFolder = await updatedFolderPromise;
       expect(updatedFolder.name).toBe('Updated Folder');
@@ -272,7 +274,7 @@ describe('apiService', () => {
     });
 
     it('should throw error if folder not found during update', async () => {
-      const promise = api.updateFolder(userId, 'nonexistent-folder', 'Test');
+      const promise = api.updateFolder(userEmail, 'nonexistent-folder', 'Test');
       const assertionPromise = expect(promise).rejects.toThrow('Folder not found');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assertionPromise;
@@ -284,7 +286,7 @@ describe('apiService', () => {
         { ...initialFolder, parentId: 'folder-2' }, 
         { ...childFolder, parentId: 'folder-1' }
       );
-      const promise = api.updateFolder(userId, 'folder-1', 'folder-2', { name: 'Folder 1' });
+      const promise = api.updateFolder(userEmail, 'folder-1', 'folder-2', { name: 'Folder 1' });
       const assertionPromise = expect(promise).rejects.toThrow('Circular reference detected');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assertionPromise;
@@ -293,7 +295,7 @@ describe('apiService', () => {
     it('should delete a folder and its children, and update associated bookmarks', async () => {
       const initialFolderCount = mockFolders.length;
 
-      await api.deleteFolder(userId, 'folder-1');
+      await api.deleteFolder(userEmail, 'folder-1');
       await vi.runAllTimersAsync(); // Advance all pending timers
 
       expect(mockFolders.length).toBe(initialFolderCount - 2); // folder-1 and folder-2 deleted
@@ -303,7 +305,7 @@ describe('apiService', () => {
     }, 15000); // Increased timeout
 
     it('should throw error if folder not found during delete', async () => {
-      const promise = api.deleteFolder(userId, 'nonexistent-folder');
+      const promise = api.deleteFolder(userEmail, 'nonexistent-folder');
       const assertionPromise = expect(promise).rejects.toThrow('Folder not found');
       await vi.runAllTimersAsync(); // Advance all pending timers
       await assertionPromise;

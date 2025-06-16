@@ -1,4 +1,5 @@
 import type { ApiInterface, BookmarkType, FolderType, UserType } from './types'; // Reuse your existing types
+import { CreateUserDto, Role, isEmail } from '@tds/tds-bm-common';
 
 import { DateRange } from '../components/statistics/DateRangeSelector';
 import axios from 'axios';
@@ -27,24 +28,28 @@ apiClient.interceptors.request.use(
 export const api: ApiInterface = {
   // --- System check ---
   async checkAdminExists(): Promise<boolean> {
-    throw new Error('Function not implemented.');
+    const response = await apiClient.get('/users/checkAdmins');
+    return response.data;
   },
-  async setupAdmin(email: string, password: string, firstName: string, lastName: string): Promise<UserType> {
-    throw new Error('Function not implemented.');
+  async setupAdmin(createUserDto: CreateUserDto): Promise<UserType> {
+    const response = await apiClient.post('/users/setupAdmin', createUserDto);
+    return response.data;
   },
   // --- Auth ---
   async login(email: string, password: string): Promise<UserType> {
+    isEmail(email);
     const response = await apiClient.post('/auth/login', { email, password });
     return response.data;
   },
 
-  async register(email: string, password: string, firstName: string, lastName: string): Promise<UserType> {
-    const response = await apiClient.post('/auth/register', { email, password, firstName, lastName });
+  async register(createUserDto: CreateUserDto): Promise<UserType> {
+    const response = await apiClient.post('/auth/register', createUserDto);
     return response.data;
   },
 
-  async updateProfile(userId: string, data: Partial<UserType>): Promise<UserType> {
-    const response = await apiClient.put(`/users/${userId}`, data);
+  async updateProfile(email: string, data: Partial<UserType>): Promise<UserType> {
+    isEmail(email);
+    const response = await apiClient.put(`/users/${email}`, data);
     return response.data;
   },
 
@@ -54,59 +59,70 @@ export const api: ApiInterface = {
     return response.data;
   },
 
-  async updateUserRole(userId: string, role: 'user' | 'admin'): Promise<UserType> {
-    const response = await apiClient.put(`/users/${userId}/role`, { role });
+  async updateUserRole(email: string, role: Role): Promise<UserType> {
+    isEmail(email);
+    const response = await apiClient.put(`/users/${email}/role`, { role });
     return response.data;
   },
 
   // --- Statistics ---
+  // TODO: return statistic object
   async getAdminStatistics(dateRange: DateRange): Promise<any> {
     const response = await apiClient.get('/statistics/admin', { params: dateRange });
     return response.data;
   },
 
   // --- Bookmarks ---
-  async getBookmarks(userId: string): Promise<BookmarkType[]> {
-    const response = await apiClient.get(`/users/${userId}/bookmarks`);
+  async getBookmarks(userEmail: string): Promise<BookmarkType[]> {
+    isEmail(userEmail);
+    const response = await apiClient.get(`/users/${userEmail}/bookmarks`);
     return response.data;
   },
 
-  async createBookmark(userId: string, data: Partial<BookmarkType>): Promise<BookmarkType> {
-    const response = await apiClient.post(`/users/${userId}/bookmarks`, data);
+  async createBookmark(userEmail: string, data: Partial<BookmarkType>): Promise<BookmarkType> {
+    isEmail(userEmail);
+    const response = await apiClient.post(`/users/${userEmail}/bookmarks`, data);
     return response.data;
   },
 
-  async updateBookmark(userId: string, bookmarkId: string, data: Partial<BookmarkType>): Promise<BookmarkType> {
-    const response = await apiClient.put(`/users/${userId}/bookmarks/${bookmarkId}`, data);
+  async updateBookmark(userEmail: string, bookmarkId: string, data: Partial<BookmarkType>): Promise<BookmarkType> {
+    isEmail(userEmail);
+    const response = await apiClient.put(`/users/${userEmail}/bookmarks/${bookmarkId}`, data);
     return response.data;
   },
 
-  async deleteBookmark(userId: string, bookmarkId: string): Promise<void> {
-    await apiClient.delete(`/users/${userId}/bookmarks/${bookmarkId}`);
+  async deleteBookmark(userEmail: string, bookmarkId: string): Promise<void> {
+    isEmail(userEmail);
+    await apiClient.delete(`/users/${userEmail}/bookmarks/${bookmarkId}`);
   },
 
-  async incrementBookmarkClicks(userId: string, bookmarkId: string): Promise<BookmarkType> {
-    const response = await apiClient.post(`/users/${userId}/bookmarks/${bookmarkId}/click`);
+  async incrementBookmarkClicks(userEmail: string, bookmarkId: string): Promise<BookmarkType> {
+    isEmail(userEmail);
+    const response = await apiClient.post(`/users/${userEmail}/bookmarks/${bookmarkId}/click`);
     return response.data;
   },
 
   // --- Folders ---
-  async getFolders(userId: string): Promise<FolderType[]> {
-    const response = await apiClient.get(`/users/${userId}/folders`);
+  async getFolders(userEmail: string): Promise<FolderType[]> {
+    isEmail(userEmail);
+    const response = await apiClient.get(`/users/${userEmail}/folders`);
     return response.data;
   },
 
-  async createFolder(userId: string, parentId: string | null, data: Partial<FolderType>): Promise<FolderType> {
-    const response = await apiClient.post(`/users/${userId}/folders`, data);
+  async createFolder(userEmail: string, parentId: string | null, data: Partial<FolderType>): Promise<FolderType> {
+    isEmail(userEmail);
+    const response = await apiClient.post(`/users/${userEmail}/folders`, data);
     return response.data;
   },
 
-  async updateFolder(userId: string, folderId: string, parentId: string | null, data: Partial<FolderType>): Promise<FolderType> {
-    const response = await apiClient.put(`/users/${userId}/folders/${folderId}`, data);
+  async updateFolder(userEmail: string, folderId: string, parentId: string | null, data: Partial<FolderType>): Promise<FolderType> {
+    isEmail(userEmail);
+    const response = await apiClient.put(`/users/${userEmail}/folders/${folderId}`, data);
     return response.data;
   },
 
-  async deleteFolder(userId: string, folderId: string): Promise<void> {
-    await apiClient.delete(`/users/${userId}/folders/${folderId}`);
+  async deleteFolder(userEmail: string, folderId: string): Promise<void> {
+    isEmail(userEmail);
+    await apiClient.delete(`/users/${userEmail}/folders/${folderId}`);
   }
 };
