@@ -2,10 +2,11 @@ import { CreateUserDto, Role, User } from '@tds/tds-bm-common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { PinoLogger } from 'nestjs-pino';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
-// Mock del UsersService: Simulamos lo que haría el servicio real.
+// UsersService mock: simulates the real service.
 const mockUsersService = {
   hasAdmins: jest.fn(),
   setupAdmin: jest.fn(),
@@ -23,9 +24,19 @@ describe('UsersController', () => {
           provide: UsersService,
           useValue: mockUsersService,
         },
+        {
+          // Provide a mock object for PinoLogger instead of the class
+          provide: PinoLogger,
+          useValue: {
+            setContext: jest.fn(),
+            debug: jest.fn(),
+            info: jest.fn(),
+            warn: jest.fn(),
+            error: jest.fn(),
+          },
+        },
       ],
     })
-      // Sobrescribimos el CacheInterceptor para que no interfiera en los tests
       .overrideInterceptor(CacheInterceptor)
       .useValue({
         intercept: jest.fn().mockImplementation((_context, next) => next.handle()),
@@ -35,7 +46,6 @@ describe('UsersController', () => {
     controller = module.get<UsersController>(UsersController);
     service = module.get<UsersService>(UsersService);
 
-    // Limpiamos los mocks antes de cada test para asegurar que los tests son independientes
     jest.clearAllMocks();
   });
 

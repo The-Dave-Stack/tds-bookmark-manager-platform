@@ -45,8 +45,8 @@ export class UsersService {
     return await this.create({ ...createUserDto, roles: ['ADMIN'] });
   }
 
-  findOneByEmail(data: Pick<User, 'email'>, options: { withoutPassword: false }): Promise<UserEntity>;
-  findOneByEmail(data: Pick<User, 'email'>, options: { withoutPassword: true }): Promise<User>;
+  findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: false }): Promise<UserEntity>;
+  findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: true }): Promise<User>;
   async findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: boolean }): Promise<User | UserEntity> {
     const userEntity = await this.usersRepository.findOneBy({ email: data.email });
 

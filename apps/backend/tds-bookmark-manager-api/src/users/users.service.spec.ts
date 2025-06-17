@@ -1,15 +1,26 @@
 import * as bcrypt from 'bcrypt'; // Import bcrypt
 
+import { ArrayContains, Like, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { ConfigService } from '@nestjs/config';
 import { NotFoundException } from '@nestjs/common'; // Import NotFoundException
 import { PinoLogger } from 'nestjs-pino';
-import { Repository } from 'typeorm';
 import { User } from '@tds/tds-bm-common'; // Import User DTO
 import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mapEntityToDto } from '@tds/tds-bm-common'; // Import mapEntityToDto
+
+// Mock the entire tds-bm-common module to control mapEntityToDto
+jest.mock('@tds/tds-bm-common', () => ({
+  ...jest.requireActual('@tds/tds-bm-common'), // Keep original exports
+  mapEntityToDto: jest.fn((entity) => {
+    if (!entity) return undefined;
+    const { passwordHash, ...rest } = entity;
+    return rest;
+  }),
+}));
 
 // Mock bcrypt globally for this test file
 jest.mock('bcrypt', () => ({
@@ -27,7 +38,8 @@ jest.mock('@tds/tds-bm-common', () => {
       if (!entity) return undefined;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { passwordHash, ...rest } = entity; // Destructure to remove passwordHash
-      if (dtoClass === User) { // Check if the target DTO is User
+      if (dtoClass === User) {
+        // Check if the target DTO is User
         return { ...rest }; // Return the rest of the properties, effectively removing passwordHash
       }
       return rest; // For other DTOs or if dtoClass is not User
@@ -39,6 +51,7 @@ jest.mock('@tds/tds-bm-common', () => {
 describe('UsersService', () => {
   let service: UsersService;
   let userRepository: Repository<UserEntity>;
+  let configService: ConfigService;
 
   beforeEach(async () => {
     // Reset mocks before each test to ensure a clean state
@@ -46,17 +59,17 @@ describe('UsersService', () => {
     (bcrypt.hash as jest.Mock).mockClear();
     (bcrypt.compare as jest.Mock).mockClear();
 
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
           provide: getRepositoryToken(UserEntity),
-          useValue: { 
+          useValue: {
             findOneBy: jest.fn(),
             find: jest.fn(),
             save: jest.fn(),
             remove: jest.fn(),
+            count: jest.fn(),
           },
         },
         {
@@ -69,11 +82,25 @@ describe('UsersService', () => {
             error: jest.fn(),
           },
         },
+        {
+          // Provide a mock for ConfigService
+          provide: ConfigService,
+          useValue: {
+            // Mock the .get() method to return a default db type for tests
+            get: jest.fn((key: string) => {
+              if (key === 'database.type') {
+                return 'sqlite'; // or 'postgres', depending on what you want to test
+              }
+              return null;
+            }),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
     userRepository = module.get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
+    configService = module.get<ConfigService>(ConfigService);
   });
 
   afterEach(() => {
@@ -84,32 +111,64 @@ describe('UsersService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('hasAdmins', () => {
+    it('should use ArrayContains for postgres', async () => {
+      // Arrange: set up the mock for this specific test
+      jest.spyOn(configService, 'get').mockReturnValue('postgres');
+      (userRepository.count as jest.Mock).mockResolvedValue(1);
+
+      // Act
+      const result = await service.hasAdmins();
+
+      // Assert
+      expect(result).toBe(true);
+      expect(userRepository.count).toHaveBeenCalledWith({
+        where: { roles: ArrayContains(['ADMIN']) },
+      });
+    });
+
+     it('should use Like for sqlite', async () => {
+      // Arrange: set up the mock for this specific test
+      jest.spyOn(configService, 'get').mockReturnValue('sqlite');
+      (userRepository.count as jest.Mock).mockResolvedValue(0);
+
+      // Act
+      const result = await service.hasAdmins();
+
+      // Assert
+      expect(result).toBe(false);
+      expect(userRepository.count).toHaveBeenCalledWith({
+        where: { roles: Like('%ADMIN%') },
+      });
+    });
+  });
+
   describe('findOneByEmail', () => {
     it('should return a UserEntity if found and withoutPassword is false', async () => {
       const mockUserEntity = { id: '1', email: 'test@example.com', username: 'testuser', passwordHash: 'hash' } as UserEntity;
       jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(mockUserEntity);
 
       const user = await service.findOneByEmail({ email: 'test@example.com' }, { withoutPassword: false });
-      expect(user).toEqual(mockUserEntity); 
+      expect(user).toEqual(mockUserEntity);
       expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: 'test@example.com' });
-      expect(mapEntityToDto).not.toHaveBeenCalled(); 
+      expect(mapEntityToDto).not.toHaveBeenCalled();
     });
 
     it('should return a User DTO if found and withoutPassword is true or not specified', async () => {
       const mockUserEntity = { id: '1', email: 'test@example.com', username: 'testuser', passwordHash: 'hash' } as UserEntity;
-      const expectedUserDto = { id: '1', email: 'test@example.com', username: 'testuser' }; 
-      
-      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(mockUserEntity);
-      (mapEntityToDto as jest.Mock).mockReturnValue(expectedUserDto); 
+      const expectedUserDto = { id: '1', email: 'test@example.com', username: 'testuser' };
 
-      const user = await service.findOneByEmail({ email: 'test@example.com' }); 
-      expect(user).toEqual(expectedUserDto); 
+      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(mockUserEntity);
+      (mapEntityToDto as jest.Mock).mockReturnValue(expectedUserDto);
+
+      const user = await service.findOneByEmail({ email: 'test@example.com' });
+      expect(user).toEqual(expectedUserDto);
       expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: 'test@example.com' });
       expect(mapEntityToDto).toHaveBeenCalledWith(mockUserEntity, User);
     });
 
     it('should throw NotFoundException if user not found', async () => {
-      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(undefined);
+      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(null);
 
       await expect(service.findOneByEmail({ email: 'nonexistent@example.com' })).rejects.toThrow(NotFoundException);
       expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: 'nonexistent@example.com' });
@@ -118,7 +177,10 @@ describe('UsersService', () => {
 
   describe('findAll', () => {
     it('should return an array of users', async () => {
-      const mockUsers = [{ id: '1', email: 'test1@example.com', username: 'user1' }, { id: '2', email: 'test2@example.com', username: 'user2' }] as UserEntity[];
+      const mockUsers = [
+        { id: '1', email: 'test1@example.com', username: 'user1' },
+        { id: '2', email: 'test2@example.com', username: 'user2' },
+      ] as UserEntity[];
       jest.spyOn(userRepository, 'find').mockResolvedValue(mockUsers);
 
       const users = await service.findAll();
@@ -135,18 +197,18 @@ describe('UsersService', () => {
         email: 'newuser@example.com',
       };
       const dateNow = new Date();
-      const savedUserEntity = { 
-        id: 'uuid-1', 
+      const savedUserEntity = {
+        id: 'uuid-1',
         username: 'newuser',
         email: 'newuser@example.com',
         roles: ['USER'],
         passwordHash: 'hashedpassword',
         isActive: true,
-        createdAt: dateNow, 
-        updatedAt: dateNow, 
+        createdAt: dateNow,
+        updatedAt: dateNow,
       } as UserEntity;
 
-      const expectedUserDto = { 
+      const expectedUserDto = {
         id: 'uuid-1',
         username: 'newuser',
         email: 'newuser@example.com',
@@ -164,13 +226,15 @@ describe('UsersService', () => {
 
       expect(newUser).toEqual(expectedUserDto);
       expect(bcrypt.hash).toHaveBeenCalledWith('newpassword', 10);
-      expect(userRepository.save).toHaveBeenCalledWith(expect.objectContaining({
-        username: 'newuser',
-        email: 'newuser@example.com',
-        passwordHash: 'hashedpassword',
-        roles: ['USER'],
-        isActive: true,
-      }));
+      expect(userRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'newuser',
+          email: 'newuser@example.com',
+          passwordHash: 'hashedpassword',
+          roles: ['USER'],
+          isActive: true,
+        })
+      );
       expect(mapEntityToDto).toHaveBeenCalledWith(savedUserEntity, User);
     });
   });
@@ -210,14 +274,14 @@ describe('UsersService', () => {
     });
 
     it('should return undefined if user not found', async () => {
-      // Mock findOneByEmail to simulate it throwing NotFoundException, 
+      // Mock findOneByEmail to simulate it throwing NotFoundException,
       // which validateUserCredentials should catch and return undefined.
       const findOneByEmailSpy = jest.spyOn(service, 'findOneByEmail').mockImplementation(async () => {
-        throw new NotFoundException('User not found'); 
+        throw new NotFoundException('User not found');
       });
 
       const result = await service.validateUserCredentials({ email: 'nonexistent', password: 'anypass' });
-      expect(result).toBeUndefined(); 
+      expect(result).toBeUndefined();
       expect(findOneByEmailSpy).toHaveBeenCalledWith({ email: 'nonexistent' }, { withoutPassword: false });
     });
 

@@ -1,11 +1,8 @@
-import * as bcrypt from 'bcrypt';
-
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@tds/tds-bm-common';
-import { UserEntity } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 
 // Mock bcrypt to control hashing and comparison outcomes

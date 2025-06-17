@@ -93,9 +93,7 @@ describe('AuthController', () => {
         roles: ['user'],
       };
       const req = { user: mockUser };
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = authController.getProfile(req);
-      console.log('getProfile result:', result);
       expect(result).toEqual({ user: mockUser }); // Expect the nested user object
     });
   });

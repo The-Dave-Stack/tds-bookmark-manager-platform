@@ -17,4 +17,11 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: 'test-output/jest/coverage',
+  coverageReporters: [
+    'json', 
+    'lcov', 
+    'text', 
+    'text-summary', 
+    'html'
+  ],
 };
