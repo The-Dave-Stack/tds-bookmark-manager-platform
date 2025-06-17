@@ -5,7 +5,11 @@ services:
 
   # React UI Frontend Service (served with Nginx)
   ui:
-    image: ghcr.io/The-Dave-Stack/tds-bookmark-manager-ui:latest
+    build:
+      context: .
+      dockerfile: apps/ui/tds-bookmark-manager-ui/Dockerfile
+    environment:
+      API_URL: http://localhost:3000/api/v1
     ports:
       - "4200:80" # Map host port 4200 to container's Nginx port 80
     depends_on:
@@ -13,7 +17,9 @@ services:
 
   # NestJS API Backend Service
   api:
-    image: ghcr.io/The-Dave-Stack/tds-bookmark-manager-api:latest
+    build:
+      context: . # Build from the monorepo root
+      dockerfile: apps/backend/tds-bookmark-manager-api/Dockerfile
     ports:
       - "3000:3000"
     # The API service also needs environment variables to connect to the DB
@@ -27,7 +33,25 @@ services:
       JWT_SECRET: ${JWT_SECRET:-un-secreto-muy-largo-y-seguro-para-jwt}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
     depends_on:
+      migrations:
+        condition: service_completed_successfully
       db: # Ensures the DB is started before the API
+        condition: service_healthy
+
+  # Ephemeral container for running database migrations
+  migrations:
+    build:
+      context: .
+      dockerfile: apps/backend/tds-bookmark-manager-api/Dockerfile.migrate
+    # This service does not need to expose any ports.
+    environment:
+      POSTGRES_HOST: "db"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:-testuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-tds_bookmarks_db}
+    depends_on:
+      db:
         condition: service_healthy
 
   # PostgreSQL Database Service

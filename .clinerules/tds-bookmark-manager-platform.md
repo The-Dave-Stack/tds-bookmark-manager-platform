@@ -33,7 +33,7 @@ The backend is a robust NestJS application.
     -   **ORM**: **TypeORM** is used for database interaction.
     -   **Entities**: Defined in `src/**/entities/*.entity.ts`. Key entities are `UserEntity`, `BookmarkEntity`, and `FolderEntity`. Relationships (`@ManyToOne`, `@OneToMany`) and constraints are defined here.
     -   **Migrations**: Database schema changes are managed via migrations located in `src/db/migrations/`. These are generated and run using the `typeorm` CLI scripts in `package.json`.
-    -   **Database Support**: The configuration supports both **PostgreSQL** (for production, via `docker-compose.yml`) and **SQLite** (as a fallback for local development), determined by the `DB_TYPE` environment variable.
+    -   **Database Support**: The configuration supports **PostgreSQL**.
 -   **Configuration**:
     -   Uses `@nestjs/config` for environment variable management.
     -   Configuration is modularized into files like `app.config.ts`, `database.config.ts`, and `jwt.config.ts`.

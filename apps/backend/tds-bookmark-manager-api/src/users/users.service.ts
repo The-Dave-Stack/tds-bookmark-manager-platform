@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ArrayContains, Like, Repository } from 'typeorm';
+import { ArrayContains, Repository } from 'typeorm';
 
 import { CreateUserDto, mapEntityToDto, User } from '@tds/tds-bm-common';
 import { PinoLogger } from 'nestjs-pino';
@@ -28,15 +28,7 @@ export class UsersService {
 
     this.logger.debug(`${__dirname}: Database type: ${dbType}; Database path: ${databasePath}`);
 
-    let whereClause: any;
-
-    if (dbType === 'postgres') {
-      whereClause = { roles: ArrayContains(['ADMIN']) };
-    } else {
-      whereClause = { roles: Like('%ADMIN%') };
-    }
-
-    const adminCount = await this.usersRepository.count({ where: whereClause });
+    const adminCount = await this.usersRepository.count({ where: { roles: ArrayContains(['ADMIN']) } });
 
     return adminCount > 0;
   }

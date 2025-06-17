@@ -5,9 +5,13 @@ import { DateRange } from '../components/statistics/DateRangeSelector';
 import axios from 'axios';
 import { useAuthStore } from '../stores/authStore';
 
-// Create an Axios instance with a base URL from environment variables
+// Get the API URL from the global window object injected at runtime.
+// Fallback to a local development URL if not present.
+const aPiUrl = (window as any).TDS_CONFIG?.API_URL || 'http://localhost:3000/api/v1';
+
+// Create an Axios instance with the runtime base URL
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1',
+  baseURL: aPiUrl,
 });
 
 // Use an interceptor to automatically add the JWT to every request

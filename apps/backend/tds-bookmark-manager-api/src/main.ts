@@ -14,7 +14,7 @@ import helmet from 'helmet';
 async function bootstrap() {
   // Log all environment variables before starting the application
   // Only log in non-production environments for security
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV && !['production', 'docker'].includes(process.env.NODE_ENV)) {
     console.log('Loaded environment variables:', process.env);
   }
 

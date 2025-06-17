@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt'; // Import bcrypt
 
-import { ArrayContains, Like, Repository } from 'typeorm';
+import { ArrayContains, Repository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { ConfigService } from '@nestjs/config';
@@ -114,7 +114,7 @@ describe('UsersService', () => {
   describe('hasAdmins', () => {
     it('should use ArrayContains for postgres', async () => {
       // Arrange: set up the mock for this specific test
-      jest.spyOn(configService, 'get').mockReturnValue('postgres');
+      //jest.spyOn(configService, 'get').mockReturnValue('postgres');
       (userRepository.count as jest.Mock).mockResolvedValue(1);
 
       // Act
@@ -124,21 +124,6 @@ describe('UsersService', () => {
       expect(result).toBe(true);
       expect(userRepository.count).toHaveBeenCalledWith({
         where: { roles: ArrayContains(['ADMIN']) },
-      });
-    });
-
-     it('should use Like for sqlite', async () => {
-      // Arrange: set up the mock for this specific test
-      jest.spyOn(configService, 'get').mockReturnValue('sqlite');
-      (userRepository.count as jest.Mock).mockResolvedValue(0);
-
-      // Act
-      const result = await service.hasAdmins();
-
-      // Assert
-      expect(result).toBe(false);
-      expect(userRepository.count).toHaveBeenCalledWith({
-        where: { roles: Like('%ADMIN%') },
       });
     });
   });

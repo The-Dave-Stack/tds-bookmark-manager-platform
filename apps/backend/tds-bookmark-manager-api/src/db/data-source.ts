@@ -1,20 +1,20 @@
 import * as dotenv from 'dotenv';
 
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { join, resolve } from 'path';
 
 import { PinoLogger } from 'nestjs-pino';
 import databaseConfig from '../config/database.config';
 import { existsSync } from 'fs';
 import { getPinoLoggerOptions } from '../logger/config';
+import { resolve } from 'path';
 
-const pinoLogger = new PinoLogger(getPinoLoggerOptions({ env: 'development', context: 'DataSource' }));
+const pinoLogger = new PinoLogger(getPinoLoggerOptions({ env: process.env.NODE_ENV, context: 'DataSource' }));
 
 // --- START OF ENVIRONMENT LOADING LOGIC ---
 
 // 1. Determine the environment. Default to 'development' if NODE_ENV is not set.
-const nodeEnv = process.env.NODE_ENV || 'development';
-const envFilePath = resolve(join('apps/backend/tds-bookmark-manager-api'), `.env.${nodeEnv}`);
+const nodeEnv = process.env.NODE_ENV;
+const envFilePath = resolve(`.env.${nodeEnv}`);
 
 // 2. Check if the environment-specific .env file exists and load it.
 if (existsSync(envFilePath)) {
@@ -22,7 +22,7 @@ if (existsSync(envFilePath)) {
   dotenv.config({ path: envFilePath });
 } else {
   // 3. Fallback to the default .env file if the specific one is not found.
-  pinoLogger.info(`Warning: ${envFilePath} not found. Falling back to default .env file if it exists.`);
+  pinoLogger.warn(`Warning: ${envFilePath} not found. Falling back to default .env file if it exists.`);
   dotenv.config();
 }
 

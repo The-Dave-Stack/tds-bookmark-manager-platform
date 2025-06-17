@@ -14,6 +14,9 @@
       "configurations": {
         "development": {
           "args": ["node-env=development"]
+        },
+        "docker": {
+          "args": ["node-env=docker"]
         }
       }
     },
@@ -29,6 +32,10 @@
       "configurations": {
         "development": {
           "buildTarget": "@tds/tds-bookmark-manager-api:build:development"
+        },
+        "docker": {
+          "buildTarget": "@tds/tds-bookmark-manager-api:build:docker",
+          "watch": false
         },
         "production": {
           "buildTarget": "@tds/tds-bookmark-manager-api:build:production",

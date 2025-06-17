@@ -41,7 +41,7 @@ export class UserEntity implements UserWithoutPassword {
   @Column({ name: 'last_login', nullable: true })
   lastLogin?: Date;
 
-  @Column('simple-array')
+  @Column({ type: 'text', array: true, default: ['USER'] })
   roles!: Role[];
 
   @OneToMany('FolderEntity', (folder: FolderEntity) => folder.user)

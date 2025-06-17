@@ -20,7 +20,7 @@
 
 ## Technology Stack
 
-This project is a monorepo managed with **Nx** and **pnpm workspaces**.
+This project is a monorepo managed with **Nx** and **npm workspaces**.
 
 #### **Backend (`tds-bookmark-manager-api`)**
 
@@ -50,7 +50,7 @@ This project is a monorepo managed with **Nx** and **pnpm workspaces**.
 ### Prerequisites
 
 -   [Node.js](https://nodejs.org/) (v22 or higher is recommended)
--   [pnpm](https://pnpm.io/)
+-   [npm](https://www.npmjs.com/) (v7 or higher, included with Node.js)
 -   [Docker](https://www.docker.com/get-started) and Docker Compose
 
 ### Installation & Setup
@@ -62,9 +62,9 @@ This project is a monorepo managed with **Nx** and **pnpm workspaces**.
     ```
 
 2.  **Install dependencies:**
-    This project uses `pnpm` workspaces. Install all dependencies from the root directory.
+    This project uses `npm` workspaces. Install all dependencies from the root directory.
     ```bash
-    pnpm install
+    npm install
     ```
 
 3.  **Configure Environment Variables:**
@@ -75,8 +75,6 @@ This project is a monorepo managed with **Nx** and **pnpm workspaces**.
     # .env.development
 
     # -- Database Configuration --
-    # Options: 'postgres' or 'sqlite'
-    DB_TYPE=postgres
     POSTGRES_USER=your_db_user
     POSTGRES_PASSWORD=your_db_password
     POSTGRES_DB=tds_bookmarks_db
@@ -84,14 +82,6 @@ This project is a monorepo managed with **Nx** and **pnpm workspaces**.
     # -- JWT Configuration --
     JWT_SECRET=your-super-secret-jwt-key-that-is-long
     JWT_EXPIRES_IN=1d
-
-    # -- Initial Admin User for Seeding --
-    # This user is created when you run migrations for the first time.
-    ADMIN_EMAIL=admin@example.com
-    ADMIN_PASSWORD=your_strong_admin_password
-    ADMIN_USERNAME=admin
-    ADMIN_FIRST_NAME=Admin
-    ADMIN_LAST_NAME=User
     ```
 
 4.  **Start the Database:**
@@ -103,7 +93,7 @@ This project is a monorepo managed with **Nx** and **pnpm workspaces**.
 5.  **Run Database Migrations:**
     Apply the initial database schema and seed the admin user.
     ```bash
-    pnpm migration:run
+    npm run migration:run
     ```
 
 6.  **Run the Development Servers:**
@@ -111,13 +101,13 @@ This project is a monorepo managed with **Nx** and **pnpm workspaces**.
 
     -   **Terminal 1: Start the Backend API**
         ```bash
-        pnpm start:api:dev
+        npm run start:api:dev
         ```
         The API will be available at `http://localhost:3000`.
 
     -   **Terminal 2: Start the Frontend UI**
         ```bash
-        pnpm start:ui:dev
+        npm run start:ui:dev
         ```
         The UI will be available at `http://localhost:4200`.
 
@@ -127,17 +117,17 @@ This project is configured with unit, integration, and E2E tests.
 
 -   **Run Frontend Unit/Component Tests:**
     ```bash
-    pnpm test:ui
+    npm run test:ui
     ```
 
 -   **Run Frontend Tests with Coverage:**
     ```bash
-    pnpm test:ui:cov
+    npm run test:ui:cov
     ```
 
 -   **Run Backend Unit/Integration Tests:**
     ```bash
-    pnpm test:api
+    npm run test:api
     ```
 
 ## Database Migrations
@@ -147,12 +137,12 @@ Database schema changes are handled by TypeORM migrations.
 -   **Generate a new migration:**
     (After making changes to your TypeORM entities)
     ```bash
-    pnpm migration:generate src/db/migrations/YourMigrationName
+    npm run migration:generate -- src/db/migrations/YourMigrationName
     ```
 
 -   **Revert the last migration:**
     ```bash
-    pnpm migration:revert
+    npm run migration:revert
     ```
 
 ## Contributing

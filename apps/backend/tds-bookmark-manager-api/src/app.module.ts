@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 import { configurations } from './config';
 import databaseConfig from './config/database.config';
 import { randomBytes } from 'crypto';
+import { validationSchema } from './config/validation.schema';
 
 @Module({
   imports: [
@@ -20,8 +21,10 @@ import { randomBytes } from 'crypto';
     ConfigModule.forRoot({
       isGlobal: true,
       load: configurations,
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
-      ignoreEnvFile: process.env.NODE_ENV === 'docker',
+      envFilePath: process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env',
+      ignoreEnvFile: process.env.NODE_ENV === 'docker' || process.env.NODE_ENV === 'production',
+      validationSchema: validationSchema,
+      validationOptions: { abortEarly: true }
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(databaseConfig)],

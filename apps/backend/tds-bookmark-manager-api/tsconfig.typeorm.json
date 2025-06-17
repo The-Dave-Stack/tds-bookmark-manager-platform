@@ -20,7 +20,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2021",
-    "outDir": "./dist/cli",
+    "outDir": "./dist-migrations",
     "emitDeclarationOnly": false,
     "rootDirs": ["./src", "../../../libs"]
   },

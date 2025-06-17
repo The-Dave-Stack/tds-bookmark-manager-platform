@@ -1,0 +1,40 @@
+# Dockerfile for running database migrations
+
+# Stage 1: Build the application artifacts
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Copy root package files and install all dependencies
+COPY package.json package-lock.json ./
+COPY nx.json ./
+COPY tsconfig.base.json ./
+RUN npm install
+
+# Copy the entire monorepo source code
+COPY . .
+
+# Build the tds-bookmark-manager-api application to ensure all compiled
+# code, especially entities for TypeORM, is available.
+RUN npm run typeorm:cli:build
+
+# Stage 2: Create the final migration image
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Install netcat (nc) for the wait script
+RUN apk add --no-cache netcat-openbsd
+
+# Copy necessary build artifacts from the builder stage
+COPY --from=builder /app/apps/backend/tds-bookmark-manager-api/dist-migrations ./dist-migrations
+COPY --from=builder /app/node_modules ./node_modules
+COPY package.json .
+COPY nx.json .
+
+# Copy the migration script and make it executable
+COPY apps/backend/tds-bookmark-manager-api/migrate.sh .
+RUN chmod +x migrate.sh
+
+# This container's only purpose is to run the migration script.
+ENTRYPOINT ["./migrate.sh"]

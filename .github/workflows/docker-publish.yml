@@ -1,0 +1,90 @@
+name: Docker Publish
+
+# This workflow runs on every push to the 'main' branch.
+on:
+  push:
+    branches: ["main"]
+
+# Environment variables available to all jobs and steps
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-docker-image:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    # Set permissions for the GITHUB_TOKEN to allow writing to the GitHub Package Registry
+    permissions:
+      contents: read
+      packages: write
+
+    # Use a matrix strategy to run the same steps for both 'api' and 'ui'
+    strategy:
+      matrix:
+        app: [api, ui]
+        # This maps the app name from the matrix to the full Nx project name
+        # This is a bit of a workaround to make the job names cleaner
+        include:
+          - app: api
+            project: "@tds/tds-bookmark-manager-api"
+            dockerfile: "apps/backend/tds-bookmark-manager-api/Dockerfile"
+          - app: ui
+            project: "@tds/tds-bookmark-manager-ui"
+            dockerfile: "apps/ui/tds-bookmark-manager-ui/Dockerfile"
+
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history for all branches and tags for Nx Affected to work correctly
+          fetch-depth: 0
+
+      # Step 2: Set up Nx correctly by getting the base and head SHAs
+      # This is crucial for the 'nx affected' command to work in CI
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: 'main'
+
+      # Step 3: Get the list of affected projects that have a 'docker-build' target
+      - name: Get affected projects
+        id: affected-projects
+        run: |
+          PROJECTS=$(npx nx affected --target=docker-build --base=${{ env.NX_BASE }} --head=${{ env.NX_HEAD }} --json | jq -r '.tasks[].target.project' | jq -R . | jq -s .)
+          echo "Affected projects for docker-build: $PROJECTS"
+          echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
+
+      # Step 4: Log in to the GitHub Container Registry (GHCR)
+      - name: Log in to the Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 5: Extract metadata (tags, labels) for the Docker image
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # The image name will be like: ghcr.io/your-user/your-repo-api
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.app }}
+
+      # Step 6: Build and push the Docker image ONLY if the project was affected
+      - name: Build and push Docker image for ${{ matrix.app-config.project }}
+        id: build-and-push
+        # Only run this step if the current project in the matrix is affected
+        # This command checks if the output of 'nx affected' contains the project name
+        if: ${{ contains(fromJSON(steps.affected-projects.outputs.projects), matrix.project) }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
