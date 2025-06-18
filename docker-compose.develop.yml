@@ -8,6 +8,7 @@ services:
     build:
       context: .
       dockerfile: apps/ui/tds-bookmark-manager-ui/Dockerfile
+    image: The-Dave-Stack/tds-bookmark-manager-ui:${IMAGE_TAG:-dev}
     environment:
       API_URL: http://localhost:3000/api/v1
     ports:
@@ -20,6 +21,7 @@ services:
     build:
       context: . # Build from the monorepo root
       dockerfile: apps/backend/tds-bookmark-manager-api/Dockerfile
+    image: The-Dave-Stack/tds-bookmark-manager-api:${IMAGE_TAG:-dev}
     ports:
       - "3000:3000"
     # The API service also needs environment variables to connect to the DB
@@ -43,6 +45,7 @@ services:
     build:
       context: .
       dockerfile: apps/backend/tds-bookmark-manager-api/Dockerfile.migrate
+    image: The-Dave-Stack/tds-bookmark-manager-migrations:${IMAGE_TAG:-dev}
     # This service does not need to expose any ports.
     environment:
       POSTGRES_HOST: "db"
@@ -56,12 +59,9 @@ services:
 
   # PostgreSQL Database Service
   db:
-    image: postgres
-    # Instead of 'env_file', we define environment variables directly.
-    # This makes the required variables explicit.
-    # It uses the value from the host's environment or the default value if not set.
+    image: postgres:17.5-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-testuser}
+      POSTGRES_USER: ${POSTGRES_USER:-testuser} 
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}
       POSTGRES_DB: ${POSTGRES_DB:-tds_bookmarks_db}
     ports:

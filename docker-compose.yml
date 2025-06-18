@@ -32,10 +32,7 @@ services:
 
   # PostgreSQL Database Service
   db:
-    image: postgres
-    # Instead of 'env_file', we define environment variables directly.
-    # This makes the required variables explicit.
-    # It uses the value from the host's environment or the default value if not set.
+    image: postgres:17
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-testuser}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}

@@ -31,6 +31,8 @@ COPY nx.json ./
 # Install only production dependencies
 RUN npm install --omit=dev
 
+ENV NODE_ENV=docker
+
 # Expose the application port
 EXPOSE 3000
 
