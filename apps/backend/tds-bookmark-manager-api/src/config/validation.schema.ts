@@ -30,6 +30,13 @@ export const validationSchema = Joi.object({
   }),
   JWT_EXPIRES_IN: Joi.string().default('1h'),
 
+  // --- NEW: Email Configuration ---
+  EMAIL_HOST: Joi.string().required().description('SMTP host for sending emails'),
+  EMAIL_PORT: Joi.number().required().description('SMTP port'),
+  EMAIL_USER: Joi.string().required().description('SMTP username'),
+  EMAIL_PASS: Joi.string().required().description('SMTP password'),
+  EMAIL_FROM: Joi.string().email().required().description('Default "from" email address'),
+
   // PostgreSQL variables
   POSTGRES_HOST: Joi.string().required(),
   POSTGRES_PORT: Joi.number().required(),

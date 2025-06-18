@@ -27,6 +27,11 @@ services:
     # The API service also needs environment variables to connect to the DB
     # and for its own configuration (e.g., JWT).
     environment:
+      EMAIL_HOST: sandbox.smtp.mailtrap.io
+      EMAIL_PORT: 2525
+      EMAIL_USER: tu_usuario_de_mailtrap
+      EMAIL_PASS: tu_password_de_mailtrap
+      EMAIL_FROM: no-reply@thedavestack.com
       POSTGRES_HOST: "db" # Use the service name 'db' for inter-container communication
       POSTGRES_PORT: "5432"
       POSTGRES_USER: ${POSTGRES_USER:-testuser}

@@ -14,4 +14,7 @@ export class User {
 
 export type UserWithoutPassword = Omit<User, 'password'>;
 
-export type Role = 'ADMIN' | 'USER'
+export enum Role {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+}

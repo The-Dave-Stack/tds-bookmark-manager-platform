@@ -1,12 +1,12 @@
 import * as bcrypt from 'bcrypt'; // Import bcrypt
 
 import { ArrayContains, Repository } from 'typeorm';
+import { Role, User } from '@tds/tds-bm-common'; // Import User DTO
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { ConfigService } from '@nestjs/config';
 import { NotFoundException } from '@nestjs/common'; // Import NotFoundException
 import { PinoLogger } from 'nestjs-pino';
-import { User } from '@tds/tds-bm-common'; // Import User DTO
 import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -235,7 +235,7 @@ describe('UsersService', () => {
         isActive: true,
         createdAt: dateNow,
         updatedAt: dateNow,
-        roles: ['USER'],
+        roles: [Role.USER],
       };
       const expectedUserDto = {
         id: '1',
@@ -278,7 +278,7 @@ describe('UsersService', () => {
         email: 'testuser@test.com',
         isActive: true,
         createdAt: new Date(),
-        roles: ['USER'],
+        roles: [Role.USER],
       };
       const findOneByEmailSpy = jest.spyOn(service, 'findOneByEmail').mockResolvedValue(mockUserEntity);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);

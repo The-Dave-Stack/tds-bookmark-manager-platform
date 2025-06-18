@@ -2,14 +2,18 @@ import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { APP_GUARD } from '@nestjs/core';
+import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { EmailModule } from './email/email.module';
 import { FoldersModule } from './folders/folders.module';
 import { LoggerModule } from 'nestjs-pino';
 import { Module } from '@nestjs/common';
+import { StatisticsModule } from './statistics/statistics.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
+import { WebhookModule } from './webhook/webhook.module';
 import { configurations } from './config';
 import databaseConfig from './config/database.config';
 import { randomBytes } from 'crypto';
@@ -101,6 +105,10 @@ import { validationSchema } from './config/validation.schema';
     UsersModule,
     BookmarksModule,
     FoldersModule,
+    AdminModule,
+    StatisticsModule,
+    WebhookModule,
+    EmailModule,
   ],
   controllers: [],
   providers: [

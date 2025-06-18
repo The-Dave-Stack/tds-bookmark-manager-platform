@@ -17,6 +17,14 @@ export class UserEntity implements UserWithoutPassword {
   @Exclude()
   passwordHash!: string;
 
+  @Column({ name: 'password_reset_token', type: 'varchar', length: 255, nullable: true })
+  @Exclude() // Always exclude sensitive tokens from serialization
+  passwordResetToken?: string;
+
+  @Column({ name: 'password_reset_expires', type: 'timestamp', nullable: true })
+  @Exclude()
+  passwordResetExpires?: Date;
+
   @Column({ type: 'varchar', length: 255, unique: true })
   email!: string;
 
@@ -31,7 +39,7 @@ export class UserEntity implements UserWithoutPassword {
 
   @Column({ name: 'api_token', type: 'varchar', length: 255, unique: true, nullable: true })
   apiToken?: string;
-  
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

@@ -1,7 +1,9 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { ApiKeyStrategy } from './strategies/api-key.strategy';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { EmailModule } from '../email/email.module';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -12,6 +14,7 @@ import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    EmailModule,
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({
@@ -23,7 +26,7 @@ import { UsersModule } from '../users/users.module';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, JwtStrategy, LocalStrategy, RolesGuard],
+  providers: [AuthService, JwtStrategy, LocalStrategy, ApiKeyStrategy, RolesGuard],
   controllers: [AuthController],
   exports: [AuthService],
 })

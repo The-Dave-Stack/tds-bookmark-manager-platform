@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-import { User } from '../interfaces/user.interface.js';
+import { User } from '../../interfaces/user.interface.js';
 
 export class LoginUserDto implements Pick<User, 'password' | 'email'> {
   @IsString()

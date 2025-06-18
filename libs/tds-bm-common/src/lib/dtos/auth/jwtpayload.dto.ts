@@ -1,4 +1,4 @@
-import { Role } from "../interfaces/user.interface.js";
+import { Role } from "../../interfaces/user.interface.js";
 
 export interface JwtPayloadDto {
   username: string;
