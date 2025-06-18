@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddPasswordResetFieldsToUser1750243784384 implements MigrationInterface {
-    name = 'AddPasswordResetFieldsToUser1750243784384'
+export class CreateSchema1750255185260 implements MigrationInterface {
+    name = 'CreateSchema1750255185260'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "username" character varying(255) NOT NULL, "password_hash" character varying(255) NOT NULL, "password_reset_token" character varying(255), "password_reset_expires" TIMESTAMP, "email" character varying(255) NOT NULL, "first_name" character varying(255) NOT NULL, "last_name" character varying(255) NOT NULL, "is_active" boolean NOT NULL DEFAULT false, "api_token" character varying(255), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "last_login" TIMESTAMP, "roles" text array NOT NULL DEFAULT '{USER}', CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "UQ_b0c7bff7a2c2f7f12d3a90b4f33" UNIQUE ("api_token"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);

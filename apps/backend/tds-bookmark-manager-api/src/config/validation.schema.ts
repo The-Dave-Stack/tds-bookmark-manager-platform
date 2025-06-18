@@ -10,7 +10,7 @@ import * as Joi from 'joi';
  * This ensures that the application does not start without the required
  * configuration, providing clear error messages if a variable is missing or invalid.
  */
-export const validationSchema = Joi.object({
+let validationSchema = Joi.object({
   // Application Environment
   NODE_ENV: Joi.string()
     .valid('development', 'production', 'test', 'docker')
@@ -30,13 +30,6 @@ export const validationSchema = Joi.object({
   }),
   JWT_EXPIRES_IN: Joi.string().default('1h'),
 
-  // --- NEW: Email Configuration ---
-  EMAIL_HOST: Joi.string().required().description('SMTP host for sending emails'),
-  EMAIL_PORT: Joi.number().required().description('SMTP port'),
-  EMAIL_USER: Joi.string().required().description('SMTP username'),
-  EMAIL_PASS: Joi.string().required().description('SMTP password'),
-  EMAIL_FROM: Joi.string().email().required().description('Default "from" email address'),
-
   // PostgreSQL variables
   POSTGRES_HOST: Joi.string().required(),
   POSTGRES_PORT: Joi.number().required(),
@@ -45,3 +38,16 @@ export const validationSchema = Joi.object({
   POSTGRES_DB: Joi.string().required(),
 
 });
+
+if (process.env.VALIDATION_CONTEXT !== 'migration') {
+  validationSchema = validationSchema.concat(Joi.object({
+    // --- NEW: Email Configuration ---
+    EMAIL_HOST: Joi.string().required().description('SMTP host for sending emails'),
+    EMAIL_PORT: Joi.number().required().description('SMTP port'),
+    EMAIL_USER: Joi.string().required().description('SMTP username'),
+    EMAIL_PASS: Joi.string().required().description('SMTP password'),
+    EMAIL_FROM: Joi.string().email().required().description('Default "from" email address'),
+  }));
+}
+
+export { validationSchema };

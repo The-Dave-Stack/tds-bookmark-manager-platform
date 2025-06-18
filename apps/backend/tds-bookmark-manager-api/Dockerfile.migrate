@@ -32,6 +32,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY package.json .
 COPY nx.json .
 
+ENV VALIDATION_CONTEXT=migration
+
 # Copy the migration script and make it executable
 COPY apps/backend/tds-bookmark-manager-api/migrate.sh .
 RUN chmod +x migrate.sh

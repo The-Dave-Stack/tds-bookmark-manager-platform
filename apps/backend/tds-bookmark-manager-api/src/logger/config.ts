@@ -33,7 +33,7 @@ const pinoHttpProductionOptions = {
 };
 
 export function getPinoLoggerOptions(options: { env: string | undefined; context: string }): Params {
-  const pinoHttpOptions = options.env === 'production' ? pinoHttpProductionOptions : pinoHttpDefaultOptions;
+  const pinoHttpOptions = ['production', 'docker'].includes(options.env as string) ? pinoHttpProductionOptions : pinoHttpDefaultOptions;
   return {
     pinoHttp: {
       ...pinoHttpOptions,
