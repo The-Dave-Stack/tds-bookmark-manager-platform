@@ -1,7 +1,7 @@
 import type { Bookmark, Folder } from '../api/types';
-
 import { api } from '../api';
 import { create } from 'zustand';
+import { CreateBookmarkDto, CreateFolderDto, UpdateBookmarkDto, UpdateFolderDto } from '@tds/tds-bm-common';
 
 interface BookmarkState {
   bookmarks: Bookmark[];
@@ -9,16 +9,18 @@ interface BookmarkState {
   loading: boolean;
   error: string | null;
   
-  fetchBookmarks: (userId: string) => Promise<void>;
-  addBookmark: (userId: string, bookmark: Omit<Bookmark, 'id' | 'userId' | 'clickCount' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  updateBookmark: (userId: string, id: string, bookmark: Partial<Bookmark>) => Promise<void>;
-  deleteBookmark: (userId: string, id: string) => Promise<void>;
-  incrementClickCount: (userId: string, id: string) => Promise<void>;
+  // Bookmarks
+  fetchBookmarks: () => Promise<void>;
+  addBookmark: (bookmark: CreateBookmarkDto) => Promise<void>;
+  updateBookmark: (id: string, bookmark: UpdateBookmarkDto) => Promise<void>;
+  deleteBookmark: (id: string) => Promise<void>;
+  incrementClickCount: (id: string) => Promise<void>;
   
-  fetchFolders: (userId: string) => Promise<void>;
-  addFolder: (userId: string, name: string, parentId: string | null) => Promise<void>;
-  updateFolder: (userId: string, id: string, name: string, parentId: string | null) => Promise<void>;
-  deleteFolder: (userId: string, id: string) => Promise<void>;
+  // Folders
+  fetchFolders: () => Promise<void>;
+  addFolder: (folder: CreateFolderDto) => Promise<void>;
+  updateFolder: (id: string, folder: UpdateFolderDto) => Promise<void>;
+  deleteFolder: (id: string) => Promise<void>;
 }
 
 export const useBookmarkStore = create<BookmarkState>((set) => ({
@@ -27,67 +29,63 @@ export const useBookmarkStore = create<BookmarkState>((set) => ({
   loading: false,
   error: null,
   
-  fetchBookmarks: async (userId: string) => {
+  // --- Bookmarks implementation ---
+  fetchBookmarks: async () => {
     set({ loading: true, error: null });
     try {
-      const bookmarks = await api.getBookmarks(userId);
+      const bookmarks = await api.getBookmarks();
       set({ bookmarks, loading: false });
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
       set({ error: `Failed to fetch bookmarks: ${(error as Error).message}`, loading: false });
     }
   },
-  
-  addBookmark: async (userId: string, bookmark) => {
-    set({ loading: true, error: null });
+  addBookmark: async (bookmark) => {
     try {
-      const newBookmark = await api.createBookmark(userId, bookmark);
+      const newBookmark = await api.createBookmark(bookmark);
       set((state) => ({ 
         bookmarks: [...state.bookmarks, newBookmark],
-        loading: false 
       }));
     } catch (error) {
       console.error('Error adding bookmark:', error);
-      set({ error: 'Failed to add bookmark', loading: false });
+      set({ error: 'Failed to add bookmark' });
+      throw error; // Re-throw to be caught in the component
     }
   },
-  
-  updateBookmark: async (userId: string, id: string, bookmark) => {
-    set({ loading: true, error: null });
+  updateBookmark: async (id, bookmark) => {
     try {
-      const updatedBookmark = await api.updateBookmark(userId, id, bookmark);
+      const updatedBookmark = await api.updateBookmark(id, bookmark);
       set((state) => ({
         bookmarks: state.bookmarks.map(b => 
           b.id === id ? updatedBookmark : b
         ),
-        loading: false
       }));
     } catch (error) {
       console.error('Error updating bookmark:', error);
-      set({ error: 'Failed to update bookmark', loading: false });
+      set({ error: 'Failed to update bookmark' });
+      throw error;
     }
   },
-  
-  deleteBookmark: async (userId: string, id: string) => {
-    set({ loading: true, error: null });
+  deleteBookmark: async (id) => {
     try {
-      await api.deleteBookmark(userId, id);
+      await api.deleteBookmark(id);
       set((state) => ({
         bookmarks: state.bookmarks.filter(b => b.id !== id),
-        loading: false
       }));
     } catch (error) {
       console.error('Error deleting bookmark:', error);
-      set({ error: 'Failed to delete bookmark', loading: false });
+      set({ error: 'Failed to delete bookmark' });
+      throw error;
     }
   },
-  
-  incrementClickCount: async (userId: string, id: string) => {
+  incrementClickCount: async (id: string) => {
     try {
-      const updatedBookmark = await api.incrementBookmarkClicks(userId, id);
+      // This can be a fire-and-forget, but we'll await it for consistency
+      await api.incrementBookmarkClicks(id);
+      // Optimistically update the local state
       set((state) => ({
         bookmarks: state.bookmarks.map(b =>
-          b.id === id ? updatedBookmark : b
+          b.id === id ? { ...b, clickCount: b.clickCount + 1 } : b
         )
       }));
     } catch (error) {
@@ -95,58 +93,54 @@ export const useBookmarkStore = create<BookmarkState>((set) => ({
     }
   },
   
-  fetchFolders: async (userId: string) => {
+  // --- Folders implementation ---
+  fetchFolders: async () => {
     set({ loading: true, error: null });
     try {
-      const folders = await api.getFolders(userId);
+      const folders = await api.getFolders();
       set({ folders, loading: false });
     } catch (error) {
       console.error('Error fetching folders:', error);
       set({ error: 'Failed to fetch folders', loading: false });
     }
   },
-  
-  addFolder: async (userId: string, name: string, parentId: string | null) => {
-    set({ loading: true, error: null });
+  addFolder: async (folder) => {
     try {
-      const newFolder = await api.createFolder(userId, parentId);
+      const newFolder = await api.createFolder(folder);
       set((state) => ({
         folders: [...state.folders, newFolder],
-        loading: false
       }));
     } catch (error) {
       console.error('Error adding folder:', error);
-      set({ error: 'Failed to add folder', loading: false });
+      set({ error: 'Failed to add folder' });
+      throw error;
     }
   },
-  
-  updateFolder: async (userId: string, id: string, name: string, parentId: string | null) => {
-    set({ loading: true, error: null });
+  updateFolder: async (id, folder) => {
     try {
-      const updatedFolder = await api.updateFolder(userId, id, parentId);
+      const updatedFolder = await api.updateFolder(id, folder);
       set((state) => ({
         folders: state.folders.map(f =>
           f.id === id ? updatedFolder : f
         ),
-        loading: false
       }));
     } catch (error) {
       console.error('Error updating folder:', error);
-      set({ error: 'Failed to update folder', loading: false });
+      set({ error: 'Failed to update folder' });
+      throw error;
     }
   },
-  
-  deleteFolder: async (userId: string, id: string) => {
-    set({ loading: true, error: null });
+  deleteFolder: async (id) => {
     try {
-      await api.deleteFolder(userId, id);
+      await api.deleteFolder(id);
       set((state) => ({
         folders: state.folders.filter(f => f.id !== id),
-        loading: false
+        // OPTIONAL: You might need to refetch bookmarks here if some were in the deleted folder
       }));
     } catch (error) {
       console.error('Error deleting folder:', error);
-      set({ error: 'Failed to delete folder', loading: false });
+      set({ error: 'Failed to delete folder' });
+      throw error;
     }
   },
 }));

@@ -25,7 +25,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
     if (!user?.id) return;
     
     try {
-      await updateBookmark(user.id, bookmark.id, { 
+      await updateBookmark(bookmark.id, { 
         isHidden: !bookmark.isHidden 
       });
       
@@ -46,7 +46,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
     if (!user?.id) return;
     
     try {
-      await deleteBookmark(user.id, bookmark.id);
+      await deleteBookmark(bookmark.id);
       toast.success(t('bookmarks.notifications.deleted'));
     } catch (error) {
       console.error('Error deleting bookmark:', error);
@@ -59,7 +59,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
     
     try {
       // Increment click count first
-      await incrementClickCount(user.id, bookmark.id);
+      await incrementClickCount(bookmark.id);
       
       // Then open URL in new tab
       window.open(bookmark.url, '_blank', 'noopener,noreferrer');

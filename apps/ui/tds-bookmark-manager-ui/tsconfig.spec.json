@@ -9,6 +9,7 @@
       "node",
       "vitest",
       "@testing-library/jest-dom",
+      "dom",
       "@nx/react/typings/cssmodule.d.ts",
       "@nx/react/typings/image.d.ts"
     ],

@@ -1,4 +1,4 @@
-import type { Bookmark, CreateUserDto, Folder, Role, User } from "@tds/tds-bm-common";
+import type { Bookmark, CreateBookmarkDto, CreateFolderDto, CreateUserDto, Folder, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto, User, ForgotPasswordDto, ResetPasswordDto, TokenDto } from "@tds/tds-bm-common";
 
 import { DateRange } from "../components/statistics/DateRangeSelector";
 
@@ -17,39 +17,32 @@ export interface FolderType extends Folder {
 }
 
 export interface ApiInterface {
-  // System check
+  // System
   checkAdminExists(): Promise<boolean>;
   setupAdmin(createUserDto: CreateUserDto): Promise<UserType>;
+
   // Auth
   login(email: string, password: string): Promise<UserType>;
   register(createUserDto: CreateUserDto): Promise<UserType>;
-  updateProfile(email: string, data: Partial<UserType>): Promise<UserType>;
-  // User Management (Admin)
-  getUsers(): Promise<UserType[]>;
-  updateUserRole(email: string, role: Role): Promise<UserType>;
-  // Statistics
-  // TODO: return statistic object
-  getAdminStatistics(dateRange: DateRange): Promise<{
-    totalUsers: number;
-    totalBookmarks: number;
-    totalClicks: number;
-    avgBookmarksPerUser: number;
-    avgClicksPerUser: number;
-    topUsers: Array<{
-      email: string;
-      bookmarkCount: number;
-      clickCount: number;
-    }>;
-  }>;
+  updateProfile(userId: string, data: Partial<UserType>): Promise<UserType>;
+  forgotPassword(data: ForgotPasswordDto): Promise<void>;
+  resetPassword(data: ResetPasswordDto): Promise<TokenDto>;
+
   // Bookmarks
-  getBookmarks(userEmail: string): Promise<BookmarkType[]>;
-  createBookmark(userEmail: string, data: Partial<BookmarkType>): Promise<BookmarkType>;
-  updateBookmark(userEmail: string, bookmarkId: string, data: Partial<BookmarkType>): Promise<BookmarkType>;
-  deleteBookmark(userEmail: string, bookmarkId: string): Promise<void>;
-  incrementBookmarkClicks(userEmail: string, bookmarkId: string): Promise<BookmarkType>;
+  getBookmarks(search?: string, sortBy?: string): Promise<BookmarkType[]>;
+  createBookmark(data: CreateBookmarkDto): Promise<BookmarkType>;
+  updateBookmark(bookmarkId: string, data: UpdateBookmarkDto): Promise<BookmarkType>;
+  deleteBookmark(bookmarkId: string): Promise<void>;
+  incrementBookmarkClicks(bookmarkId: string): Promise<void>;
+
   // Folders
-  getFolders(userEmail: string): Promise<FolderType[]>;
-  createFolder(userEmail: string, parentId: string | null, data?: Partial<FolderType>): Promise<FolderType>;
-  updateFolder(userEmail: string, folderId: string, parentId: string | null, data?: Partial<FolderType>): Promise<FolderType>;
-  deleteFolder(userEmail: string, folderId: string): Promise<void>;
+  getFolders(): Promise<FolderType[]>;
+  createFolder(data: CreateFolderDto): Promise<FolderType>;
+  updateFolder(folderId: string, data: UpdateFolderDto): Promise<FolderType>;
+  deleteFolder(folderId: string): Promise<void>;
+
+  // Admin
+  getUsers(): Promise<UserType[]>;
+  updateUserRole(userId: string, data: UpdateUserRoleDto): Promise<UserType>;
+  getAdminStatistics(dateRange: DateRange): Promise<any>;
 }
