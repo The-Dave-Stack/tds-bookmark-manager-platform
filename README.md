@@ -1,160 +1,254 @@
 # TDS Bookmark Manager
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="apps/ui/tds-bookmark-manager-ui/public/favicon.svg" width="45"></a>
+<div align="center">
+  <img src="apps/ui/tds-bookmark-manager-ui/public/favicon.svg" width="100" alt="TDS Bookmark Manager Logo">
+  <p>
+    <strong>TDS Bookmark Manager is a modern, full-stack application designed to help you organize, find, and use your web links like never before.</strong>
+  </p>
+  <p>
+    Built with a modern tech stack within a professional monorepo architecture powered by Nx.
+  </p>
+</div>
 
-**TDS Bookmark Manager** is a modern, full-stack application designed to help you organize, find, and use your web links like never before. It features a clean, intuitive interface and a powerful backend, all built within a professional monorepo structure.
+<div align="center">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+  </div>
 
 ---
 
-## Core Features
+## 🚀 Overview
 
--   **Secure Authentication**: JWT-based authentication with password hashing using `bcrypt`.
--   **Role-Based Access Control (RBAC)**: Differentiated roles for `User` and `Admin` with protected routes and functionalities.
--   **Full Bookmark Management**: Complete CRUD (Create, Read, Update, Delete) operations for bookmarks.
--   **Hierarchical Folder Organization**: Organize bookmarks into nested folders for better categorization.
--   **Usage Statistics**: View analytics on your bookmark usage, including click counts and most-used links.
--   **Quick-Add via Webhook & Bookmarklet**: Easily add bookmarks from anywhere using a unique webhook URL or a browser bookmarklet.
--   **Multilingual Support**: Fully internationalized interface supporting English and Spanish.
--   **Admin Panel**: A dedicated section for administrators to manage users and view global statistics.
--   **Dockerized Environment**: The required database (PostgreSQL) is managed via Docker for consistent development and deployment setups.
+This project is more than just a bookmark manager. It is a complete platform that offers a clean and intuitive user interface, a powerful and secure backend, and advanced features such as quick-adding links via webhooks or a custom bookmarklet. The entire project is packaged in a Dockerized environment for consistent development and deployment.
 
-## Technology Stack
+### ✨ Key Features
 
-This project is a monorepo managed with **Nx** and **npm workspaces**.
+* **Secure Authentication**: JWT-based system with password hashing using `bcrypt`.
+* **Role-Based Access Control (RBAC)**: Differentiated roles for `User` and `Admin` with protected routes and functionalities.
+* **Full Bookmark Management**: Complete CRUD (Create, Read, Update, Delete) operations for bookmarks.
+* **Hierarchical Organization**: Organize your bookmarks into nested folders and subfolders.
+* **Usage Statistics**: View analytics on your bookmark usage, including click counts and most-used links.
+* **Quick Add (Webhook & Bookmarklet)**: Easily add bookmarks from any browser using a unique webhook URL or a bookmarklet.
+* **Multi-language Support**: Fully internationalized interface supporting English and Spanish.
+* **Admin Panel**: A dedicated section for administrators to manage users and view global statistics.
+* **Dockerized Environment**: The entire stack, including the PostgreSQL database, is managed via Docker for maximum consistency between environments.
 
-#### **Backend (`tds-bookmark-manager-api`)**
+---
 
--   **Framework**: [NestJS](https://nestjs.com/)
--   **Database ORM**: [TypeORM](https://typeorm.io/)
--   **Database**: [PostgreSQL](https://www.postgresql.org/) (development via Docker)
--   **Authentication**: [Passport.js](https://www.passportjs.org/) (JWT and Local strategies)
--   **Validation**: [class-validator](https://github.com/typestack/class-validator), [class-transformer](https://github.com/typestack/class-transformer)
--   **Logging**: `nestjs-pino`
--   **Testing**: Jest
+## 🛠️ Technology Stack
 
-#### **Frontend (`tds-bookmark-manager-ui`)**
+The project is organized as a monorepo managed with **Nx** and **npm workspaces**.
 
--   **Framework**: [React](https://react.dev/)
--   **Build Tool**: [Vite](https://vitejs.dev/)
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
--   **State Management**: [Zustand](https://github.com/pmndrs/zustand)
--   **Routing**: [React Router](https://reactrouter.com/)
--   **Internationalization**: [i18next](https://www.i18next.com/)
--   **UI Components**: Headless UI
--   **Icons**: [Lucide React](https://lucide.dev/)
--   **Unit & Component Testing**: [Vitest](https://vitest.dev/), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
--   **E2E Testing**: [Playwright](https://playwright.dev/)
+| Area              | Technology                                                                                                                              |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **Monorepo** | [**Nx**](https://nx.dev/), [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)                                           |
+| **Backend** | [**NestJS**](https://nestjs.com/), [TypeORM](https://typeorm.io/), [PostgreSQL](https://www.postgresql.org/), [Passport.js](https://www.passportjs.org/), [Pino](https://getpino.io/) (for logging), [Jest](https://jestjs.io/) |
+| **Frontend** | [**React**](https://react.dev/), [**Vite**](https://vitejs.dev/), [**TypeScript**](https://www.typescriptlang.org/), [**Tailwind CSS**](https://tailwindcss.com/), [**Zustand**](https://github.com/pmndrs/zustand) (state), [React Router](https://reactrouter.com/), [i18next](https://www.i18next.com/), [Vitest](https://vitest.dev/), [React Testing Library](https://testing-library.com/), [Playwright](https://playwright.dev/) (E2E) |
+| **Database** | [**PostgreSQL**](https://www.postgresql.org/) (managed with Docker)                                                                    |
+| **DevOps** | [**Docker** & **Docker Compose**](https://www.docker.com/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [GitHub Actions](https://github.com/features/actions) |
 
-## Getting Started
+---
+
+## 📂 Project Structure
+
+The monorepo is organized as follows, promoting code reuse and separation of concerns:
+
+```
+tds-bookmark-manager-platform/
+├── .github/workflows/
+│   ├── docker-publish.yml             # CI workflow for the 'main' branch
+│   └── release.yml                    # Release workflow for Git tags
+├── apps/
+│   ├── backend/
+│   │   ├── tds-bookmark-manager-api/      # The NestJS API
+│   │   └── tds-bookmark-manager-api-e2e/  # E2E tests for the API
+│   └── ui/
+│       ├── tds-bookmark-manager-ui/       # The React application
+│       └── tds-bookmark-manager-ui-e2e/   # E2E tests for the UI with Playwright
+├── libs/
+│   └── tds-bm-common/                     # Shared library (DTOs, interfaces)
+├── docker-compose.yml                     # Docker Compose file for production
+├── docker-compose.develop.yml             # Docker Compose file for development
+├── nx.json                                # Main Nx configuration
+└── package.json                           # Workspace dependencies and scripts
+```
+
+---
+
+## 🏁 Getting Started
+
+Follow these steps to get the full development environment running on your local machine.
 
 ### Prerequisites
 
--   [Node.js](https://nodejs.org/) (v22 or higher is recommended)
--   [npm](https://www.npmjs.com/) (v7 or higher, included with Node.js)
--   [Docker](https://www.docker.com/get-started) and Docker Compose
+* [Node.js](https://nodejs.org/) (v22 or higher recommended)
+* [npm](https://www.npmjs.com/) (v7 or higher, included with Node.js)
+* [Docker](https://www.docker.com/get-started) and Docker Compose
 
-### Installation & Setup
+### Installation Guide
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/your-username/tds-bookmark-manager-platform.git](https://github.com/your-username/tds-bookmark-manager-platform.git)
+    git clone [https://github.com/d-lacreme/tds-bookmark-manager-platform.git](https://github.com/d-lacreme/tds-bookmark-manager-platform.git)
     cd tds-bookmark-manager-platform
     ```
 
 2.  **Install dependencies:**
-    This project uses `npm` workspaces. Install all dependencies from the root directory.
+    From the project root, install all dependencies for all applications and libraries.
     ```bash
     npm install
     ```
 
-3.  **Configure Environment Variables:**
-    The backend requires environment variables for the database connection, JWT secrets, and the initial admin user.
-    Create a new file `apps/backend/tds-bookmark-manager-api/.env.development` by copying the example below:
+3.  **Configure Environment Variables for the API:**
+    The API requires an `.env` file to function. Create a file named `apps/backend/tds-bookmark-manager-api/.env.development` and paste the following content.
 
     ```env
-    # .env.development
+    # apps/backend/tds-bookmark-manager-api/.env.development
 
-    # -- Database Configuration --
-    POSTGRES_USER=your_db_user
-    POSTGRES_PASSWORD=your_db_password
-    POSTGRES_DB=tds_bookmarks_db
+    # Application Environment
+    NODE_ENV=development
+    APP_HOST=localhost
+    APP_PORT=3000
+    APP_PROTOCOL=http
+    APP_NAME=TDS Bookmark Manager API
 
-    # -- JWT Configuration --
-    JWT_SECRET=your-super-secret-jwt-key-that-is-long
+    # Rate Limiting Configuration
+    GLOBAL_RATE_LIMIT_TTL=60000
+    GLOBAL_RATE_LIMIT_LIMIT=100
+
+    # JWT Configuration
+    # IMPORTANT: Use a long and secure secret in a real environment.
+    JWT_SECRET=this-is-a-very-long-and-secure-development-secret
     JWT_EXPIRES_IN=1d
+
+    # PostgreSQL Database Variables
+    # These match the ones in docker-compose.develop.yml
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+    POSTGRES_USER=testuser
+    POSTGRES_PASSWORD=testpassword
+    POSTGRES_DB=tds_bookmarks_db
     ```
 
-4.  **Start the Database:**
-    Use Docker Compose to start the PostgreSQL database service.
+4.  **Start Docker services:**
+    This command will spin up the PostgreSQL database container.
     ```bash
-    docker-compose up -d
+    npm run docker:dev:up
     ```
 
 5.  **Run Database Migrations:**
-    Apply the initial database schema and seed the admin user.
+    With the database running, apply the initial schema.
     ```bash
     npm run migration:run
     ```
 
-6.  **Run the Development Servers:**
-    You can run the backend and frontend servers in separate terminals for the best development experience.
+6.  **Start the Development Servers:**
+    You can start the API and UI simultaneously with a single command.
+    ```bash
+    npm run start:all:dev
+    ```
+    Alternatively, in separate terminals:
+    * **Terminal 1 (API):** `npm run start:api:dev`
+    * **Terminal 2 (UI):** `npm run start:ui:dev`
 
-    -   **Terminal 1: Start the Backend API**
+You're all set! The React application will be available at `http://localhost:4200` and the NestJS API at `http://localhost:3000`.
+
+---
+
+## 📜 Available Scripts
+
+These are the most important scripts defined in the root `package.json`:
+
+| Script                   | Description                                                                 |
+| ------------------------ | --------------------------------------------------------------------------- |
+| `start:all:dev`          | Starts the API and UI in development mode simultaneously.                     |
+| `build:all`              | Builds the `common` library, the API, and the UI for production.              |
+| `test:all`               | Runs all unit/component tests for the API and UI.                             |
+| `docker:dev:up`          | Starts the Docker containers defined in `docker-compose.develop.yml`.         |
+| `docker:build:versioned` | Builds versioned Docker images based on the `package.json` version.         |
+| `release:tag`            | Creates a custom-formatted Git tag based on the `package.json` version.       |
+| `migration:run`          | Runs pending migrations on the database.                                      |
+| `migration:generate`     | Generates a new migration file from entity changes.                           |
+
+---
+
+## 🤖 Build and Release Workflow (CI/CD)
+
+This project uses GitHub Actions to automate the build and release process. The workflow is split into two distinct parts to handle continuous integration and versioned releases separately.
+
+### 1. Continuous Integration (on push to `main`)
+
+This workflow is defined in `.github/workflows/docker-publish.yml`.
+
+* **Trigger**: Automatically runs on every push to the `main` branch.
+* **Purpose**: To build and publish "bleeding-edge" images of the services that were affected by the changes in the push.
+* **Efficiency**: It uses `npx nx affected` to intelligently detect which projects (`api`, `ui`, `migrations`) have changed and only builds images for them. This saves significant time and resources.
+* **Image Naming**: Publishes images to GitHub Container Registry (GHCR) with the specific names (`The-Dave-Stack/tds-bookmark-manager-api`, etc.).
+* **Tagging Strategy**: Images are tagged with:
+    * `latest`: Always points to the most recent commit on `main`.
+    * `<sha>`: The short commit hash (e.g., `a1b2c3d`) for perfect traceability.
+
+### 2. Versioned Releases (on Git tag)
+
+This workflow is defined in `.github/workflows/release.yml`.
+
+* **Trigger**: Runs only when a new Git tag matching the pattern `v*.*.*/*` (e.g., `v0.1.x/0.1.0`) is pushed to the repository.
+* **Purpose**: To create and publish official, stable, and immutable releases of the entire application suite (UI, API, and Migrations).
+* **How to Trigger a Release**: This is a manual process made easy with an npm script. **Do not use `npm version` for releases.**
+    1.  **Update Version**: Manually edit the `version` field in the root `package.json` file.
+    2.  **Commit Change**: Commit the updated `package.json`.
         ```bash
-        npm run start:api:dev
+        git add package.json
+        git commit -m "chore(release): bump version to 0.1.0"
         ```
-        The API will be available at `http://localhost:3000`.
-
-    -   **Terminal 2: Start the Frontend UI**
+    3.  **Create Custom Tag**: Run the helper script to create the correctly formatted Git tag.
         ```bash
-        npm run start:ui:dev
+        npm run release:tag
         ```
-        The UI will be available at `http://localhost:4200`.
+    4.  **Push to GitHub**: Push your commit and the new tag to trigger the workflow.
+        ```bash
+        git push && git push --tags
+        ```
+* **Tagging Strategy**: The workflow extracts the standard version from the custom Git tag. Docker images are then published with standard, useful semantic version tags:
+    * `1.0.1` (full version)
+    * `1.0` (minor version)
+    * `1` (major version)
+    * `latest`
 
-## Testing
+---
 
-This project is configured with unit, integration, and E2E tests.
+## 🧪 Testing
 
--   **Run Frontend Unit/Component Tests:**
+The project is set up with unit, integration, and E2E tests.
+
+* **Run UI Tests (Vitest):**
     ```bash
     npm run test:ui
     ```
-
--   **Run Frontend Tests with Coverage:**
-    ```bash
-    npm run test:ui:cov
-    ```
-
--   **Run Backend Unit/Integration Tests:**
+* **Run API Tests (Jest):**
     ```bash
     npm run test:api
     ```
-
-## Database Migrations
-
-Database schema changes are handled by TypeORM migrations.
-
--   **Generate a new migration:**
-    (After making changes to your TypeORM entities)
+* **Run UI E2E Tests (Playwright):**
+    Ensure the application is running (`npm run start:ui:dev`) and then execute:
     ```bash
-    npm run migration:generate -- src/db/migrations/YourMigrationName
+    npx nx e2e @tds/tds-bookmark-manager-ui-e2e
     ```
 
--   **Revert the last migration:**
-    ```bash
-    npm run migration:revert
-    ```
+---
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! If you want to improve the project, please feel free to submit a Pull Request.
 
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
+1.  Fork the Project.
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+4.  Push to the Branch (`git push origin feature/AmazingFeature`).
+5.  Open a Pull Request.
 
-## License
+---
 
-This project is distributed under the MIT License. See `LICENSE` file for more information.
+## 📄 License
+
+Distributed under the MIT License. See the [LICENSE](LICENSE) file for more information.
