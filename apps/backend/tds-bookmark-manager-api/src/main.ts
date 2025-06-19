@@ -8,6 +8,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import { getPinoLoggerOptions } from './logger/config';
 import helmet from 'helmet';
 
@@ -21,6 +22,9 @@ async function bootstrap() {
   // Create the NestJS application with buffered logs
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const configService = app.get(ConfigService);
+
+  // Use cookieParser to manage Cookies
+  app.use(cookieParser());
 
   // Use the NestJS logger
   app.useLogger(app.get(Logger));

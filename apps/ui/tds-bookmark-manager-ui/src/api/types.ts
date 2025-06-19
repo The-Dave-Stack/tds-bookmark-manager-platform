@@ -1,4 +1,4 @@
-import type { Bookmark, CreateBookmarkDto, CreateFolderDto, CreateUserDto, Folder, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto, User, ForgotPasswordDto, ResetPasswordDto, TokenDto } from "@tds/tds-bm-common";
+import type { Bookmark, CreateBookmarkDto, CreateFolderDto, CreateUserDto, Folder, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, TokenDto, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto, User } from "@tds/tds-bm-common";
 
 import { DateRange } from "../components/statistics/DateRangeSelector";
 
@@ -22,7 +22,8 @@ export interface ApiInterface {
   setupAdmin(createUserDto: CreateUserDto): Promise<UserType>;
 
   // Auth
-  login(email: string, password: string): Promise<UserType>;
+  login(loginUserDto: LoginUserDto): Promise<UserType>;
+  logout(): Promise<void>;
   register(createUserDto: CreateUserDto): Promise<UserType>;
   updateProfile(userId: string, data: Partial<UserType>): Promise<UserType>;
   forgotPassword(data: ForgotPasswordDto): Promise<void>;
@@ -40,6 +41,9 @@ export interface ApiInterface {
   createFolder(data: CreateFolderDto): Promise<FolderType>;
   updateFolder(folderId: string, data: UpdateFolderDto): Promise<FolderType>;
   deleteFolder(folderId: string): Promise<void>;
+
+  // User
+  getProfile(): Promise<UserType>;
 
   // Admin
   getUsers(): Promise<UserType[]>;

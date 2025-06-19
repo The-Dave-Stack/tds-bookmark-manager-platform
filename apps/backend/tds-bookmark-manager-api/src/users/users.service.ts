@@ -7,7 +7,7 @@ import { UserEntity } from './entities/user.entity';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { ArrayContains, MoreThan, Repository } from 'typeorm';
 
-import { mapEntityToDto, Role, UserWithoutPassword, CreateUserDto, User } from '@tds/tds-bm-common';
+import { mapEntityToDto, Role, UserWithoutPassword, CreateUserDto } from '@tds/tds-bm-common';
 import { PinoLogger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
 
@@ -39,8 +39,8 @@ export class UsersService {
   }
 
   findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: false }): Promise<UserEntity>;
-  findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: true }): Promise<User>;
-  async findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: boolean }): Promise<User | UserEntity> {
+  findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: true }): Promise<UserWithoutPassword>;
+  async findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: boolean }): Promise<UserWithoutPassword | UserEntity> {
     const userEntity = await this.usersRepository.findOneBy({ email: data.email });
 
     this.logger.debug(`User with email '${data.email}' found: %o`, userEntity);
@@ -52,7 +52,7 @@ export class UsersService {
       return userEntity;
     }
 
-    return mapEntityToDto<UserEntity, User>(userEntity, User);
+    return mapEntityToDto<UserEntity, UserWithoutPassword>(userEntity, UserWithoutPassword);
   }
 
   async findAll(): Promise<UserEntity[]> {
@@ -67,7 +67,7 @@ export class UsersService {
   async findAllForAdmin(): Promise<UserWithoutPassword[]> {
     this.logger.debug('Finding all users for admin panel');
     const users = await this.usersRepository.find();
-    return users.map((user) => mapEntityToDto(user, User));
+    return users.map((user) => mapEntityToDto(user, UserWithoutPassword));
   }
 
   async findOneByApiToken(token: string): Promise<UserEntity | null> {
@@ -102,10 +102,10 @@ export class UsersService {
     userToUpdate.roles = roles;
     const updatedUser = await this.usersRepository.save(userToUpdate);
     this.logger.info(`Successfully updated roles for user ID: ${id}`);
-    return mapEntityToDto(updatedUser, User);
+    return mapEntityToDto(updatedUser, UserWithoutPassword);
   }
 
-  async create(data: Partial<User>): Promise<User> {
+  async create(data: Partial<CreateUserDto>): Promise<UserWithoutPassword> {
     const date = new Date();
     const newUser: UserEntity = {
       username: data.username as string,
@@ -119,7 +119,11 @@ export class UsersService {
       roles: data.roles || [Role.USER],
       apiToken: crypto.randomBytes(24).toString('hex'),
     };
-    return mapEntityToDto(await this.usersRepository.save(newUser), User);
+    const savedUser = await this.usersRepository.save(newUser);
+    this.logger.debug(`Successfully created user: %o`, savedUser);
+    const userWithoutPassword = mapEntityToDto(savedUser, UserWithoutPassword);
+    this.logger.debug(`Successfully created user without password: %o`, userWithoutPassword);
+    return userWithoutPassword;
   }
 
   async createPasswordResetToken(email: string): Promise<string> {
@@ -162,7 +166,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async validateUserCredentials(credentials: Pick<User, 'email' | 'password'>): Promise<User | undefined> {
+  async validateUserCredentials(credentials: Pick<User, 'email' | 'password'>): Promise<UserWithoutPassword | undefined> {
     let userEntity: UserEntity;
     try {
       userEntity = await this.findOneByEmail({ email: credentials.email }, { withoutPassword: false });
@@ -177,7 +181,7 @@ export class UsersService {
       return undefined; // Invalid password
     }
 
-    return mapEntityToDto(userEntity, User);
+    return mapEntityToDto(userEntity, UserWithoutPassword);
   }
 
   async hashPassword(password: string): Promise<string> {

@@ -1,4 +1,4 @@
-import { CreateUserDto, LoginUserDto, Role, TokenDto, User } from '@tds/tds-bm-common';
+import { CreateUserDto, LoginUserDto, Role, UserWithoutPassword } from '@tds/tds-bm-common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthService } from './auth.service';
@@ -62,7 +62,7 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should return user DTO if credentials are valid', async () => {
-      const mockUserDto: User = {
+      const mockUserDto: UserWithoutPassword = {
         username: 'testuser',
         email: 'testuser@test.com',
         isActive: true,
@@ -77,7 +77,7 @@ describe('AuthService', () => {
     });
 
     it('should return true if credentials are valid and returnUser is false', async () => {
-      const mockUserDto: User = {
+      const mockUserDto: UserWithoutPassword = {
         username: 'testuser',
         email: 'testuser@test.com',
         isActive: true,
@@ -109,45 +109,72 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-      it('should return an access token for valid credentials', async () => {
-          const loginDto: LoginUserDto = { email: 'test@test.com', password: 'validpassword' };
-          const userFromDb = { username: 'test', email: loginDto.email, roles: [], password: loginDto.password } as User;
-    
-          // La llamada a validateUser es interna de auth.service, así que mockeamos la dependencia que llama: usersService
-          mockUsersService.validateUserCredentials.mockResolvedValue(userFromDb);
-          mockJwtService.sign.mockReturnValue('mock-token');
-    
-          await authService.login(loginDto);
-    
-          // --- CORRECTION IS HERE ---
-          // The assertion now correctly expects only ONE argument, which matches the actual implementation.
-          expect(usersService.validateUserCredentials).toHaveBeenCalledWith({
-            email: loginDto.email,
-            password: loginDto.password,
-          });
-    
-          // The rest of the assertions remain the same
-          expect(jwtService.sign).toHaveBeenCalledWith({ username: userFromDb.username, sub: userFromDb.email, roles: userFromDb.roles });
-        });
-        
-        // El otro test de login permanece igual
-        it('should throw UnauthorizedException for invalid credentials', async () => {
-            const loginDto: LoginUserDto = { email: 'wrong@test.com', password: 'wrongpassword' };
-            mockUsersService.validateUserCredentials.mockResolvedValue(undefined); // Simulate user not found
-            await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
-        });
+    it('should return an access token and user data for a valid user', async () => {
+      const loginUserDto: LoginUserDto = { email: 'test@test.com', password: 'testpassword' };
+      const mockUserWithoutPassword: UserWithoutPassword = {
+        username: 'testuser',
+        email: 'test@test.com',
+        isActive: true,
+        createdAt: new Date(),
+        roles: [Role.USER],
+      };
+
+      (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(mockUserWithoutPassword);
+      mockJwtService.sign.mockReturnValue('mock-token');
+
+      const result = await authService.login(loginUserDto);
+
+      expect(usersService.validateUserCredentials).toHaveBeenCalledWith(loginUserDto);
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        username: mockUserWithoutPassword.username,
+        sub: mockUserWithoutPassword.email,
+        roles: mockUserWithoutPassword.roles,
+      });
+      expect(result).toEqual({
+        access_token: 'mock-token',
+        ...mockUserWithoutPassword,
+      });
     });
 
+    it('should throw UnauthorizedException if credentials are invalid', async () => {
+      const loginUserDto: LoginUserDto = { email: 'invalid@test.com', password: 'wrongpassword' };
+      (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(undefined);
+
+      await expect(authService.login(loginUserDto)).rejects.toThrow(UnauthorizedException);
+      expect(usersService.validateUserCredentials).toHaveBeenCalledWith(loginUserDto);
+      expect(jwtService.sign).not.toHaveBeenCalled();
+    });
+  });
+
   describe('register', () => {
-    it('should create a new user and return user DTO', async () => {
-      const createUserDto: CreateUserDto = { username: 'newuser', password: 'newpassword', email: 'newuser@test.com' };
-      const mockNewUserDto: TokenDto = { access_token: 'mock-token' };
-      (usersService.create as jest.Mock).mockResolvedValue(mockNewUserDto);
+    it('should create a user and return an access token and user data', async () => {
+      const createUserDto: CreateUserDto = { username: 'newuser', password: 'password', email: 'new@example.com' };
+      const newUserWithoutPassword: UserWithoutPassword = {
+        id: '1',
+        username: 'newuser',
+        email: 'new@example.com',
+        roles: [Role.USER],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        apiToken: 'some-api-token',
+      };
+
+      mockUsersService.create.mockResolvedValue(newUserWithoutPassword);
+      mockJwtService.sign.mockReturnValue('mock-token');
 
       const result = await authService.register(createUserDto);
 
-      expect(result).toEqual(mockNewUserDto);
-      expect(usersService.create).toHaveBeenCalledWith(createUserDto);
+      expect(mockUsersService.create).toHaveBeenCalledWith(createUserDto);
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        username: newUserWithoutPassword.username,
+        sub: newUserWithoutPassword.email,
+        roles: newUserWithoutPassword.roles,
+      });
+      expect(result).toEqual({
+        access_token: 'mock-token',
+        ...newUserWithoutPassword,
+      });
     });
   });
 

@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt'; // Import bcrypt
 
 import { ArrayContains, Repository } from 'typeorm';
-import { Role, User } from '@tds/tds-bm-common'; // Import User DTO
+import { Role, UserWithoutPassword } from '@tds/tds-bm-common'; // Import UserWithoutPassword DTO
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { ConfigService } from '@nestjs/config';
@@ -11,16 +11,6 @@ import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mapEntityToDto } from '@tds/tds-bm-common'; // Import mapEntityToDto
-
-// Mock the entire tds-bm-common module to control mapEntityToDto
-jest.mock('@tds/tds-bm-common', () => ({
-  ...jest.requireActual('@tds/tds-bm-common'), // Keep original exports
-  mapEntityToDto: jest.fn((entity) => {
-    if (!entity) return undefined;
-    const { passwordHash, ...rest } = entity;
-    return rest;
-  }),
-}));
 
 // Mock bcrypt globally for this test file
 jest.mock('bcrypt', () => ({
@@ -38,13 +28,13 @@ jest.mock('@tds/tds-bm-common', () => {
       if (!entity) return undefined;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { passwordHash, ...rest } = entity; // Destructure to remove passwordHash
-      if (dtoClass === User) {
-        // Check if the target DTO is User
+      if (dtoClass === originalModule.UserWithoutPassword) {
+        // Check if the target DTO is UserWithoutPassword
         return { ...rest }; // Return the rest of the properties, effectively removing passwordHash
       }
-      return rest; // For other DTOs or if dtoClass is not User
+      return rest; // For other DTOs or if dtoClass is not UserWithoutPassword
     }),
-    User: originalModule.User, // Ensure User DTO class is exported
+    UserWithoutPassword: originalModule.UserWithoutPassword, // Ensure UserWithoutPassword DTO class is exported
   };
 });
 
@@ -149,7 +139,7 @@ describe('UsersService', () => {
       const user = await service.findOneByEmail({ email: 'test@example.com' });
       expect(user).toEqual(expectedUserDto);
       expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: 'test@example.com' });
-      expect(mapEntityToDto).toHaveBeenCalledWith(mockUserEntity, User);
+      expect(mapEntityToDto).toHaveBeenCalledWith(mockUserEntity, UserWithoutPassword);
     });
 
     it('should throw NotFoundException if user not found', async () => {
@@ -201,6 +191,7 @@ describe('UsersService', () => {
         isActive: true,
         createdAt: dateNow,
         updatedAt: dateNow,
+        apiToken: expect.any(String), // apiToken is generated in service
       };
 
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedpassword');
@@ -218,9 +209,10 @@ describe('UsersService', () => {
           passwordHash: 'hashedpassword',
           roles: ['USER'],
           isActive: true,
+          apiToken: expect.any(String), // apiToken is generated in service
         })
       );
-      expect(mapEntityToDto).toHaveBeenCalledWith(savedUserEntity, User);
+      expect(mapEntityToDto).toHaveBeenCalledWith(savedUserEntity, UserWithoutPassword);
     });
   });
 
@@ -255,7 +247,7 @@ describe('UsersService', () => {
       expect(result).toEqual(expectedUserDto);
       expect(findOneByEmailSpy).toHaveBeenCalledWith({ email: 'testuser@test.com' }, { withoutPassword: false });
       expect(bcrypt.compare).toHaveBeenCalledWith('validpassword', 'hashedpassword');
-      expect(mapEntityToDto).toHaveBeenCalledWith(mockUserEntity, User);
+      expect(mapEntityToDto).toHaveBeenCalledWith(mockUserEntity, UserWithoutPassword);
     });
 
     it('should return undefined if user not found', async () => {

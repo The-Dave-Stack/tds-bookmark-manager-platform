@@ -1,7 +1,6 @@
-export class User {
+export class UserWithoutPassword {
   id?: string;
   username!: string;
-  password?: string;
   email!: string;
   firstName?: string;
   lastName?: string;
@@ -13,7 +12,9 @@ export class User {
   apiToken?: string;
 }
 
-export type UserWithoutPassword = Omit<User, 'password'>;
+export class User extends UserWithoutPassword {
+  password?: string;
+}
 
 export enum Role {
   ADMIN = 'ADMIN',

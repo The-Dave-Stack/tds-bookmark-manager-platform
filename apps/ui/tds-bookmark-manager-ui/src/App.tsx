@@ -19,34 +19,31 @@ import { useAuthStore } from './stores/authStore';
 function App() {
   const [loading, setLoading] = useState(true);
   const [needsAdminSetup, setNeedsAdminSetup] = useState(false);
-  const { user, setUser, clearUser } = useAuthStore();
+  const { user, checkAuth } = useAuthStore();
 
   useEffect(() => {
     // Simulate checking auth state
-    const checkAuth = async () => {
+    const initializeApp = async () => {
       try {
         // Check if admin exists in the system
         const adminExists = await api.checkAdminExists();
-        console.log('Admin exists:', adminExists);
         
         if (!adminExists) {
           setNeedsAdminSetup(true);
-          setLoading(false);
-          return;
+        } else {
+          // If an admin exists, check if the current user has a valid session cookie
+          await checkAuth();
         }
-        
-        // In a real app, this would check for existing auth tokens/sessions
-        // For now, we just set loading to false setLoading(false);
-        setLoading(false);
       } catch (error) {
-        console.error('Error during authentication:', error);
-        clearUser();
+        console.error('Error during app initialization:', error);
+        useAuthStore.getState().setUser(null); // Clear state in case of error
+      } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
-  }, [setUser, clearUser]);
+    initializeApp();
+  }, [checkAuth]);
 
   const handleSetupComplete = () => {
     setNeedsAdminSetup(false);

@@ -1,4 +1,4 @@
-import { CreateUserDto, JwtPayloadDto, LoginUserDto, TokenDto, User, mapEntityToDto } from '@tds/tds-bm-common';
+import { CreateUserDto, JwtPayloadDto, LoginUserDto, TokenDto, UserWithoutPassword, mapEntityToDto } from '@tds/tds-bm-common';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { EmailService } from '../email/email.service';
@@ -12,7 +12,7 @@ export class AuthService {
     this.logger.setContext(AuthService.name);
   }
 
-  async validateUser(data: Pick<User, 'email' | 'password'>, options: { returnUser: boolean } = { returnUser: false }): Promise<User | boolean> {
+  async validateUser(data: Pick<LoginUserDto, 'email' | 'password'>, options: { returnUser: boolean } = { returnUser: false }): Promise<UserWithoutPassword | boolean> {
     const result = await this.usersService.validateUserCredentials(data);
 
     if (!result) {
@@ -20,16 +20,16 @@ export class AuthService {
     }
 
     if (options.returnUser) {
-      return result as User;
+      return result;
     }
 
     return !!result;
   }
 
-  async validateUserByApiKey(token: string): Promise<User | null> {
+  async validateUserByApiKey(token: string): Promise<UserWithoutPassword | null> {
     const user = await this.usersService.findOneByApiToken(token);
     if (user) {
-      return mapEntityToDto(user, User);
+      return mapEntityToDto(user, UserWithoutPassword);
     }
     return null;
   }
@@ -54,20 +54,20 @@ export class AuthService {
     };
   }
 
-  async login(user: LoginUserDto): Promise<TokenDto> {
-    const userFound = (await this.validateUser({ email: user.email, password: user.password }, { returnUser: true })) as User;
+  async login(user: LoginUserDto): Promise<TokenDto & UserWithoutPassword> {
+    const userFound = (await this.validateUser({ email: user.email, password: user.password }, { returnUser: true })) as UserWithoutPassword;
     if (!userFound) {
       throw new UnauthorizedException();
     }
-    return this._getToken(userFound);
+    return { ...this._getToken(userFound), ...userFound };
   }
 
-  async register(data: CreateUserDto): Promise<TokenDto> {
+  async register(data: CreateUserDto): Promise<TokenDto & UserWithoutPassword> {
     const newUser = await this.usersService.create({ ...data });
-    return this._getToken(newUser);
+    return { ...this._getToken(newUser), ...newUser };
   }
 
-  private _getToken(user: User): TokenDto {
+  private _getToken(user: UserWithoutPassword): TokenDto {
     const payload: JwtPayloadDto = {
       username: user.username,
       sub: `${user.email}`,

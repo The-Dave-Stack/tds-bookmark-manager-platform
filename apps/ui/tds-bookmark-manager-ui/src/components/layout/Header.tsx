@@ -2,6 +2,7 @@ import { Bookmark, ChevronDown, LogOut, Menu, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import LanguageSwitcher from '../common/LanguageSwitcher';
+import { Role } from '@tds/tds-bm-common';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../stores/authStore';
 import { useState } from 'react';
@@ -14,12 +15,12 @@ interface HeaderProps {
 const Header = ({ toggleSidebar }: HeaderProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, clearUser } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   
   const handleLogout = async () => {
     try {
-      clearUser();
+      await logout(); // The store's logout function will handle the API call
       toast.success(t('auth.logout.success'));
       navigate('/login');
     } catch (error) {
@@ -78,7 +79,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
                       {t('navigation.profile')}
                     </Link>
                     
-                    {user?.role === 'admin' && (
+                    {user?.roles.includes(Role.ADMIN) && (
                       <Link
                         to="/admin"
                         className="block px-4 py-2 text-sm text-mainText hover:bg-lightBg transition-colors duration-200"

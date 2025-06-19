@@ -1,5 +1,6 @@
 import type { ApiInterface, BookmarkType, FolderType, UserType } from './types';
-import { CreateBookmarkDto, CreateFolderDto, CreateUserDto, Role, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto } from '@tds/tds-bm-common';
+import { CreateBookmarkDto, CreateFolderDto, CreateUserDto, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, Role, TokenDto, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto } from '@tds/tds-bm-common';
+
 import { DateRange } from '../components/statistics/DateRangeSelector';
 import axios from 'axios';
 import { useAuthStore } from '../stores/authStore';
@@ -10,19 +11,8 @@ const apiUrl = (window as any).TDS_CONFIG?.API_URL || 'http://localhost:3000/api
 // Create an Axios instance with the runtime base URL
 const apiClient = axios.create({
   baseURL: apiUrl,
+  withCredentials: true,
 });
-
-// Use an interceptor to automatically add the JWT to every request
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().user?.apiToken; // Using apiToken which is the JWT
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
 
 // Implement the API methods by calling the real backend endpoints
 export const api: ApiInterface = {
@@ -37,17 +27,31 @@ export const api: ApiInterface = {
   },
 
   // --- Auth ---
-  async login(email: string, password: string): Promise<UserType> {
-    const response = await apiClient.post('/auth/login', { email, password });
+  async login(loginUserDto: LoginUserDto): Promise<UserType> {
+    const response = await apiClient.post('/auth/login', loginUserDto);
     return response.data;
+  },
+  async logout(): Promise<void> {
+    throw new Error('Function not implemented.');
   },
   async register(createUserDto: CreateUserDto): Promise<UserType> {
     const response = await apiClient.post('/auth/register', createUserDto);
     return response.data;
   },
+  async forgotPassword(data: ForgotPasswordDto): Promise<void> {
+    throw new Error('Function not implemented.');
+  },
+  async resetPassword(data: ResetPasswordDto): Promise<TokenDto> {
+    throw new Error('Function not implemented.');
+  },
+
+  // --- User ---
   async updateProfile(userId: string, data: Partial<UserType>): Promise<UserType> {
     const response = await apiClient.put(`/users/${userId}`, data);
     return response.data;
+  },
+  async getProfile(): Promise<UserType> {
+    throw new Error('Function not implemented.');
   },
 
   // --- Bookmarks ---
@@ -100,4 +104,5 @@ export const api: ApiInterface = {
     const response = await apiClient.get('/statistics/admin', { params: dateRange });
     return response.data;
   },
+  
 };

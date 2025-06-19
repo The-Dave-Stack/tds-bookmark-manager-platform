@@ -1,14 +1,18 @@
-import { Role } from '@tds/tds-bm-common';
+import { CreateUserDto, LoginUserDto, Role } from '@tds/tds-bm-common';
+
 import { UserType } from '../api/types';
 import { api } from '../api';
 import { create } from 'zustand';
 
 interface AuthState {
   user: UserType | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string, isAdmin?: boolean) => Promise<void>;
+  isAuthenticated: boolean;
+  checkAuth: () => Promise<void>;
+  login: (loginUserDto: LoginUserDto) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (createUserDto: CreateUserDto, isAdmin?: boolean) => Promise<void>;
   updateProfile: (data: { firstName?: string; lastName?: string; password?: string }) => Promise<void>;
-  setUser: (user: UserType) => void;
+  setUser: (user: UserType | null) => void;
   updateUserRoles: (roles: Role[]) => void;
   updateUserProfile: (profile: Partial<UserType>) => void;
   clearUser: () => void;
@@ -16,9 +20,21 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
+  isAuthenticated: false,
   
-  login: async (email: string, password: string) => {
-    const user = await api.login(email, password);
+  checkAuth: async () => {
+    try {
+      // We call the new profile endpoint to get user data if a session is active
+      const user = await api.getProfile(); 
+      set({ user, isAuthenticated: true });
+    } catch (error) {
+      // If it fails (e.g., 401), it means there is no session
+      set({ user: null, isAuthenticated: false });
+    }
+  },
+
+  login: async (loginUserDto: LoginUserDto) => {
+    const user = await api.login(loginUserDto);
     set({ 
       user: {
         username: user.username,
@@ -28,12 +44,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         roles: user.roles,
         apiToken: user.apiToken,
         webhookUrl: user.webhookUrl
-      }
+      },
+      isAuthenticated: true,
     });
   },
+
+  logout: async () => {
+    await api.logout();
+    set({ user: null, isAuthenticated: false });
+  },
   
-  register: async (email: string, password: string, firstName: string, lastName: string, isAdmin = false) => {
-    const user = await api.register({ username: 'TEST', email, password, firstName, lastName });
+  register: async (createUserDto: CreateUserDto, isAdmin = false) => {
+    const user = await api.register(createUserDto);
     set({ 
       user: {
         username: user.username,
@@ -43,7 +65,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         roles: user.roles,
         apiToken: user.apiToken,
         webhookUrl: user.webhookUrl
-      }
+      },
+      isAuthenticated: true,
     });
   },
 
@@ -55,13 +78,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ 
       user: {
         ...currentUser,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName
+        ...updatedUser
       }
     });
   },
   
-  setUser: (user) => set({ user }),
+  setUser: (user) => set({ user, isAuthenticated: !!user }),
   
   updateUserRoles: (roles) => {
     set((state) => ({
