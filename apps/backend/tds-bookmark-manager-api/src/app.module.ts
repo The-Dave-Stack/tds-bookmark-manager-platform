@@ -6,6 +6,7 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CsrfGuard } from './auth/guards/csrf.guard';
 import { EmailModule } from './email/email.module';
 import { FoldersModule } from './folders/folders.module';
 import { LoggerModule } from 'nestjs-pino';
@@ -115,6 +116,10 @@ import { validationSchema } from './config/validation.schema';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
     },
   ],
 })

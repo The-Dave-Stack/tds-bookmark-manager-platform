@@ -6,6 +6,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from './decorators/user.decorator';
 import type { CookieOptions, Response } from 'express'; // Import Response from express
+import * as crypto from 'crypto';
 
 import type { CreateUserDto, LoginUserDto, UserWithoutPassword } from '@tds/tds-bm-common';
 import { Cookies } from './cookies';
@@ -21,6 +22,7 @@ export class AuthController {
     const { access_token, ...userData} = await this.authService.login(user);
 
     this._addToCookies<string>(response, Cookies.ACCESS_TOKEN, access_token);
+    this._addToCookies<string>(response, Cookies.CSRF_TOKEN, crypto.randomBytes(32).toString('hex'), { httpOnly: false });
 
     return userData;
   }
@@ -29,7 +31,9 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) response: Response) {
-    response.clearCookie('access_token');
+    Object.values(Cookies).forEach(cookieName => {
+      response.clearCookie(cookieName);
+    })
     return { message: 'Logged out successfully' };
   }
 
@@ -38,6 +42,7 @@ export class AuthController {
     const { access_token, ...userData } = await this.authService.register(createUserDto);
 
     this._addToCookies<string>(response, Cookies.ACCESS_TOKEN, access_token);
+    this._addToCookies<string>(response, Cookies.CSRF_TOKEN, crypto.randomBytes(32).toString('hex'), { httpOnly: false });
 
     return userData;
   }

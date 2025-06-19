@@ -1,9 +1,9 @@
 import type { ApiInterface, BookmarkType, FolderType, UserType } from './types';
-import { CreateBookmarkDto, CreateFolderDto, CreateUserDto, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, Role, TokenDto, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto } from '@tds/tds-bm-common';
+import { CreateBookmarkDto, CreateFolderDto, CreateUserDto, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, TokenDto, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto } from '@tds/tds-bm-common';
 
+import Cookies from 'js-cookie';
 import { DateRange } from '../components/statistics/DateRangeSelector';
 import axios from 'axios';
-import { useAuthStore } from '../stores/authStore';
 
 // Get the API URL from the global window object injected at runtime.
 const apiUrl = (window as any).TDS_CONFIG?.API_URL || 'http://localhost:3000/api/v1';
@@ -13,6 +13,18 @@ const apiClient = axios.create({
   baseURL: apiUrl,
   withCredentials: true,
 });
+
+apiClient.interceptors.request.use(
+  (config) => {
+    const csrfToken = Cookies.get('csrf-token'); // TODO: Use Cookies.CSRF_TOKEN from shared library
+    if (csrfToken) {
+      // Add it to the request headers
+      config.headers['X-CSRF-Token'] = csrfToken;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
 
 // Implement the API methods by calling the real backend endpoints
 export const api: ApiInterface = {
