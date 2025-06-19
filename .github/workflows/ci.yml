@@ -6,7 +6,7 @@ on:
   push:
     branches:
       - main
-  # Runs the workflow on any new pull request or when a pull request is updated (e.g., new commits are pushed).
+  # Runs the workflow on any new pull request or when a pull request is updated.
   pull_request:
 
 # --- Permissions ---
@@ -17,49 +17,52 @@ permissions:
   contents: read  # Required for 'actions/checkout' to read the repository content.
 
 # --- Jobs ---
-# A workflow run is made up of one or more jobs, which run in parallel by default.
 jobs:
-  # Defines a single job named 'main'.
   main:
-    # Specifies the type of runner machine to use for this job.
     runs-on: ubuntu-latest
-
-    # --- Steps ---
-    # A job contains a sequence of tasks called steps. Steps can run commands or use pre-built actions.
     steps:
-
-      # Step 1: Check out the repository's code so the workflow can access it.
-      - uses: actions/checkout@v4
+      # Step 1: Check out the repository's code.
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          # Fetches the entire git history. This is required for 'nx affected'
-          # to accurately compare the current state against the 'main' branch.
+          # Fetches the entire git history, required for 'nx affected'.
           fetch-depth: 0
 
       # Step 2: Set up the Node.js environment.
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
 
-      # Step 3: Install project dependencies.
-      - run: npm ci --legacy-peer-deps
-        # 'npm ci' is used instead of 'npm install' for CI environments. It ensures a clean,
-        # reproducible install based on the package-lock.json file.
-        # '--legacy-peer-deps' is added to prevent installation errors from potential
-        # peer dependency conflicts in the project.
+      # Step 3: Install project dependencies securely and reproducibly.
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
 
       # Step 4: Install Playwright browsers and dependencies for E2E tests.
-      - run: npx playwright install --with-deps
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
-      # Step 5: A crucial Nx helper action for CI environments.
-      - uses: nrwl/nx-set-shas@v4
-        # This action determines the correct base and head commit SHAs that 'nx affected'
-        # will use for its comparison. It handles differences between push and pull_request events.
+      # Step 5: Set the correct base and head SHAs for 'nx affected' to use.
+      - name: Set Nx SHAs
+        uses: nrwl/nx-set-shas@v4
 
-      # Step 6: Run tasks on AFFECTED projects.
-      - run: npx nx affected -t lint test build e2e
-        # This is the core command of the CI pipeline.
-        # 'nx affected' calculates which projects in the monorepo were affected by the code changes.
-        # '-t lint test build e2e' tells Nx to run the 'lint', 'test', 'build', and 'e2e' targets,
-        # but ONLY for the projects that were affected. This saves a massive amount of time,
-        # as it avoids re-testing and re-building every application on every commit.
+      # --- NEW: Steps are now broken down for a fail-fast strategy ---
+
+      # Step 6: Run linting on AFFECTED projects in parallel.
+      - name: Lint Affected Projects
+        run: npx nx affected -t lint --parallel=3
+
+      # Step 7: Run tests on AFFECTED projects in parallel and generate coverage.
+      - name: Test Affected Projects
+        run: npx nx affected -t test --parallel=3 --coverage
+
+      # Step 8: Build AFFECTED projects to ensure they are buildable.
+      - name: Build Affected Projects
+        run: npx nx affected -t build --parallel=3
+        
+      # Step 9: Run E2E tests for AFFECTED apps.
+      # Note: This step relies on the 'e2e' target being correctly configured
+      # in project.json to start the web server needed for Playwright.
+      - name: E2E Test Affected Apps
+        run: npx nx affected -t e2e
