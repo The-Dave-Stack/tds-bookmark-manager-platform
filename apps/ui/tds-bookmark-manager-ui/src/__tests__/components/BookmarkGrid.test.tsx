@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import BookmarkGrid from '../../components/bookmarks/BookmarkGrid';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';

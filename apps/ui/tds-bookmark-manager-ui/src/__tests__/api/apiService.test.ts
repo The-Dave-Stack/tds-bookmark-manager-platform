@@ -1,7 +1,8 @@
+import { Role } from '@tds/tds-bm-common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { mockApi } from '../../api/mockApiService'; // Test the mock service directly
 import { mockBookmarks, mockFolders, mockUsers } from '../../api/mockData';
-import { Role } from '@tds/tds-bm-common';
 
 // --- KEY FIX: Preserve original data ---
 const originalMockUsers = JSON.parse(JSON.stringify(mockUsers));

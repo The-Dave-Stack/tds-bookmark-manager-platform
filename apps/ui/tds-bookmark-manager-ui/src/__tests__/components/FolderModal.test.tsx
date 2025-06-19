@@ -1,15 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '../test-utils';
 
 import FolderModal from '../../components/folders/FolderModal';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
-import { cleanup, fireEvent, render, screen } from '../test-utils';
 
 vi.mock('../../stores/authStore');
 vi.mock('../../stores/bookmarkStore');
 vi.mock('react-hot-toast');
 
 describe('FolderModal', () => {
+  const mockOnClose = vi.fn();
+
   const mockUser = {
     id: 'user-id',
     email: 'test@example.com',
@@ -43,7 +45,7 @@ describe('FolderModal', () => {
   });
 
   it('renders create folder form', () => {
-    ({ unmount } = render(<FolderModal isOpen={true} onClose={() => {}} />));
+    ({ unmount } = render(<FolderModal isOpen={true} onClose={mockOnClose} />));
     
     expect(screen.getByText('folders.add')).toBeInTheDocument();
     expect(screen.getByTestId('folder-name-input')).toBeInTheDocument();
@@ -51,7 +53,7 @@ describe('FolderModal', () => {
   });
 
   it('validates required fields', async () => {
-    ({ unmount } = render(<FolderModal isOpen={true} onClose={() => {}} />));
+    ({ unmount } = render(<FolderModal isOpen={true} onClose={mockOnClose} />));
     
     const submitButton = screen.getByText('folders.form.submit');
     await fireEvent.click(submitButton);

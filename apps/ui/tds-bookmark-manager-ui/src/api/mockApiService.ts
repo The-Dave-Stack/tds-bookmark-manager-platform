@@ -1,9 +1,11 @@
-import type { ApiInterface, BookmarkType, FolderType, UserType } from './types';
 import { CreateBookmarkDto, CreateFolderDto, CreateUserDto, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, Role, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto } from '@tds/tds-bm-common';
+import { v4 as uuidv4 } from 'uuid';
+
 import { mockBookmarks, mockFolders, mockUsers } from './mockData';
 
+import type { ApiInterface, BookmarkType, FolderType, UserType } from './types';
 import type { DateRange } from '../components/statistics/DateRangeSelector';
-import { v4 as uuidv4 } from 'uuid';
+
 
 let MOCK_CURRENT_USER: UserType | null = null;
 

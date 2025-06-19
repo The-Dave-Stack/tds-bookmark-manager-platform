@@ -1,9 +1,10 @@
 /// <reference types="vitest/globals" />
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
+
 import MostClickedBookmarks from '../../../components/bookmarks/MostClickedBookmarks';
-import { useBookmarkStore } from '../../../stores/bookmarkStore';
 import { useAuthStore } from '../../../stores/authStore';
+import { useBookmarkStore } from '../../../stores/bookmarkStore';
 
 // Mock react-i18next
 vi.mock('react-i18next', () => ({

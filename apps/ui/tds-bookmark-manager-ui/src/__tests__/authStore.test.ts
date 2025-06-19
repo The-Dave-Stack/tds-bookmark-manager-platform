@@ -1,8 +1,8 @@
 import { LoginUserDto, Role } from '@tds/tds-bm-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { UserType } from '../api/types';
 import { api } from '../api';
+import { UserType } from '../api/types';
 import { useAuthStore } from '../stores/authStore';
 
 // Mock the API

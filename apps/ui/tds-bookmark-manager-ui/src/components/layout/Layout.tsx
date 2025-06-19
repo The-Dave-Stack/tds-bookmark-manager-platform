@@ -1,6 +1,9 @@
 import { useState } from 'react';
+
 import { Outlet } from 'react-router-dom';
+
 import { useAuthStore } from '../../stores/authStore';
+
 import Header from './Header';
 import Sidebar from './Sidebar';
 

@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../stores/authStore';
+
 import { User, Copy, Link, Eye, EyeOff, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+
+import { useAuthStore } from '../stores/authStore';
 
 interface PasswordRequirement {
   regex: RegExp;

@@ -1,8 +1,8 @@
+import { render, screen } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
-import { render, screen } from '@testing-library/react';
-import { cleanup } from '@testing-library/react';
 
 import LoadingScreen from '../../../components/common/LoadingScreen';
 

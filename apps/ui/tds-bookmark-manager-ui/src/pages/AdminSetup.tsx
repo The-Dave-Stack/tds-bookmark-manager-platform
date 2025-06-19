@@ -1,11 +1,13 @@
-import { Bookmark, Check, Eye, EyeOff, Shield, X } from 'lucide-react';
-
-import LanguageSwitcher from '../components/common/LanguageSwitcher';
-import { api } from '../api';
-import toast from 'react-hot-toast';
-import { useAuthStore } from '../stores/authStore';
 import { useState } from 'react';
+
+import { Bookmark, Check, Eye, EyeOff, Shield, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+
+import { api } from '../api';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
+import { useAuthStore } from '../stores/authStore';
+
 
 interface PasswordRequirement {
   regex: RegExp;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { Globe, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const LANGUAGES = {
   en: { name: 'English', flag: '🇬🇧' },

@@ -1,7 +1,9 @@
-import type { Bookmark, Folder } from '../api/types';
-import { api } from '../api';
-import { create } from 'zustand';
 import { CreateBookmarkDto, CreateFolderDto, UpdateBookmarkDto, UpdateFolderDto } from '@tds/tds-bm-common';
+import { create } from 'zustand';
+
+import { api } from '../api';
+
+import type { Bookmark, Folder } from '../api/types';
 
 interface BookmarkState {
   bookmarks: Bookmark[];

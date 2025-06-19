@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
-import LanguageSwitcher from '../../../components/common/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
+
+import LanguageSwitcher from '../../../components/common/LanguageSwitcher';
 
 // Mock react-i18next
 vi.mock('react-i18next', () => ({

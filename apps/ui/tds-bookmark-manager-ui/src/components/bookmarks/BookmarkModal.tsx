@@ -1,13 +1,14 @@
-import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+
+import { Dialog } from '@headlessui/react';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
-import { Dialog } from '@headlessui/react';
-
-import type { Bookmark, FolderWithChildren } from '../../api/types';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
+
+import type { Bookmark, FolderWithChildren } from '../../api/types';
 
 interface BookmarkModalProps {
   isOpen: boolean;

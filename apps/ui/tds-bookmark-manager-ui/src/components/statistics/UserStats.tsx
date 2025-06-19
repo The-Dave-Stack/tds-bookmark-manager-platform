@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useBookmarkStore } from '../../stores/bookmarkStore';
+
 import { BarChart3, TrendingUp, Clock, Bookmark } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+import { useBookmarkStore } from '../../stores/bookmarkStore';
+
 import DateRangeSelector from './DateRangeSelector';
+
 import type { DateRange } from './DateRangeSelector';
 
 const UserStats = () => {

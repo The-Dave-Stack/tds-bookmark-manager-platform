@@ -1,11 +1,13 @@
+import { Role } from '@tds/tds-bm-common';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
-import Header from '../../../components/layout/Header';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
+import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
+
+import Header from '../../../components/layout/Header';
 import { useAuthStore } from '../../../stores/authStore';
-import toast from 'react-hot-toast';
-import { Role } from '@tds/tds-bm-common';
+
 
 const mockNavigate = vi.fn();
 
@@ -150,9 +152,10 @@ describe('Header', () => {
   });
 
   it('handles logout error', async () => {
+    const mockEmptyFn = vi.fn();
     const error = new Error('Logout failed');
     mockLogout.mockRejectedValue(error);
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(mockEmptyFn);
     render(<Header toggleSidebar={mockToggleSidebar} />);
 
     fireEvent.click(screen.getByRole('button', { name: /test@example.com/i }));

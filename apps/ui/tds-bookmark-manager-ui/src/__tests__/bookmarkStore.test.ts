@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { api } from '../api';
 import { useBookmarkStore } from '../stores/bookmarkStore';
 
@@ -99,7 +100,7 @@ describe('Bookmark Store', () => {
   });
 
   it('should handle errors when fetching bookmarks', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* no-op */ return undefined; });
     const error = new Error('Failed to fetch');
     (api.getBookmarks as any).mockRejectedValue(error);
 

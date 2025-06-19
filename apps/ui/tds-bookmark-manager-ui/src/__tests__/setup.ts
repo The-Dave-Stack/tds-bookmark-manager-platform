@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 import '@testing-library/jest-dom/vitest';
 
 import { beforeAll, vi } from 'vitest';

@@ -1,5 +1,6 @@
-import { Calendar, Clock } from 'lucide-react';
 import { useState } from 'react';
+
+import { Calendar, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export type DateRange = {

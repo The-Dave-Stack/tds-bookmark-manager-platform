@@ -1,11 +1,13 @@
+import { useState } from 'react';
+
 import { Bookmark, Check, Eye, EyeOff, X } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
-import toast from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 
 interface PasswordRequirement {
   regex: RegExp;

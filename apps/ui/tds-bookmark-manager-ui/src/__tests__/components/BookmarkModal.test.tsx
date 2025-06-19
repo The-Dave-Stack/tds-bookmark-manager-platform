@@ -1,16 +1,18 @@
-import toast from 'react-hot-toast';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '../test-utils';
 
 import BookmarkModal from '../../components/bookmarks/BookmarkModal';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
-import { cleanup, fireEvent, render, screen } from '../test-utils';
 
 vi.mock('../../stores/authStore');
 vi.mock('../../stores/bookmarkStore');
 vi.mock('react-hot-toast');
 
 describe('BookmarkModal', () => {
+  const mockOnClose = vi.fn();
+
   const mockUser = {
     id: 'user-id',
     email: 'test@example.com'
@@ -44,7 +46,7 @@ describe('BookmarkModal', () => {
   });
 
   it('renders add bookmark form', () => {
-    render(<BookmarkModal isOpen={true} onClose={() => {}} />);
+    render(<BookmarkModal isOpen={true} onClose={mockOnClose} />);
     
     expect(screen.getByText('bookmarks.add')).toBeInTheDocument();
     expect(screen.getByLabelText('bookmarks.form.url')).toBeInTheDocument();
@@ -55,7 +57,7 @@ describe('BookmarkModal', () => {
     render(
       <BookmarkModal 
         isOpen={true} 
-        onClose={() => {}} 
+        onClose={mockOnClose} 
         bookmark={mockBookmark}
       />
     );
@@ -66,7 +68,7 @@ describe('BookmarkModal', () => {
   });
 
   it('validates required fields', async () => {
-    render(<BookmarkModal isOpen={true} onClose={() => {}} />);
+    render(<BookmarkModal isOpen={true} onClose={mockOnClose} />);
     
     const submitButton = screen.getByRole('button', { name: 'bookmarks.form.submit' });
     await fireEvent.click(submitButton);
@@ -135,7 +137,7 @@ describe('BookmarkModal', () => {
     const { rerender } = render(
       <BookmarkModal 
         isOpen={true} 
-        onClose={() => {}} 
+        onClose={mockOnClose} 
         bookmark={mockBookmark} // Changed bookmarkToEdit to bookmark
       />
     );
@@ -145,7 +147,7 @@ describe('BookmarkModal', () => {
     rerender(
       <BookmarkModal 
         isOpen={true} 
-        onClose={() => {}} 
+        onClose={mockOnClose} 
         bookmark={undefined} // Changed bookmarkToEdit to bookmark and null to undefined
       />
     );
