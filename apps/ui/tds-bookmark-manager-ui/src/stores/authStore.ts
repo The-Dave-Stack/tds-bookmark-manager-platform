@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   
   register: async (email: string, password: string, firstName: string, lastName: string, isAdmin = false) => {
-    const user = await api.register(email, password, firstName, lastName, isAdmin);
+    const user = await api.register({ username: 'TEST', email, password, firstName, lastName });
     set({ 
       user: {
         username: user.username,

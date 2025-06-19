@@ -1,3 +1,4 @@
+import { CreateUserDto, LoginUserDto, Role, TokenDto, User } from '@tds/tds-bm-common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthController } from './auth.controller';
@@ -50,33 +51,26 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should call authService.login with the user from request', async () => {
-      const mockUser = { userId: 1, username: 'testuser', roles: ['user'] };
-      const mockLoginResult = { access_token: 'mockedAccessToken' };
+      const mockUser: LoginUserDto = { email: 'testuser@example.com', password: 'testuserpassword' };
+      const mockLoginResult: TokenDto = { access_token: 'mockedAccessToken' };
       (authService.login as jest.Mock).mockResolvedValue(mockLoginResult);
 
-      const req = { user: mockUser };
-      const result = await authController.login(req);
+      const result = await authController.login(mockUser);
 
       expect(result).toEqual(mockLoginResult);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authService.login).toHaveBeenCalledWith(mockUser);
     });
   });
 
   describe('register', () => {
     it('should call authService.register with username and password', async () => {
-      const createUserDto = { username: 'newuser', password: 'newpassword', email: 'newuser@test.com' };
-      const mockRegisterResult = {
-        userId: 2,
-        username: 'newuser',
-        roles: ['user'],
-      };
+      const createUserDto: CreateUserDto = { username: 'newuser', password: 'newpassword', email: 'newuser@test.com' };
+      const mockRegisterResult: TokenDto = { access_token: 'mockedAccessToken' };
       (authService.register as jest.Mock).mockResolvedValue(mockRegisterResult);
 
       const result = await authController.register(createUserDto);
 
       expect(result).toEqual(mockRegisterResult);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authService.register).toHaveBeenCalledWith(createUserDto);
     });
   });

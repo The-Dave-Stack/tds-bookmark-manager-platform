@@ -6,7 +6,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from './decorators/user.decorator';
 
-import type { CreateUserDto, TokenDto, UserWithoutPassword } from '@tds/tds-bm-common';
+import type { CreateUserDto, LoginUserDto, TokenDto, UserWithoutPassword } from '@tds/tds-bm-common';
 
 @Controller('auth')
 export class AuthController {
@@ -15,8 +15,8 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Request() req: any): Promise<TokenDto> {
-    return this.authService.login(req.user);
+  async login(@User() user: LoginUserDto): Promise<TokenDto> {
+    return this.authService.login(user);
   }
 
   @UseGuards(LocalAuthGuard)
@@ -27,7 +27,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
+  async register(@Body() createUserDto: CreateUserDto): Promise<TokenDto> {
     return this.authService.register(createUserDto);
   }
 

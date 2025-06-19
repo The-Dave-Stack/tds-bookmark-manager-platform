@@ -36,41 +36,45 @@ export class AuthService {
 
   async forgotPassword(email: string): Promise<void> {
     try {
-        const token = await this.usersService.createPasswordResetToken(email);
-        const user = await this.usersService.findOneByEmail({ email }, { withoutPassword: false });
-        await this.emailService.sendPasswordResetEmail(user, token);
+      const token = await this.usersService.createPasswordResetToken(email);
+      const user = await this.usersService.findOneByEmail({ email }, { withoutPassword: false });
+      await this.emailService.sendPasswordResetEmail(user, token);
     } catch (error) {
-        // Silently fail to prevent user enumeration attacks
-        this.logger.warn(`Forgot password attempt for ${email} failed, but swallowing error.`);
+      // Silently fail to prevent user enumeration attacks
+      this.logger.warn(`Forgot password attempt for ${email} failed, but swallowing error.`);
     }
-}
+  }
 
-async resetPassword(token: string, newPass: string): Promise<TokenDto> {
+  async resetPassword(token: string, newPass: string): Promise<TokenDto> {
     const user = await this.usersService.resetUserPassword(token, newPass);
     // Log the user in and return a new JWT token
     const payload: JwtPayloadDto = { username: user.username, sub: user.email, roles: user.roles };
     return {
-        access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload),
     };
-}
+  }
 
   async login(user: LoginUserDto): Promise<TokenDto> {
     const userFound = (await this.validateUser({ email: user.email, password: user.password }, { returnUser: true })) as User;
     if (!userFound) {
       throw new UnauthorizedException();
     }
+    return this._getToken(userFound);
+  }
+
+  async register(data: CreateUserDto): Promise<TokenDto> {
+    const newUser = await this.usersService.create({ ...data });
+    return this._getToken(newUser);
+  }
+
+  private _getToken(user: User): TokenDto {
     const payload: JwtPayloadDto = {
-      username: userFound.username,
-      sub: `${userFound.email}`,
-      roles: userFound.roles,
+      username: user.username,
+      sub: `${user.email}`,
+      roles: user.roles,
     };
     return {
       access_token: this.jwtService.sign(payload),
     };
-  }
-
-  // TODO: Maybe not needed to return the created user
-  async register(data: CreateUserDto): Promise<User> {
-    return await this.usersService.create({ ...data });
   }
 }

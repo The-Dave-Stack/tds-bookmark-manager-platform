@@ -81,7 +81,7 @@ import { validationSchema } from './config/validation.schema';
             },
             // Propiedades personalizadas para añadir a cada log
             customProps: () => ({
-              context: 'URL-SHORTENER-API', // Útil para filtrar logs
+              context: 'TDS-BOOKMARK-MANAGER', // Útil para filtrar logs
             }),
             // Desactiva el log de éxito de /health (si tienes un health check)
             // autoLogging: {

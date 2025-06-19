@@ -1,12 +1,12 @@
+import { CreateUserDto, LoginUserDto, Role, TokenDto, User } from '@tds/tds-bm-common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthService } from './auth.service';
-import { JwtService } from '@nestjs/jwt';
-import { User, Role, LoginUserDto } from '@tds/tds-bm-common';
-import { UsersService } from '../users/users.service';
 import { EmailService } from '../email/email.service';
+import { JwtService } from '@nestjs/jwt';
 import { PinoLogger } from 'nestjs-pino';
 import { UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
 
 // Mock bcrypt to control hashing and comparison outcomes
 jest.mock('bcrypt', () => ({
@@ -140,14 +140,8 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should create a new user and return user DTO', async () => {
-      const createUserDto = { username: 'newuser', password: 'newpassword', email: 'newuser@test.com' };
-      const mockNewUserDto: User = {
-        username: 'newuser',
-        email: 'newuser@test.com',
-        isActive: true,
-        createdAt: new Date(),
-        roles: [Role.USER],
-      };
+      const createUserDto: CreateUserDto = { username: 'newuser', password: 'newpassword', email: 'newuser@test.com' };
+      const mockNewUserDto: TokenDto = { access_token: 'mock-token' };
       (usersService.create as jest.Mock).mockResolvedValue(mockNewUserDto);
 
       const result = await authService.register(createUserDto);
