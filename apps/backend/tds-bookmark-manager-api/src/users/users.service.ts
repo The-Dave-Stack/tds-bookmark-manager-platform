@@ -35,6 +35,7 @@ export class UsersService {
   }
 
   async setupAdmin(createUserDto: CreateUserDto): Promise<User> {
+    // TODO: clean cache if the user is correctly created
     return await this.create({ ...createUserDto, roles: [Role.ADMIN] });
   }
 

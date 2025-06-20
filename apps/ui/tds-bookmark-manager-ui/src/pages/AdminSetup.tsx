@@ -125,7 +125,7 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
     
     try {
       // TODO: add username to the form
-      const adminUser = await api.setupAdmin({ username: 'test', email, password, firstName, lastName });
+      const adminUser = await api.setupAdmin({ username, email, password, firstName, lastName });
       setUser({
         username: adminUser.username,
         email: adminUser.email,

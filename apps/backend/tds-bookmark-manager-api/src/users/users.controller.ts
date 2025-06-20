@@ -4,6 +4,7 @@ import { CreateUserDto, User } from '@tds/tds-bm-common';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { PinoLogger } from 'nestjs-pino';
 import { UsersService } from './users.service';
+import { SkipCsrfGuard } from '../auth/decorators/skip-csrf.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -17,6 +18,7 @@ export class UsersController {
     return await this.usersService.hasAdmins();
   }
 
+  @SkipCsrfGuard()
   @Post('setupAdmin')
   async setupAdmin(@Body() createUserDto: CreateUserDto): Promise<User> {
     this.logger.debug(`Setup admin: %o`, createUserDto);
