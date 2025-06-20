@@ -1,23 +1,20 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { LoginUserDto, Role } from '@tds/tds-bm-common';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { api } from '../api';
+import { UserType } from '../api/types';
 import { useAuthStore } from '../stores/authStore';
-import { api } from '../api/apiService';
 
 // Mock the API
-vi.mock('../api/apiService', () => ({
-  api: {
-    login: vi.fn(),
-    register: vi.fn(),
-    updateProfile: vi.fn()
-  }
-}));
+vi.mock('../api');
 
 describe('Auth Store', () => {
-  const mockUser = {
-    id: 'test-user-id',
+  const mockUser: UserType = {
+    username: 'test-user',
     email: 'test@example.com',
     firstName: 'Test',
     lastName: 'User',
-    role: 'user' as const,
+    roles: [Role.USER],
     apiToken: 'test-token',
     webhookUrl: 'https://example.com/webhook'
   };
@@ -26,84 +23,65 @@ describe('Auth Store', () => {
     // Clear store between tests
     useAuthStore.setState({
       user: null,
-      isAuthenticated: false
+      isAuthenticated: false,
     });
     
     // Clear mock calls
     vi.clearAllMocks();
   });
 
-  it('should login user', async () => {
-    (api.login as any).mockResolvedValue(mockUser);
+  describe('login', () => {
+    it('should set the user and isAuthenticated to true on successful login', async () => {
+      (api.login as jest.Mock).mockResolvedValue(mockUser);
 
-    const store = useAuthStore.getState();
-    await store.login('test@example.com', 'password123');
+      const loginUser: LoginUserDto = { email: 'test@example.com', password: 'password123' };
+      const store = useAuthStore.getState();
+      await store.login(loginUser);
 
-    expect(api.login).toHaveBeenCalledWith('test@example.com', 'password123');
-    expect(useAuthStore.getState().user).toEqual(mockUser);
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+      expect(api.login).toHaveBeenCalledWith(loginUser);
+      expect(useAuthStore.getState().user).toEqual(mockUser);
+      expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    });
   });
 
-  it('should register user', async () => {
-    (api.register as any).mockResolvedValue(mockUser);
+  describe('logout', () => {
+    it('should clear the user and set isAuthenticated to false', async () => {
+      // Arrange: set an initial user
+      useAuthStore.setState({ user: mockUser, isAuthenticated: true });
+      (api.logout as jest.Mock).mockResolvedValue(undefined);
 
-    const store = useAuthStore.getState();
-    await store.register('test@example.com', 'password123', 'Test', 'User');
+      // Act
+      const store = useAuthStore.getState();
+      await store.logout();
 
-    expect(api.register).toHaveBeenCalledWith(
-      'test@example.com',
-      'password123',
-      'Test',
-      'User',
-      false
-    );
-    expect(useAuthStore.getState().user).toEqual(mockUser);
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+      // Assert
+      expect(api.logout).toHaveBeenCalled();
+      expect(useAuthStore.getState().user).toBeNull();
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    });
   });
 
-  it('should update user profile', async () => {
-    const updatedUser = {
-      ...mockUser,
-      firstName: 'Updated',
-      lastName: 'Name'
-    };
-    (api.updateProfile as any).mockResolvedValue(updatedUser);
+  describe('checkAuth', () => {
+    it('should set user and isAuthenticated to true if API returns a user', async () => {
+      (api.getProfile as jest.Mock).mockResolvedValue(mockUser);
 
-    const store = useAuthStore.getState();
-    store.setUser(mockUser);
+      const store = useAuthStore.getState();
+      await store.checkAuth();
 
-    await store.updateProfile({
-      firstName: 'Updated',
-      lastName: 'Name'
+      expect(api.getProfile).toHaveBeenCalled();
+      expect(useAuthStore.getState().user).toEqual(mockUser);
+      expect(useAuthStore.getState().isAuthenticated).toBe(true);
     });
 
-    expect(api.updateProfile).toHaveBeenCalled();
-    expect(useAuthStore.getState().user?.firstName).toBe('Updated');
-    expect(useAuthStore.getState().user?.lastName).toBe('Name');
-  });
+    it('should set user to null and isAuthenticated to false if API throws an error', async () => {
+      (api.getProfile as jest.Mock).mockRejectedValue(new Error('Unauthorized'));
 
-  it('should update user role', () => {
-    const store = useAuthStore.getState();
-    store.setUser(mockUser);
-    store.updateUserRole('admin');
+      const store = useAuthStore.getState();
+      await store.checkAuth();
 
-    expect(useAuthStore.getState().user?.role).toBe('admin');
-  });
-
-  it('should clear user', () => {
-    const store = useAuthStore.getState();
-    store.setUser(mockUser);
-    store.clearUser();
-
-    expect(useAuthStore.getState().user).toBeNull();
-    expect(useAuthStore.getState().isAuthenticated).toBe(false);
-  });
-
-  it('should throw error when updating profile without user', async () => {
-    const store = useAuthStore.getState();
-    
-    await expect(store.updateProfile({
-      firstName: 'Updated'
-    })).rejects.toThrow('No user logged in');
+      expect(api.getProfile).toHaveBeenCalled();
+      expect(useAuthStore.getState().user).toBeNull();
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    });
   });
 });

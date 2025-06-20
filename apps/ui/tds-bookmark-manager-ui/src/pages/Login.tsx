@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../stores/authStore';
-import toast from 'react-hot-toast';
+
 import { Bookmark } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
+
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
+import { useAuthStore } from '../stores/authStore';
+
+
 
 const Login = () => {
   const { t } = useTranslation();
@@ -51,7 +55,7 @@ const Login = () => {
           <Bookmark className="h-12 w-12 text-primary" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-mainText">
-          {t('app.title')}
+          {t('app.title.desktop')}
         </h2>
         <p className="mt-2 text-center text-sm text-mainText/70">
           {t('app.tagline')}

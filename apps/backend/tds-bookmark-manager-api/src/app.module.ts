@@ -1,21 +1,49 @@
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { APP_GUARD } from '@nestjs/core';
+import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CsrfGuard } from './auth/guards/csrf.guard';
+import { EmailModule } from './email/email.module';
+import { FoldersModule } from './folders/folders.module';
 import { LoggerModule } from 'nestjs-pino';
 import { Module } from '@nestjs/common';
+import { StatisticsModule } from './statistics/statistics.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
+import { WebhookModule } from './webhook/webhook.module';
 import { configurations } from './config';
+import databaseConfig from './config/database.config';
 import { randomBytes } from 'crypto';
+import { validationSchema } from './config/validation.schema';
 
 @Module({
   imports: [
+    CacheModule.register({ isGlobal: true }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: configurations,
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
-      ignoreEnvFile: process.env.NODE_ENV === 'docker',
+      envFilePath: process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env',
+      ignoreEnvFile: process.env.NODE_ENV === 'docker' || process.env.NODE_ENV === 'production',
+      validationSchema: validationSchema,
+      validationOptions: { abortEarly: true }
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule.forFeature(databaseConfig)],
+      useFactory: (config: ConfigType<typeof databaseConfig>) => {
+        if (!config) {
+          throw new Error('Database configuration not found');
+        }
+        return {
+          ...config,
+          autoLoadEntities: true,
+          synchronize: false,
+        };
+      },
+      inject: [databaseConfig.KEY],
     }),
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
@@ -54,7 +82,7 @@ import { randomBytes } from 'crypto';
             },
             // Propiedades personalizadas para añadir a cada log
             customProps: () => ({
-              context: 'URL-SHORTENER-API', // Útil para filtrar logs
+              context: 'TDS-BOOKMARK-MANAGER', // Útil para filtrar logs
             }),
             // Desactiva el log de éxito de /health (si tienes un health check)
             // autoLogging: {
@@ -76,12 +104,22 @@ import { randomBytes } from 'crypto';
     }),
     AuthModule,
     UsersModule,
+    BookmarksModule,
+    FoldersModule,
+    AdminModule,
+    StatisticsModule,
+    WebhookModule,
+    EmailModule,
   ],
   controllers: [],
   providers: [
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
     },
   ],
 })

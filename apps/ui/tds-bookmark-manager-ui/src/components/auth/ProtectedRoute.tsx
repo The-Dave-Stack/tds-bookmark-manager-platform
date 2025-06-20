@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom';
+
 import { useAuthStore } from '../../stores/authStore';
 
 interface ProtectedRouteProps {
@@ -6,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => !!state.user);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

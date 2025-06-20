@@ -1,6 +1,6 @@
+import { Dialog } from '@headlessui/react';
 import { AlertTriangle } from 'lucide-react';
 
-import { Dialog } from '@headlessui/react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;

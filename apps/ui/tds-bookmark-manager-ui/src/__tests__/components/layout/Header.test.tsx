@@ -1,12 +1,15 @@
+import { Role } from '@tds/tds-bm-common';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
-import Header from '../../../components/layout/Header';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuthStore } from '../../../stores/authStore';
-import toast from 'react-hot-toast';
+import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
 
-const mockNavigate = vi.fn(); // Define mockNavigate here
+import Header from '../../../components/layout/Header';
+import { useAuthStore } from '../../../stores/authStore';
+
+
+const mockNavigate = vi.fn();
 
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
@@ -15,16 +18,15 @@ vi.mock('react-i18next', () => ({
 
 // Mock react-router-dom
 vi.mock('react-router-dom', () => {
-  const actualUseNavigate = vi.fn();
   return {
-    useNavigate: () => mockNavigate, // Directly return the mockNavigate
+    useNavigate: () => mockNavigate,
     Link: vi.fn(({ to, children, onClick }) => (
       <div
         onClick={(e) => {
           onClick?.(e);
-          mockNavigate(to); // Use mockNavigate directly
+          mockNavigate(to);
         }}
-        data-testid={`link-${to.replace(/\//g, '').replace(/-/g, '')}`} // Remove all slashes and hyphens for simpler test IDs
+        data-testid={`link-${to.replace(/\//g, '').replace(/-/g, '')}`}
       >
         {children}
       </div>
@@ -33,9 +35,7 @@ vi.mock('react-router-dom', () => {
 });
 
 // Mock zustand's useAuthStore
-vi.mock('../../../stores/authStore', () => ({
-  useAuthStore: vi.fn(),
-}));
+vi.mock('../../../stores/authStore');
 
 // Mock react-hot-toast
 vi.mock('react-hot-toast', () => ({
@@ -47,22 +47,20 @@ vi.mock('react-hot-toast', () => ({
 
 describe('Header', () => {
   const mockToggleSidebar = vi.fn();
-  // const mockNavigate = vi.fn(); // Moved outside vi.mock
-  const mockClearUser = vi.fn();
+  const mockLogout = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useTranslation as unknown as Mock).mockReturnValue({
-      i18n: { // Added i18n mock
+      i18n: {
         language: 'en',
         changeLanguage: vi.fn(),
       },
-      t: (key: string) => key, // Simple passthrough for translation keys
+      t: (key: string) => key,
     });
-    // Removed: (useNavigate as unknown as Mock).mockImplementation(() => mockNavigate);
     (useAuthStore as unknown as Mock).mockReturnValue({
-      user: { email: 'test@example.com', role: 'user' },
-      clearUser: mockClearUser,
+      user: { email: 'test@example.com', roles: [Role.USER] },
+      logout: mockLogout,
     });
   });
 
@@ -73,28 +71,28 @@ describe('Header', () => {
   it('renders correctly when user is logged in (non-admin)', () => {
     render(<Header toggleSidebar={mockToggleSidebar} />);
     
-    expect(screen.getByText('app.title')).toBeInTheDocument();
+    expect(screen.getByText('app.title.desktop')).toBeInTheDocument();
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
-    expect(screen.queryByTestId('link-admin')).not.toBeInTheDocument(); // Admin link should not be visible
+    expect(screen.queryByTestId('link-admin')).not.toBeInTheDocument();
   });
 
   it('renders admin link when user is admin', () => {
     (useAuthStore as unknown as Mock).mockReturnValue({
-      user: { email: 'admin@example.com', role: 'admin' },
-      clearUser: mockClearUser,
+      user: { email: 'admin@example.com', roles: [Role.ADMIN] },
+      logout: mockLogout,
     });
     render(<Header toggleSidebar={mockToggleSidebar} />);
     
     const userMenuButton = screen.getByRole('button', { name: /admin@example.com/i });
-    fireEvent.click(userMenuButton); // Open menu
+    fireEvent.click(userMenuButton);
     
-    expect(screen.getByTestId('link-admin')).toBeInTheDocument(); // Use data-testid for admin link
+    expect(screen.getByTestId('link-admin')).toBeInTheDocument();
   });
 
   it('calls toggleSidebar when menu button is clicked', () => {
     render(<Header toggleSidebar={mockToggleSidebar} />);
     
-    const menuButton = screen.getByRole('button', { name: 'Toggle sidebar' }); // Use aria-label as name
+    const menuButton = screen.getByRole('button', { name: 'Toggle sidebar' });
     fireEvent.click(menuButton);
     
     expect(mockToggleSidebar).toHaveBeenCalledTimes(1);
@@ -118,53 +116,54 @@ describe('Header', () => {
     render(<Header toggleSidebar={mockToggleSidebar} />);
     
     const userMenuButton = screen.getByRole('button', { name: /test@example.com/i });
-    fireEvent.click(userMenuButton); // Open menu
+    fireEvent.click(userMenuButton);
     
-    fireEvent.click(screen.getByTestId('link-profile')); // Use data-testid for profile link
+    fireEvent.click(screen.getByTestId('link-profile'));
     expect(mockNavigate).toHaveBeenCalledWith('/profile');
   });
 
   it('navigates to admin panel when admin link is clicked (as admin)', () => {
     (useAuthStore as unknown as Mock).mockReturnValue({
-      user: { email: 'admin@example.com', role: 'admin' },
-      clearUser: mockClearUser,
+      user: { email: 'admin@example.com', roles: [Role.ADMIN] },
+      logout: mockLogout,
     });
     render(<Header toggleSidebar={mockToggleSidebar} />);
     
     const userMenuButton = screen.getByRole('button', { name: /admin@example.com/i });
-    fireEvent.click(userMenuButton); // Open menu
+    fireEvent.click(userMenuButton);
     
-    fireEvent.click(screen.getByTestId('link-admin')); // Use data-testid for admin link
+    fireEvent.click(screen.getByTestId('link-admin'));
     expect(mockNavigate).toHaveBeenCalledWith('/admin');
   });
 
   it('handles logout successfully', async () => {
+    mockLogout.mockResolvedValue(undefined);
     render(<Header toggleSidebar={mockToggleSidebar} />);
     
     const userMenuButton = screen.getByRole('button', { name: /test@example.com/i });
-    fireEvent.click(userMenuButton); // Open menu
+    fireEvent.click(userMenuButton);
     
-    fireEvent.click(screen.getByText('auth.logout.button'));
+    const logoutButton = screen.getByText('auth.logout.button');
+    await fireEvent.click(logoutButton);
     
-    expect(mockClearUser).toHaveBeenCalledTimes(1);
+    expect(mockLogout).toHaveBeenCalledTimes(1);
     expect(toast.success).toHaveBeenCalledWith('auth.logout.success');
     expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
 
   it('handles logout error', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console.error
-    mockClearUser.mockImplementation(() => { throw new Error('Logout failed'); });
-    
+    const mockEmptyFn = vi.fn();
+    const error = new Error('Logout failed');
+    mockLogout.mockRejectedValue(error);
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(mockEmptyFn);
     render(<Header toggleSidebar={mockToggleSidebar} />);
-    
-    const userMenuButton = screen.getByRole('button', { name: /test@example.com/i });
-    fireEvent.click(userMenuButton); // Open menu
-    
-    fireEvent.click(screen.getByText('auth.logout.button'));
-    
-    expect(mockClearUser).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /test@example.com/i }));
+    await fireEvent.click(screen.getByText('auth.logout.button'));
+
+    expect(mockLogout).toHaveBeenCalledTimes(1);
     expect(toast.error).toHaveBeenCalledWith('common.error');
-    expect(mockNavigate).not.toHaveBeenCalledWith('/login'); // Should not navigate on error
-    consoleErrorSpy.mockRestore(); // Restore console.error
+    expect(mockNavigate).not.toHaveBeenCalledWith('/login');
+    consoleErrorSpy.mockRestore();
   });
 });

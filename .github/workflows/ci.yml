@@ -1,0 +1,69 @@
+name: CI
+
+# --- Triggers ---
+# Defines the events that will cause this workflow to run automatically.
+on:
+  push:
+    branches:
+      - main
+  # Runs the workflow on any new pull request or when a pull request is updated.
+  pull_request:
+
+# --- Permissions ---
+# Defines the permissions granted to the GITHUB_TOKEN for this workflow run.
+# It's a security best practice to grant the minimum permissions required.
+permissions:
+  actions: read   # Required for 'nrwl/nx-set-shas' to read commit data.
+  contents: read  # Required for 'actions/checkout' to read the repository content.
+
+# --- Jobs ---
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository's code.
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # Fetches the entire git history, required for 'nx affected'.
+          fetch-depth: 0
+
+      # Step 2: Set up the Node.js environment.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      # Step 3: Install project dependencies securely and reproducibly.
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      # Step 4: Install Playwright browsers and dependencies for E2E tests.
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      # Step 5: Set the correct base and head SHAs for 'nx affected' to use.
+      - name: Set Nx SHAs
+        uses: nrwl/nx-set-shas@v4
+
+      # --- NEW: Steps are now broken down for a fail-fast strategy ---
+
+      # Step 6: Run linting on AFFECTED projects in parallel.
+      - name: Lint Affected Projects
+        run: npx nx affected -t lint --parallel=3
+
+      # Step 7: Run tests on AFFECTED projects in parallel and generate coverage.
+      - name: Test Affected Projects
+        run: npx nx affected -t test --parallel=3 --coverage
+
+      # Step 8: Build AFFECTED projects to ensure they are buildable.
+      - name: Build Affected Projects
+        run: npx nx affected -t build --parallel=3
+        
+      # Step 9: Run E2E tests for AFFECTED apps.
+      # Note: This step relies on the 'e2e' target being correctly configured
+      # in project.json to start the web server needed for Playwright.
+      # TODO: Uncomment when test exists
+      #- name: E2E Test Affected Apps
+      #  run: npx nx affected -t e2e

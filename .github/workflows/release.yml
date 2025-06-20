@@ -1,0 +1,85 @@
+name: Create and Publish Release
+
+# Updated trigger to match the new custom tag format
+on:
+  push:
+    tags:
+      - 'v*.*.*/*'
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-publish-release:
+    name: Build and Publish Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        app: [api, ui, migrations]
+        include:
+          - app: api
+            dockerfile: "apps/backend/tds-bookmark-manager-api/Dockerfile"
+            image_name: "The-Dave-Stack/tds-bookmark-manager-api"
+          - app: ui
+            dockerfile: "apps/ui/tds-bookmark-manager-ui/Dockerfile"
+            image_name: "The-Dave-Stack/tds-bookmark-manager-ui"
+          - app: migrations
+            dockerfile: "apps/backend/tds-bookmark-manager-api/Dockerfile.migrate"
+            image_name: "The-Dave-Stack/tds-bookmark-manager-migrations"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- NEW STEP TO PARSE THE CUSTOM GIT TAG AND GENERATE DOCKER TAGS ---
+      - name: Generate Docker tags
+        id: generate_tags
+        run: |
+          # 1. Extract the standard version (e.g., "0.1.0") from the full Git tag (e.g., "v0.1.x/0.1.0")
+          VERSION=$(echo ${{ github.ref_name }} | cut -d'/' -f2)
+          echo "Extracted version: $VERSION"
+
+          # 2. Extract major and minor parts for broader tags
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+
+          # 3. Get the full image name from the matrix
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ matrix.image_name }}"
+
+          # 4. Build a multi-line string of tags
+          TAGS="
+          ${IMAGE_NAME}:${VERSION}
+          ${IMAGE_NAME}:${MAJOR}.${MINOR}
+          ${IMAGE_NAME}:${MAJOR}
+          "
+
+          # 5. Add the 'latest' tag if the version is not a pre-release (doesn't contain a hyphen)
+          if [[ "${{ github.event.release.prerelease }}" == "false" ]]; then
+            TAGS="${TAGS}
+          ${IMAGE_NAME}:latest"
+          fi
+
+          # 6. Set the final tags as an output for the next step
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image for ${{ matrix.app }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          # Use the tags generated in the previous custom step
+          tags: ${{ steps.generate_tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

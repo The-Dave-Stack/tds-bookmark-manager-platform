@@ -8,19 +8,23 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
+import { getPinoLoggerOptions } from './logger/config';
 import helmet from 'helmet';
 
 async function bootstrap() {
   // Log all environment variables before starting the application
   // Only log in non-production environments for security
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line no-console
+  if (process.env.NODE_ENV && !['production', 'docker'].includes(process.env.NODE_ENV)) {
     console.log('Loaded environment variables:', process.env);
   }
 
   // Create the NestJS application with buffered logs
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const configService = app.get(ConfigService);
+
+  // Use cookieParser to manage Cookies
+  app.use(cookieParser());
 
   // Use the NestJS logger
   app.useLogger(app.get(Logger));
@@ -29,37 +33,7 @@ async function bootstrap() {
   const env = configService.get<string>('app.env');
 
   // Configure Pino logger for HTTP requests
-  const pinoLogger = new PinoLogger({
-    pinoHttp: {
-      level: env !== 'production' ? 'debug' : 'info',
-      // Redact sensitive information from logs
-      redact: {
-        paths: ['req.headers.authorization', 'req.headers["x-api-key"]', 'req.body.password', 'req.body.currentPassword', 'req.body.newPassword'],
-        censor: '[REDACTED]',
-      },
-      // Pretty log format for development, JSON for production
-      transport:
-        env !== 'production'
-          ? {
-              target: 'pino-pretty',
-              options: {
-                singleLine: true,
-                colorize: true,
-                translateTime: 'SYS:standard',
-                ignore: 'pid,hostname,req.remoteAddress,req.remotePort,res.headers', // Simplifies logs in development
-              },
-            }
-          : undefined, // Default to JSON in production
-      // Custom properties to add to each log
-      customProps: () => ({
-        context: 'Bootstrap', // Useful for filtering logs
-      }),
-      // Disable success log for /health endpoint (if you have a health check)
-      // autoLogging: {
-      //   ignore: (req) => req.originalUrl === '/health',
-      // },
-    },
-  });
+  const pinoLogger = new PinoLogger(getPinoLoggerOptions({ env, context: 'Bootstrap' }));
 
   // Enable global validation pipe for DTO validation
   app.useGlobalPipes(

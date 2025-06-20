@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@tds/tds-bm-common": ["../../../libs/tds-bm-common/src/index.ts"]
+    },
+    "lib": ["es2022"],
+    "skipLibCheck": true,
+    "strict": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "module": "nodenext",
+    "types": ["node"],
+    "moduleResolution": "nodenext",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es2021",
+    "outDir": "./dist-migrations",
+    "emitDeclarationOnly": false,
+    "rootDirs": ["./src", "../../../libs"]
+  },
+  "include": ["src/**/*.ts", "../../../libs/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}

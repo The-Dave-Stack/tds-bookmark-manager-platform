@@ -1,13 +1,15 @@
-import { Archive, ChevronDown, ChevronRight, Edit, FolderIcon, FolderPlus, MoreHorizontal, Trash, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { Archive, ChevronDown, ChevronRight, Edit, FolderIcon, FolderPlus, MoreHorizontal, Trash, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 
-import type { FolderWithChildren } from '../../api/types';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
 import ConfirmDialog from '../common/ConfirmDialog';
 import FolderModal from '../folders/FolderModal';
+
+import type { FolderWithChildren } from '../../api/types';
 
 interface SidebarProps {
   isOpen: boolean;

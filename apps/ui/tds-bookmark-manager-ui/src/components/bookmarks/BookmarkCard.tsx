@@ -1,11 +1,17 @@
 import { useState } from 'react';
+
+import { MoreHorizontal, Edit, Trash, Archive, RotateCcw, ExternalLink } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
-import { MoreHorizontal, Edit, Trash, Archive, RotateCcw, ExternalLink } from 'lucide-react';
-import BookmarkModal from './BookmarkModal';
 import ConfirmDialog from '../common/ConfirmDialog';
-import toast from 'react-hot-toast';
+
+import BookmarkModal from './BookmarkModal';
+
+
+
 import type { Bookmark } from '../../api/types';
 
 interface BookmarkCardProps {
@@ -25,7 +31,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
     if (!user?.id) return;
     
     try {
-      await updateBookmark(user.id, bookmark.id, { 
+      await updateBookmark(bookmark.id, { 
         isHidden: !bookmark.isHidden 
       });
       
@@ -46,7 +52,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
     if (!user?.id) return;
     
     try {
-      await deleteBookmark(user.id, bookmark.id);
+      await deleteBookmark(bookmark.id);
       toast.success(t('bookmarks.notifications.deleted'));
     } catch (error) {
       console.error('Error deleting bookmark:', error);
@@ -59,7 +65,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
     
     try {
       // Increment click count first
-      await incrementClickCount(user.id, bookmark.id);
+      await incrementClickCount(bookmark.id);
       
       // Then open URL in new tab
       window.open(bookmark.url, '_blank', 'noopener,noreferrer');

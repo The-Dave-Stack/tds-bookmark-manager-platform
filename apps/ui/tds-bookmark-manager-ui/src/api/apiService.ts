@@ -1,222 +1,122 @@
-import type { DateRange } from '../components/statistics/DateRangeSelector';
-import { mockBookmarks, mockFolders, mockUsers } from './mockData';
-import type { Bookmark, Folder, User } from './types';
+import { CreateBookmarkDto, CreateFolderDto, CreateUserDto, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, TokenDto, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto } from '@tds/tds-bm-common';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
-// Simulate API delay
-const delay = () => Promise.resolve();
+import { DateRange } from '../components/statistics/DateRangeSelector';
 
-// Helper to generate IDs
-const generateId = () => Math.random().toString(36).substring(2, 15);
 
-// Mock API endpoints
-export const api = {
-  // Auth
-  login: async (email: string, password: string): Promise<User> => {
-    await delay();
-    const user = mockUsers.find(u => u.email === email && u.password === password);
-    if (!user) throw new Error('Invalid credentials');
-    return user;
-  },
+import type { ApiInterface, BookmarkType, FolderType, UserType } from './types';
 
-  register: async (email: string, password: string, firstName: string, lastName: string, isAdmin = false): Promise<User> => {
-    await delay();
-    if (mockUsers.some(u => u.email === email)) {
-      throw new Error('User already exists');
+// Get the API URL from the global window object injected at runtime.
+const apiUrl = (window as any).TDS_CONFIG?.API_URL || 'http://localhost:3000/api/v1';
+
+// Create an Axios instance with the runtime base URL
+const apiClient = axios.create({
+  baseURL: apiUrl,
+  withCredentials: true,
+});
+
+apiClient.interceptors.request.use(
+  (config) => {
+    const csrfToken = Cookies.get('csrf-token'); // TODO: Use Cookies.CSRF_TOKEN from shared library
+    if (csrfToken) {
+      // Add it to the request headers
+      config.headers['X-CSRF-Token'] = csrfToken;
     }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
 
-    const newUser: User = {
-      id: `user-${generateId()}`,
-      email,
-      firstName,
-      lastName,
-      password,
-      role: isAdmin ? 'admin' : 'user',
-      apiToken: `token-${generateId()}`,
-      webhookUrl: `https://api.example.com/webhook/${generateId()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    mockUsers.push(newUser);
-    return newUser;
+// Implement the API methods by calling the real backend endpoints
+export const api: ApiInterface = {
+  // --- System Check ---
+  async checkAdminExists(): Promise<boolean> {
+    const response = await apiClient.get('/users/checkAdmins');
+    return response.data;
+  },
+  async setupAdmin(createUserDto: CreateUserDto): Promise<UserType> {
+    const response = await apiClient.post('/users/setupAdmin', createUserDto);
+    return response.data;
   },
 
-  updateProfile: async (userId: string, data: { firstName?: string; lastName?: string; password?: string }): Promise<User> => {
-    await delay();
-    const userIndex = mockUsers.findIndex(u => u.id === userId);
-    if (userIndex === -1) throw new Error('User not found');
-
-    mockUsers[userIndex] = {
-      ...mockUsers[userIndex],
-      ...data,
-      updatedAt: new Date().toISOString()
-    };
-
-    return mockUsers[userIndex];
+  // --- Auth ---
+  async login(loginUserDto: LoginUserDto): Promise<UserType> {
+    const response = await apiClient.post('/auth/login', loginUserDto);
+    return response.data;
+  },
+  async logout(): Promise<void> {
+    throw new Error('Function not implemented.');
+  },
+  async register(createUserDto: CreateUserDto): Promise<UserType> {
+    const response = await apiClient.post('/auth/register', createUserDto);
+    return response.data;
+  },
+  async forgotPassword(data: ForgotPasswordDto): Promise<void> {
+    throw new Error('Function not implemented.');
+  },
+  async resetPassword(data: ResetPasswordDto): Promise<TokenDto> {
+    throw new Error('Function not implemented.');
   },
 
-  // User Management (Admin)
-  getUsers: async (): Promise<User[]> => {
-    await delay();
-    return mockUsers;
+  // --- User ---
+  async updateProfile(userId: string, data: Partial<UserType>): Promise<UserType> {
+    const response = await apiClient.put(`/users/${userId}`, data);
+    return response.data;
+  },
+  async getProfile(): Promise<UserType> {
+    throw new Error('Function not implemented.');
   },
 
-  updateUserRole: async (userId: string, role: 'user' | 'admin'): Promise<User> => {
-    await delay();
-    const userIndex = mockUsers.findIndex(u => u.id === userId);
-    if (userIndex === -1) throw new Error('User not found');
-
-    mockUsers[userIndex] = {
-      ...mockUsers[userIndex],
-      role,
-      updatedAt: new Date().toISOString()
-    };
-
-    return mockUsers[userIndex];
+  // --- Bookmarks ---
+  async getBookmarks(): Promise<BookmarkType[]> {
+    const response = await apiClient.get('/bookmarks');
+    return response.data;
+  },
+  async createBookmark(data: CreateBookmarkDto): Promise<BookmarkType> {
+    const response = await apiClient.post('/bookmarks', data);
+    return response.data;
+  },
+  async updateBookmark(bookmarkId: string, data: UpdateBookmarkDto): Promise<BookmarkType> {
+    const response = await apiClient.patch(`/bookmarks/${bookmarkId}`, data);
+    return response.data;
+  },
+  async deleteBookmark(bookmarkId: string): Promise<void> {
+    await apiClient.delete(`/bookmarks/${bookmarkId}`);
+  },
+  async incrementBookmarkClicks(bookmarkId: string): Promise<void> {
+    await apiClient.post(`/bookmarks/${bookmarkId}/click`);
   },
 
-  // TODO: Use dateRange parameter to filter statistics
-  getAdminStatistics: async (dateRange: DateRange) => {
-    await delay();
-    const totalUsers = mockUsers.length;
-    const totalBookmarks = mockBookmarks.length;
-    const totalClicks = mockBookmarks.reduce((sum, bm) => sum + bm.clickCount, 0);
-
-    return {
-      totalUsers,
-      totalBookmarks,
-      totalClicks,
-      avgBookmarksPerUser: totalUsers > 0 ? totalBookmarks / totalUsers : 0,
-      avgClicksPerUser: totalUsers > 0 ? totalClicks / totalUsers : 0,
-      topUsers: mockUsers.map(user => ({
-        email: user.email,
-        bookmarkCount: mockBookmarks.filter(b => b.userId === user.id).length,
-        clickCount: mockBookmarks
-          .filter(b => b.userId === user.id)
-          .reduce((sum, b) => sum + b.clickCount, 0)
-      }))
-    };
+  // --- Folders ---
+  async getFolders(): Promise<FolderType[]> {
+    const response = await apiClient.get('/folders');
+    return response.data;
+  },
+  async createFolder(data: CreateFolderDto): Promise<FolderType> {
+    const response = await apiClient.post('/folders', data);
+    return response.data;
+  },
+  async updateFolder(folderId: string, data: UpdateFolderDto): Promise<FolderType> {
+    const response = await apiClient.patch(`/folders/${folderId}`, data);
+    return response.data;
+  },
+  async deleteFolder(folderId: string): Promise<void> {
+    await apiClient.delete(`/folders/${folderId}`);
   },
 
-  // Bookmarks
-  getBookmarks: async (userId: string): Promise<Bookmark[]> => {
-    await delay();
-    return mockBookmarks.filter(b => b.userId === userId);
+  // --- Admin ---
+  async getUsers(): Promise<UserType[]> {
+    const response = await apiClient.get('/admin/users');
+    return response.data;
   },
-
-  createBookmark: async (userId: string, data: Partial<Bookmark>): Promise<Bookmark> => {
-    await delay();
-    const newBookmark: Bookmark = {
-      id: `bookmark-${generateId()}`,
-      userId,
-      url: data.url!,
-      title: data.title!,
-      faviconUrl: data.faviconUrl,
-      folderId: data.folderId,
-      clickCount: 0,
-      isHidden: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    mockBookmarks.push(newBookmark);
-    return newBookmark;
+  async updateUserRole(userId: string, data: UpdateUserRoleDto): Promise<UserType> {
+    const response = await apiClient.patch(`/admin/users/${userId}/role`, data);
+    return response.data;
   },
-
-  updateBookmark: async (userId: string, id: string, data: Partial<Bookmark>): Promise<Bookmark> => {
-    await delay();
-    const index = mockBookmarks.findIndex(b => b.id === id && b.userId === userId);
-    if (index === -1) throw new Error('Bookmark not found');
-
-    mockBookmarks[index] = { ...mockBookmarks[index], ...data, updatedAt: new Date().toISOString() };
-    return mockBookmarks[index];
+  async getAdminStatistics(dateRange: DateRange): Promise<any> {
+    const response = await apiClient.get('/statistics/admin', { params: dateRange });
+    return response.data;
   },
-
-  deleteBookmark: async (userId: string, id: string): Promise<void> => {
-    await delay();
-    const index = mockBookmarks.findIndex(b => b.id === id && b.userId === userId);
-    if (index === -1) throw new Error('Bookmark not found');
-    mockBookmarks.splice(index, 1);
-  },
-
-  incrementBookmarkClicks: async (userId: string, id: string): Promise<Bookmark> => {
-    await delay();
-    const bookmark = mockBookmarks.find(b => b.id === id && b.userId === userId);
-    if (!bookmark) throw new Error('Bookmark not found');
-    bookmark.clickCount++;
-    bookmark.updatedAt = new Date().toISOString();
-    return bookmark;
-  },
-
-  // Folders
-  getFolders: async (userId: string): Promise<Folder[]> => {
-    await delay();
-    return mockFolders.filter(f => f.userId === userId);
-  },
-
-  createFolder: async (userId: string, name: string, parentId: string | null = null): Promise<Folder> => {
-    await delay();
-    const newFolder: Folder = {
-      id: `folder-${generateId()}`,
-      userId,
-      name,
-      parentId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      bookmarkCount: 0 // Add missing property
-    };
-
-    mockFolders.push(newFolder);
-    return newFolder;
-  },
-
-  updateFolder: async (userId: string, id: string, name: string, parentId: string | null = null): Promise<Folder> => {
-    await delay();
-    const index = mockFolders.findIndex(f => f.id === id && f.userId === userId);
-    if (index === -1) throw new Error('Folder not found');
-
-    // Check for circular reference
-    if (parentId) {
-      let currentParent = parentId;
-      while (currentParent) {
-        const parent = mockFolders.find(f => f.id === currentParent);
-        if (!parent) break;
-        if (parent.id === id) throw new Error('Circular reference detected');
-        currentParent = parent.parentId as string;
-      }
-    }
-
-    mockFolders[index] = { 
-      ...mockFolders[index], 
-      name, 
-      parentId,
-      updatedAt: new Date().toISOString() 
-    };
-    return mockFolders[index];
-  },
-
-  deleteFolder: async (userId: string, id: string): Promise<void> => {
-    await delay();
-    const folderToDelete = mockFolders.find(f => f.id === id && f.userId === userId);
-    if (!folderToDelete) throw new Error('Folder not found');
-
-    const folderIdsToDelete: string[] = [];
-    const collectChildren = (folderId: string) => {
-      folderIdsToDelete.push(folderId);
-      const children = mockFolders.filter(f => f.parentId === folderId);
-      children.forEach(child => collectChildren(child.id));
-    };
-
-    collectChildren(id);
-
-    // Filter out deleted folders
-    mockFolders.splice(0, mockFolders.length, ...mockFolders.filter(f => !folderIdsToDelete.includes(f.id)));
-
-    // Update bookmarks to remove folder reference
-    mockBookmarks.forEach(bookmark => {
-      if (bookmark.folderId && folderIdsToDelete.includes(bookmark.folderId)) {
-        bookmark.folderId = undefined;
-      }
-    });
-  }
+  
 };

@@ -1,7 +1,12 @@
 {
-  "sort-imports.default-sort-style": "module-scoped",
-  "sort-imports.languages": [
+  "nxConsole.generateAiAgentRules": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": [
     "javascript",
-    "typescript"
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
   ]
 }

@@ -12,6 +12,8 @@ node_modules/
 
 # Testing
 /coverage/
+/html/
+/results/
 
 # Environment variables
 .env
@@ -23,3 +25,4 @@ node_modules/
 # Large data files
 *.csv
 *.xlsx
+*.sqlite

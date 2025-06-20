@@ -1,25 +1,20 @@
+import { CreateUserDto, LoginUserDto, Role } from '@tds/tds-bm-common';
 import { create } from 'zustand';
-import { api } from '../api/apiService';
 
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'user' | 'admin';
-  apiToken?: string;
-  webhookUrl?: string;
-}
+import { api } from '../api';
+import { UserType } from '../api/types';
 
 interface AuthState {
-  user: User | null;
+  user: UserType | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string, isAdmin?: boolean) => Promise<void>;
+  checkAuth: () => Promise<void>;
+  login: (loginUserDto: LoginUserDto) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (createUserDto: CreateUserDto, isAdmin?: boolean) => Promise<void>;
   updateProfile: (data: { firstName?: string; lastName?: string; password?: string }) => Promise<void>;
-  setUser: (user: User) => void;
-  updateUserRole: (role: 'user' | 'admin') => void;
-  updateUserProfile: (profile: Partial<User>) => void;
+  setUser: (user: UserType | null) => void;
+  updateUserRoles: (roles: Role[]) => void;
+  updateUserProfile: (profile: Partial<UserType>) => void;
   clearUser: () => void;
 }
 
@@ -27,57 +22,72 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   
-  login: async (email: string, password: string) => {
-    const user = await api.login(email, password);
-    set({ 
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        apiToken: user.apiToken,
-        webhookUrl: user.webhookUrl
-      }, 
-      isAuthenticated: true 
-    });
+  checkAuth: async () => {
+    try {
+      // We call the new profile endpoint to get user data if a session is active
+      const user = await api.getProfile(); 
+      set({ user, isAuthenticated: true });
+    } catch (error) {
+      // If it fails (e.g., 401), it means there is no session
+      set({ user: null, isAuthenticated: false });
+    }
   },
-  
-  register: async (email: string, password: string, firstName: string, lastName: string, isAdmin = false) => {
-    const user = await api.register(email, password, firstName, lastName, isAdmin);
+
+  login: async (loginUserDto: LoginUserDto) => {
+    const user = await api.login(loginUserDto);
     set({ 
       user: {
-        id: user.id,
+        username: user.username,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role,
+        roles: user.roles,
         apiToken: user.apiToken,
         webhookUrl: user.webhookUrl
       },
-      isAuthenticated: true 
+      isAuthenticated: true,
+    });
+  },
+
+  logout: async () => {
+    await api.logout();
+    set({ user: null, isAuthenticated: false });
+  },
+  
+  register: async (createUserDto: CreateUserDto, isAdmin = false) => {
+    const user = await api.register(createUserDto);
+    set({ 
+      user: {
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles,
+        apiToken: user.apiToken,
+        webhookUrl: user.webhookUrl
+      },
+      isAuthenticated: true,
     });
   },
 
   updateProfile: async (data) => {
     const currentUser = get().user;
-    if (!currentUser?.id) throw new Error('No user logged in');
+    if (!currentUser?.email) throw new Error('No user logged in');
 
-    const updatedUser = await api.updateProfile(currentUser.id, data);
+    const updatedUser = await api.updateProfile(currentUser.email, data);
     set({ 
       user: {
         ...currentUser,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName
+        ...updatedUser
       }
     });
   },
   
-  setUser: (user) => set({ user, isAuthenticated: true }),
+  setUser: (user) => set({ user, isAuthenticated: !!user }),
   
-  updateUserRole: (role) => {
+  updateUserRoles: (roles) => {
     set((state) => ({
-      user: state.user ? { ...state.user, role } : null
+      user: state.user ? { ...state.user, roles } : null
     }));
   },
   
@@ -87,5 +97,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }));
   },
   
-  clearUser: () => set({ user: null, isAuthenticated: false }),
+  clearUser: () => set({ user: null }),
 }));

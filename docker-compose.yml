@@ -1,0 +1,52 @@
+#
+# Docker Compose for TDS Bookmark Manager Platform
+#
+services:
+
+  # React UI Frontend Service (served with Nginx)
+  ui:
+    image: ghcr.io/The-Dave-Stack/tds-bookmark-manager-ui:latest
+    ports:
+      - "4200:80" # Map host port 4200 to container's Nginx port 80
+    depends_on:
+      - api # Optional, but good practice to define dependency
+
+  # NestJS API Backend Service
+  api:
+    image: ghcr.io/The-Dave-Stack/tds-bookmark-manager-api:latest
+    ports:
+      - "3000:3000"
+    # The API service also needs environment variables to connect to the DB
+    # and for its own configuration (e.g., JWT).
+    environment:
+      POSTGRES_HOST: "db" # Use the service name 'db' for inter-container communication
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:-testuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-tds_bookmarks_db}
+      JWT_SECRET: ${JWT_SECRET:-un-secreto-muy-largo-y-seguro-para-jwt}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+    depends_on:
+      db: # Ensures the DB is started before the API
+        condition: service_healthy
+
+  # PostgreSQL Database Service
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-testuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-tds_bookmarks_db}
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-testuser} -d ${POSTGRES_DB:-tds_bookmarks_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  # Persist database data across container restarts
+  postgres_data:

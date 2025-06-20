@@ -1,0 +1,78 @@
+# .dockerignore
+
+# Git version control
+.git
+.gitignore
+
+# Docker-related files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Dependencies
+# These are installed inside the container via 'npm ci' to ensure a clean build
+# and avoid platform-specific issues.
+node_modules
+/apps/**/node_modules
+/libs/**/node_modules
+
+# Nx workspace cache and configuration
+# We ignore the .nx/ cache folder, but we MUST keep nx.json
+.nx/
+
+# Build artifacts and compiled output from local builds
+dist/
+dist-*
+out-tsc/
+tmp/
+*.tsbuildinfo
+/apps/**/dist
+/apps/**/out-tsc
+/libs/**/dist
+/libs/**/out-tsc
+
+# Local environment variables
+# This is crucial to prevent local .env files from leaking into the build context
+.env
+.env.*
+apps/*/.env
+apps/*/.env.*
+apps/ui/*/.env
+apps/ui/*/.env.*
+apps/backend/*/.env
+apps/backend/*/.env.*
+
+# Test outputs, coverage reports, and logs
+test-output/
+coverage/
+html/
+results/
+/apps/**/test-output
+/apps/**/coverage
+/apps/ui/tds-bookmark-manager-ui/html
+/apps/ui/tds-bookmark-manager-ui/results
+jest-e2e.json
+*.sqlite
+*.log
+npm-debug.log*
+
+# IDE and editor configuration
+.vscode/
+.idea/
+
+# Operating System specific files
+.DS_Store
+Thumbs.db
+*.iml
+
+# Local development config files that are not needed in the production image
+jest.config.ts
+jest.preset.js
+vitest.config.ts
+vitest.workspace.ts
+.eslintrc.json
+.prettierrc
+.swcrc
+
+# Other project files not needed in the image
+README.md

@@ -1,0 +1,84 @@
+#
+# Docker Compose for TDS Bookmark Manager Platform
+#
+services:
+
+  # React UI Frontend Service (served with Nginx)
+  ui:
+    build:
+      context: .
+      dockerfile: apps/ui/tds-bookmark-manager-ui/Dockerfile
+    image: The-Dave-Stack/tds-bookmark-manager-ui:${IMAGE_TAG:-dev}
+    environment:
+      API_URL: http://localhost:3000/api/v1
+    ports:
+      - "4200:80" # Map host port 4200 to container's Nginx port 80
+    depends_on:
+      - api # Optional, but good practice to define dependency
+
+  # NestJS API Backend Service
+  api:
+    build:
+      context: . # Build from the monorepo root
+      dockerfile: apps/backend/tds-bookmark-manager-api/Dockerfile
+    image: The-Dave-Stack/tds-bookmark-manager-api:${IMAGE_TAG:-dev}
+    ports:
+      - "3000:3000"
+    # The API service also needs environment variables to connect to the DB
+    # and for its own configuration (e.g., JWT).
+    environment:
+      EMAIL_HOST: sandbox.smtp.mailtrap.io
+      EMAIL_PORT: 2525
+      EMAIL_USER: tu_usuario_de_mailtrap
+      EMAIL_PASS: tu_password_de_mailtrap
+      EMAIL_FROM: no-reply@thedavestack.com
+      POSTGRES_HOST: "db" # Use the service name 'db' for inter-container communication
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:-testuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-tds_bookmarks_db}
+      JWT_SECRET: ${JWT_SECRET:-un-secreto-muy-largo-y-seguro-para-jwt}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      db: # Ensures the DB is started before the API
+        condition: service_healthy
+
+  # Ephemeral container for running database migrations
+  migrations:
+    build:
+      context: .
+      dockerfile: apps/backend/tds-bookmark-manager-api/Dockerfile.migrate
+    image: The-Dave-Stack/tds-bookmark-manager-migrations:${IMAGE_TAG:-dev}
+    # This service does not need to expose any ports.
+    environment:
+      POSTGRES_HOST: "db"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:-testuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-tds_bookmarks_db}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # PostgreSQL Database Service
+  db:
+    image: postgres:17.5-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-testuser} 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-tds_bookmarks_db}
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-testuser} -d ${POSTGRES_DB:-tds_bookmarks_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  # Persist database data across container restarts
+  postgres_data:

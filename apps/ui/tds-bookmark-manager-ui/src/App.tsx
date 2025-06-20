@@ -1,41 +1,66 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from './stores/authStore';
 
+import { Navigate, Route, Routes } from 'react-router-dom';
+
+import { api } from './api';
+import AdminRoute from './components/auth/AdminRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import LoadingScreen from './components/common/LoadingScreen';
+import Layout from './components/layout/Layout';
+import AdminPanel from './pages/AdminPanel';
+import AdminSetup from './pages/AdminSetup';
+import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 // Components
 import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import AdminPanel from './pages/AdminPanel';
-import Layout from './components/layout/Layout';
-import LoadingScreen from './components/common/LoadingScreen';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import AdminRoute from './components/auth/AdminRoute';
 import ProfileSettings from './pages/ProfileSettings';
-import LandingPage from './pages/LandingPage';
+import Register from './pages/Register';
+import { useAuthStore } from './stores/authStore';
 
 function App() {
   const [loading, setLoading] = useState(true);
-  const { user, setUser, clearUser } = useAuthStore();
+  const [needsAdminSetup, setNeedsAdminSetup] = useState(false);
+  const { user, checkAuth } = useAuthStore();
 
   useEffect(() => {
     // Simulate checking auth state
-    const checkAuth = async () => {
+    const initializeApp = async () => {
       try {
-        // In a real app, this would check Firebase auth state
-        setLoading(false);
+        // Check if admin exists in the system
+        const adminExists = await api.checkAdminExists();
+        
+        if (!adminExists) {
+          setNeedsAdminSetup(true);
+        } else {
+          // If an admin exists, check if the current user has a valid session cookie
+          await checkAuth();
+        }
       } catch (error) {
-        console.error('Error during authentication:', error);
-        clearUser();
+        console.error('Error during app initialization:', error);
+        useAuthStore.getState().setUser(null); // Clear state in case of error
+      } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
-  }, [setUser, clearUser]);
+    initializeApp();
+  }, [checkAuth]);
 
+  const handleSetupComplete = () => {
+    setNeedsAdminSetup(false);
+  };
+  
   if (loading) {
     return <LoadingScreen />;
+  }
+
+  // Show admin setup if no admin exists
+  if (needsAdminSetup) {
+    return (
+      <Routes>
+        <Route path="*" element={<AdminSetup onSetupComplete={handleSetupComplete} />} />
+      </Routes>
+    );
   }
 
   return (

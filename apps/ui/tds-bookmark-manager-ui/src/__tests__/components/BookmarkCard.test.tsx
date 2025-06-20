@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BookmarkCard from '../../components/bookmarks/BookmarkCard';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
-import { cleanup, fireEvent, render, screen } from '../test-utils';
+import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils';
 
 // Mock stores
 vi.mock('../../stores/authStore');
@@ -38,6 +38,7 @@ describe('BookmarkCard', () => {
       deleteBookmark: vi.fn(),
       incrementClickCount: vi.fn()
     });
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -61,39 +62,44 @@ describe('BookmarkCard', () => {
     const visitButton = screen.getByTestId(`visit-site-button-${mockBookmark.id}`);
     await fireEvent.click(visitButton);
     
-    expect(incrementClickCount).toHaveBeenCalledWith('user-id', 'test-id');
+    await waitFor(() => {
+        expect(incrementClickCount).toHaveBeenCalledWith('test-id');
+    });
+
     expect(openSpy).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener,noreferrer');
+    openSpy.mockRestore();
   });
 
   it('handles archive toggle', async () => {
     const { updateBookmark } = useBookmarkStore();
-    
     render(<BookmarkCard bookmark={mockBookmark} />);
-    
+
     const menuButton = screen.getByTestId(`menu-button-${mockBookmark.id}`);
     await fireEvent.click(menuButton);
-    
+
     const archiveButton = screen.getByTestId(`archive-button-${mockBookmark.id}`);
     await fireEvent.click(archiveButton);
-    
-    expect(updateBookmark).toHaveBeenCalledWith('user-id', 'test-id', { isHidden: true });
+
+    await waitFor(() => {
+        expect(updateBookmark).toHaveBeenCalledWith('test-id', { isHidden: true });
+    });
   });
 
   it('handles delete', async () => {
     const { deleteBookmark } = useBookmarkStore();
-    
     render(<BookmarkCard bookmark={mockBookmark} />);
-    
+
     const menuButton = screen.getByTestId(`menu-button-${mockBookmark.id}`);
     await fireEvent.click(menuButton);
-    
+
     const deleteButton = screen.getByTestId(`delete-button-${mockBookmark.id}`);
     await fireEvent.click(deleteButton);
-    
-    // Confirm deletion
+
     const confirmButton = screen.getByRole('button', { name: 'common.confirmDelete.confirm' });
     await fireEvent.click(confirmButton);
-    
-    expect(deleteBookmark).toHaveBeenCalledWith('user-id', 'test-id');
+
+    await waitFor(() => {
+        expect(deleteBookmark).toHaveBeenCalledWith('test-id');
+    });
   });
 });
