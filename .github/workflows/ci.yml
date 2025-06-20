@@ -64,5 +64,6 @@ jobs:
       # Step 9: Run E2E tests for AFFECTED apps.
       # Note: This step relies on the 'e2e' target being correctly configured
       # in project.json to start the web server needed for Playwright.
-      - name: E2E Test Affected Apps
-        run: npx nx affected -t e2e
+      # TODO: Uncomment when test exists
+      #- name: E2E Test Affected Apps
+      #  run: npx nx affected -t e2e
