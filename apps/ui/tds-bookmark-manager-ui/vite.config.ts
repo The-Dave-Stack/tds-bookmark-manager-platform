@@ -1,9 +1,47 @@
 /// <reference types='vitest' />
-import { defineConfig } from 'vite';
+import { PluginOption, defineConfig, loadEnv } from 'vite';
+
 import { join } from 'path';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(() => ({
+/**
+ * A self-contained Vite plugin to load environment variables
+ * and inject them into a global window.TDS_CONFIG object in index.html.
+ * This makes environment-specific configurations available to the client-side code.
+ * @param {string} mode - The current Vite mode (e.g., 'development', 'production').
+ * @returns {PluginOption} The Vite plugin object.
+ */
+function tdsConfigInjectorPlugin(mode: string): PluginOption {
+  // Load environment variables from the appropriate .env file (e.g., .env.development).
+  // The third argument '' ensures that all variables are loaded, not just those with a VITE_ prefix.
+  const env = loadEnv(mode, process.cwd(), '');
+
+  // Build the configuration object that will be attached to the window.
+  // This can be easily extended with more variables in the future.
+  const configForWindow: Record<string, string | undefined> = {
+    API_URL: env.API_URL,
+    // Add other environment variables here if needed, for example:
+    // ANOTHER_VAR: env.ANOTHER_VAR,
+  };
+
+  return {
+    name: 'tds-config-injector-plugin',
+    transformIndexHtml(html) {
+      // Safely stringify the configuration object to ensure it's valid JavaScript.
+      // This prevents issues with quotes or special characters in the variables.
+      const configScript = `
+        <script>
+          window.TDS_CONFIG = ${JSON.stringify(configForWindow)};
+        </script>
+      `;
+
+      // Inject the script into the <head> of the HTML document before the closing tag.
+      return html.replace('</head>', `${configScript}\n</head>`);
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => ({
   root: __dirname,
   cacheDir: '../../../node_modules/.vite/apps/ui/tds-bookmark-manager-ui',
   server: {
@@ -24,7 +62,7 @@ export default defineConfig(() => ({
       '@tds/tds-bm-common': join(__dirname, '../../../libs/tds-bm-common/dist'),
     },
   },
-  plugins: [react()],
+  plugins: [react(), tdsConfigInjectorPlugin(mode)],
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

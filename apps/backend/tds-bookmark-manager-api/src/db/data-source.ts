@@ -15,6 +15,7 @@ const pinoLogger = new PinoLogger(getPinoLoggerOptions({ env: process.env.NODE_E
 // 1. Determine the environment. Default to 'development' if NODE_ENV is not set.
 const nodeEnv = process.env.NODE_ENV;
 const envFilePath = resolve(`.env.${nodeEnv}`);
+const defaultEnvFilePath = resolve(`.env`);
 
 // 2. Check if the environment-specific .env file exists and load it.
 if (existsSync(envFilePath)) {
@@ -23,7 +24,12 @@ if (existsSync(envFilePath)) {
 } else {
   // 3. Fallback to the default .env file if the specific one is not found.
   pinoLogger.warn(`Warning: ${envFilePath} not found. Falling back to default .env file if it exists.`);
-  dotenv.config();
+  if (existsSync(defaultEnvFilePath)) {
+    dotenv.config();
+  } else {
+    pinoLogger.error(`Error: ${defaultEnvFilePath} not found. Check if .env file exists.`);
+    process.exit(1);
+  }
 }
 
 // --- END OF ENVIRONMENT LOADING LOGIC ---

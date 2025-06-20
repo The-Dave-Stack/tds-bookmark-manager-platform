@@ -7,7 +7,7 @@ import { UserEntity } from './entities/user.entity';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { ArrayContains, MoreThan, Repository } from 'typeorm';
 
-import { mapEntityToDto, Role, UserWithoutPassword, CreateUserDto } from '@tds/tds-bm-common';
+import { mapEntityToDto, Role, UserWithoutPassword, User, CreateUserDto } from '@tds/tds-bm-common';
 import { PinoLogger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
 
@@ -105,7 +105,7 @@ export class UsersService {
     return mapEntityToDto(updatedUser, UserWithoutPassword);
   }
 
-  async create(data: Partial<CreateUserDto>): Promise<UserWithoutPassword> {
+  async create(data: Partial<CreateUserDto & Pick<UserWithoutPassword, 'roles'>>): Promise<UserWithoutPassword> {
     const date = new Date();
     const newUser: UserEntity = {
       username: data.username as string,
