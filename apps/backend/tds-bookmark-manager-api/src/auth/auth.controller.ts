@@ -10,15 +10,21 @@ import * as crypto from 'crypto';
 
 import type { CreateUserDto, LoginUserDto, UserWithoutPassword } from '@tds/tds-bm-common';
 import { Cookies } from './cookies';
+import { PinoLogger } from 'nestjs-pino';
+import { SkipCsrfCheck } from './decorators/skip-csrf.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private logger: PinoLogger) {
+    this.logger.setContext(AuthController.name);
+  }
 
+  @SkipCsrfCheck()
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@User() user: LoginUserDto, @Res({ passthrough: true }) response: Response): Promise<UserWithoutPassword> {
+    this.logger.debug(`Login attempt for the user: %o`, user);
     const { access_token, ...userData} = await this.authService.login(user);
 
     this._addToCookies<string>(response, Cookies.ACCESS_TOKEN, access_token);

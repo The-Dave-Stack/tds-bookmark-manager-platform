@@ -4,12 +4,14 @@ import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject } from '@nestjs/common';
 import { ArrayContains, MoreThan, Repository } from 'typeorm';
 
 import { mapEntityToDto, Role, UserWithoutPassword, User, CreateUserDto } from '@tds/tds-bm-common';
 import { PinoLogger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +19,7 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
     private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly logger: PinoLogger
   ) {
     this.logger.setContext(UsersService.name);
@@ -34,9 +37,15 @@ export class UsersService {
     return adminCount > 0;
   }
 
-  async setupAdmin(createUserDto: CreateUserDto): Promise<User> {
-    // TODO: clean cache if the user is correctly created
-    return await this.create({ ...createUserDto, roles: [Role.ADMIN] });
+  async setupAdmin(createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
+    this.logger.info('Attempting to set up the first admin user');
+    const adminUser = await this.create({ ...createUserDto, roles: [Role.ADMIN] });
+    if (adminUser) {
+      console.log('Cache KEYS:', this.cacheManager.stores.keys());
+      this.logger.debug("Invalidating 'has_admins' cache key.");
+      await this.cacheManager.del('has_admins');
+    }
+    return adminUser;
   }
 
   findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: false }): Promise<UserEntity>;
@@ -106,7 +115,7 @@ export class UsersService {
     return mapEntityToDto(updatedUser, UserWithoutPassword);
   }
 
-  async create(data: Partial<CreateUserDto & Pick<UserWithoutPassword, 'roles'>>): Promise<UserWithoutPassword> {
+  async create(data: Partial<CreateUserDto & Pick<User, 'roles'>>): Promise<UserWithoutPassword> {
     const date = new Date();
     const newUser: UserEntity = {
       username: data.username as string,
@@ -168,6 +177,7 @@ export class UsersService {
   }
 
   async validateUserCredentials(credentials: Pick<User, 'email' | 'password'>): Promise<UserWithoutPassword | undefined> {
+    this.logger.debug(`Login attempt for the user: %o`, credentials);
     let userEntity: UserEntity;
     try {
       userEntity = await this.findOneByEmail({ email: credentials.email }, { withoutPassword: false });
@@ -179,10 +189,13 @@ export class UsersService {
     }
 
     if (!(await this.comparePassword(credentials.password as string, userEntity.passwordHash))) {
+      this.logger.error(`Invalid password for user: ${credentials.email}`);
       return undefined; // Invalid password
     }
 
-    return mapEntityToDto(userEntity, UserWithoutPassword);
+    const loggedUser = mapEntityToDto(userEntity, UserWithoutPassword);
+    this.logger.debug(`Successfully logged in user: %o`, loggedUser);
+    return loggedUser;
   }
 
   async hashPassword(password: string): Promise<string> {

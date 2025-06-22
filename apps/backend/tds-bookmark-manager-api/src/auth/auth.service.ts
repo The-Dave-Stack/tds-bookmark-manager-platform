@@ -13,6 +13,7 @@ export class AuthService {
   }
 
   async validateUser(data: Pick<LoginUserDto, 'email' | 'password'>, options: { returnUser: boolean } = { returnUser: false }): Promise<UserWithoutPassword | boolean> {
+    this.logger.debug(`Login attempt for the user: %o`, data);
     const result = await this.usersService.validateUserCredentials(data);
 
     if (!result) {
@@ -55,6 +56,7 @@ export class AuthService {
   }
 
   async login(user: LoginUserDto): Promise<TokenDto & UserWithoutPassword> {
+    this.logger.debug(`Login attempt for the user: %o`, user);
     const userFound = (await this.validateUser({ email: user.email, password: user.password }, { returnUser: true })) as UserWithoutPassword;
     if (!userFound) {
       throw new UnauthorizedException();
@@ -63,7 +65,7 @@ export class AuthService {
   }
 
   async register(data: CreateUserDto): Promise<TokenDto & UserWithoutPassword> {
-    const newUser = await this.usersService.create({ ...data });
+    const newUser = await this.usersService.create(data);
     return { ...this._getToken(newUser), ...newUser };
   }
 

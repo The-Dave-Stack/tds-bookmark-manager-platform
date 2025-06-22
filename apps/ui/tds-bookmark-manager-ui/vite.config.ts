@@ -52,6 +52,15 @@ export default defineConfig(({ mode }) => ({
       protocol: 'ws',
       host: 'localhost',
     },
+    watch: {
+      ignored: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/test-output/**',
+        '../../../.nx/cache/**',
+        '../../../apps/backend/**',
+      ],
+    },
   },
   preview: {
     port: 4300,
