@@ -11,7 +11,7 @@ import * as crypto from 'crypto';
 import type { CreateUserDto, LoginUserDto, UserWithoutPassword } from '@tds/tds-bm-common';
 import { Cookies } from './cookies';
 import { PinoLogger } from 'nestjs-pino';
-import { SkipCsrfCheck } from './decorators/skip-csrf.decorator';
+import { SkipCsrfGuard } from './decorators/skip-csrf.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -19,7 +19,7 @@ export class AuthController {
     this.logger.setContext(AuthController.name);
   }
 
-  @SkipCsrfCheck()
+  @SkipCsrfGuard()
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')

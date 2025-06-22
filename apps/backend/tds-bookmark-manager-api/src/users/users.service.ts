@@ -38,12 +38,21 @@ export class UsersService {
   }
 
   async setupAdmin(createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
+    // TODO: move to utils
+    this.cacheManager.stores.forEach(async (store: any) => {
+      if (store.iterator) {
+        for await (const [key, value] of store.iterator()) {
+          this.logger.debug(`Cache key: ${key}, value: ${value}`);
+        }
+      }
+    });
+    // TODO: Maybe use a flag is better than checking the count?
     this.logger.info('Attempting to set up the first admin user');
     const adminUser = await this.create({ ...createUserDto, roles: [Role.ADMIN] });
     if (adminUser) {
       console.log('Cache KEYS:', this.cacheManager.stores.keys());
-      this.logger.debug("Invalidating 'has_admins' cache key.");
-      await this.cacheManager.del('has_admins');
+      this.logger.debug("Invalidating '/api/v1/users/checkAdmins' cache key.");
+      await this.cacheManager.del('/api/v1/users/checkAdmins');
     }
     return adminUser;
   }
