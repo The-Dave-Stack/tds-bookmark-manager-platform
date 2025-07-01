@@ -186,7 +186,7 @@ export class UsersService {
   }
 
   async validateUserCredentials(credentials: Pick<User, 'email' | 'password'>): Promise<UserWithoutPassword | undefined> {
-    this.logger.debug(`Login attempt for the user: %o`, credentials);
+    this.logger.debug(`[validateUserCredentials] Login attempt for the user: %o`, credentials);
     let userEntity: UserEntity;
     try {
       userEntity = await this.findOneByEmail({ email: credentials.email }, { withoutPassword: false });

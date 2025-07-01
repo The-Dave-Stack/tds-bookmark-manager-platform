@@ -1,7 +1,7 @@
 import { CreateUserDto, JwtPayloadDto, LoginUserDto, TokenDto, UserWithoutPassword, mapEntityToDto } from '@tds/tds-bm-common';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { EmailService } from '../email/email.service';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PinoLogger } from 'nestjs-pino';
 import { UsersService } from '../users/users.service';
@@ -13,7 +13,7 @@ export class AuthService {
   }
 
   async validateUser(data: Pick<LoginUserDto, 'email' | 'password'>, options: { returnUser: boolean } = { returnUser: false }): Promise<UserWithoutPassword | boolean> {
-    this.logger.debug(`Login attempt for the user: %o`, data);
+    this.logger.debug(`[validateUser] Login attempt for the user: %o`, data);
     const result = await this.usersService.validateUserCredentials(data);
 
     if (!result) {
@@ -55,13 +55,9 @@ export class AuthService {
     };
   }
 
-  async login(user: LoginUserDto): Promise<TokenDto & UserWithoutPassword> {
-    this.logger.debug(`Login attempt for the user: %o`, user);
-    const userFound = (await this.validateUser({ email: user.email, password: user.password }, { returnUser: true })) as UserWithoutPassword;
-    if (!userFound) {
-      throw new UnauthorizedException();
-    }
-    return { ...this._getToken(userFound), ...userFound };
+  async login(user: UserWithoutPassword): Promise<TokenDto & UserWithoutPassword> {
+    this.logger.debug(`[login] Login attempt for the user: %o`, user);
+    return { ...this._getToken(user), ...user };
   }
 
   async register(data: CreateUserDto): Promise<TokenDto & UserWithoutPassword> {

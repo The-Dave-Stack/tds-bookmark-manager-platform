@@ -1,4 +1,15 @@
-import { CreateBookmarkDto, CreateFolderDto, CreateUserDto, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, TokenDto, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto } from '@tds/tds-bm-common';
+import {
+  CreateBookmarkDto,
+  CreateFolderDto,
+  CreateUserDto,
+  ForgotPasswordDto,
+  LoginUserDto,
+  ResetPasswordDto,
+  TokenDto,
+  UpdateBookmarkDto,
+  UpdateFolderDto,
+  UpdateUserRoleDto,
+} from '@tds/tds-bm-common';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -25,7 +36,7 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
 // Implement the API methods by calling the real backend endpoints
@@ -46,7 +57,8 @@ export const api: ApiInterface = {
     return response.data;
   },
   async logout(): Promise<void> {
-    throw new Error('Function not implemented.');
+    const response = await apiClient.post('/auth/logout');
+    return response.data;
   },
   async register(createUserDto: CreateUserDto): Promise<UserType> {
     const response = await apiClient.post('/auth/register', createUserDto);
@@ -118,5 +130,4 @@ export const api: ApiInterface = {
     const response = await apiClient.get('/statistics/admin', { params: dateRange });
     return response.data;
   },
-  
 };

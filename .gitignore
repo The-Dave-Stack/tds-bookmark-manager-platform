@@ -42,6 +42,7 @@ testem.log
 html
 results
 *.sqlite
+export
 
 # System Files
 .DS_Store

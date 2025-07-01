@@ -32,7 +32,7 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await login(email, password);
+      await login({ email, password });
       toast.success(t('auth.login.success'));
       navigate('/');
     } catch (error) {

@@ -4,11 +4,11 @@ import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guards/roles.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { User } from './decorators/user.decorator';
+import { User as UserFromReq } from './decorators/user.decorator';
 import type { CookieOptions, Response } from 'express'; // Import Response from express
 import * as crypto from 'crypto';
 
-import type { CreateUserDto, LoginUserDto, UserWithoutPassword } from '@tds/tds-bm-common';
+import type { CreateUserDto, User, UserWithoutPassword } from '@tds/tds-bm-common';
 import { Cookies } from './cookies';
 import { PinoLogger } from 'nestjs-pino';
 import { SkipCsrfGuard } from './decorators/skip-csrf.decorator';
@@ -23,8 +23,8 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@User() user: LoginUserDto, @Res({ passthrough: true }) response: Response): Promise<UserWithoutPassword> {
-    this.logger.debug(`Login attempt for the user: %o`, user);
+  async login(@UserFromReq() user: UserWithoutPassword, @Res({ passthrough: true }) response: Response): Promise<UserWithoutPassword> {
+    this.logger.debug(`[login] Login attempt for the user: %o`, user);
     const { access_token, ...userData} = await this.authService.login(user);
 
     this._addToCookies<string>(response, Cookies.ACCESS_TOKEN, access_token);
@@ -55,7 +55,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('profile')
-  getProfile(@User() user: UserWithoutPassword): UserWithoutPassword {
+  getProfile(@UserFromReq() user: UserWithoutPassword): UserWithoutPassword {
     return user;
   }
 
