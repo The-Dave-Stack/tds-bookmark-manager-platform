@@ -1,14 +1,13 @@
+import type { BookmarkType as Bookmark, FolderWithChildren } from '../../api/types';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Dialog } from '@headlessui/react';
-import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useTranslation } from 'react-i18next';
-
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
-
-import type { Bookmark, FolderWithChildren } from '../../api/types';
+import { useFolderStore } from '../../stores/folderStore';
+import { useTranslation } from 'react-i18next';
 
 interface BookmarkModalProps {
   isOpen: boolean;
@@ -73,7 +72,8 @@ const FolderOption = ({ folder, level, selectedFolderId, onSelect }: FolderOptio
 const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const { folders, addBookmark, updateBookmark } = useBookmarkStore();
+  const { addBookmark, updateBookmark } = useBookmarkStore();
+  const { folders } = useFolderStore();
   
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
@@ -155,11 +155,11 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm() || !user?.id) return;
+    if (!validateForm() || !user?.username) return;
     
     try {
       if (bookmark) {
-        await updateBookmark(user.id, bookmark.id, {
+        await updateBookmark(bookmark.id, {
           url,
           title,
           faviconUrl,
@@ -167,7 +167,7 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
         });
         toast.success(t('bookmarks.notifications.updated'));
       } else {
-        await addBookmark(user.id, {
+        await addBookmark({
           url,
           title,
           faviconUrl,

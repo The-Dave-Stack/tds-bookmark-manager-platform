@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { MoreHorizontal, Edit, Trash, Archive, RotateCcw, ExternalLink } from 'lucide-react';
+import { Archive, Edit, ExternalLink, MoreHorizontal, RotateCcw, Trash } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -9,8 +9,6 @@ import { useBookmarkStore } from '../../stores/bookmarkStore';
 import ConfirmDialog from '../common/ConfirmDialog';
 
 import BookmarkModal from './BookmarkModal';
-
-
 
 import type { Bookmark } from '../../api/types';
 
@@ -28,7 +26,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   const toggleArchive = async () => {
-    if (!user?.id) return;
+    if (!user?.username) return;
     
     try {
       await updateBookmark(bookmark.id, { 
@@ -49,7 +47,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
   };
   
   const handleDelete = async () => {
-    if (!user?.id) return;
+    if (!user?.username) return;
     
     try {
       await deleteBookmark(bookmark.id);
@@ -61,7 +59,7 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
   };
   
   const handleVisit = async () => {
-    if (!user?.id) return;
+    if (!user?.username) return;
     
     try {
       // Increment click count first

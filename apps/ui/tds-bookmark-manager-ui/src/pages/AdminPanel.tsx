@@ -1,13 +1,11 @@
+import { User, UserCog } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { User, UserCog } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useTranslation } from 'react-i18next';
-
-import { api } from '../api';
 import AdminStats from '../components/statistics/AdminStats';
+import { api } from '../api';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
-
+import { useTranslation } from 'react-i18next';
 
 interface AdminUser {
   id: string;
@@ -23,7 +21,7 @@ const AdminPanel = () => {
   
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!user?.id) return;
+      if (!user?.username) return;
       
       try {
         setLoading(true);
@@ -41,7 +39,7 @@ const AdminPanel = () => {
   }, [user, t]);
   
   const handleRoleChange = async (userId: string, currentRole: 'user' | 'admin') => {
-    if (!user?.id) return;
+    if (!user?.username) return;
     
     const newRole = currentRole === 'user' ? 'admin' : 'user';
     

@@ -19,6 +19,14 @@
     "target": "es2022",
     "paths": {
       "@tds/tds-bm-common": ["libs/tds-bm-common/src/index.ts"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "ts-migrating",
+        "compilerOptions": {
+          "strict": true
+        }
+      }
+    ]
   }
 }

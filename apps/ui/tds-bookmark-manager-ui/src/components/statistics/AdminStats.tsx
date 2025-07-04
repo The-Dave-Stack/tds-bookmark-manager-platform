@@ -1,16 +1,12 @@
+import { BookmarkIcon, MousePointerClick, TrendingUp, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { BookmarkIcon, MousePointerClick, TrendingUp, Users } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useTranslation } from 'react-i18next';
-
-import { api } from '../../api';
-import { useAuthStore } from '../../stores/authStore';
-
-
-import DateRangeSelector from './DateRangeSelector';
-
 import type { DateRange } from './DateRangeSelector';
+import DateRangeSelector from './DateRangeSelector';
+import { api } from '../../api';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '../../stores/authStore';
+import { useTranslation } from 'react-i18next';
 
 interface AdminStatistics {
   totalUsers: number;
@@ -44,7 +40,7 @@ const AdminStats = () => {
   
   useEffect(() => {
     const fetchStats = async () => {
-      if (!user?.id) return;
+      if (!user?.username) return;
       
       try {
         setLoading(true);

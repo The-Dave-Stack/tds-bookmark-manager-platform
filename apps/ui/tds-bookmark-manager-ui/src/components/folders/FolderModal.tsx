@@ -1,15 +1,12 @@
-import { useState, useEffect } from 'react';
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
+import { useEffect, useState } from 'react';
 
-import { Dialog } from '@headlessui/react';
+import type { FolderType as Folder } from '../../api/types';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useTranslation } from 'react-i18next';
-
 import { useAuthStore } from '../../stores/authStore';
-import { useBookmarkStore } from '../../stores/bookmarkStore';
-
-import type { Folder } from '../../api/types';
-
+import { useFolderStore } from '../../stores/folderStore';
+import { useTranslation } from 'react-i18next';
 
 interface FolderModalProps {
   isOpen: boolean;
@@ -21,12 +18,12 @@ interface FolderModalProps {
 const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalProps) => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const { folders, addFolder, updateFolder } = useBookmarkStore();
-  
+  const { folders, addFolder, updateFolder } = useFolderStore();
+
   const [name, setName] = useState('');
   const [selectedParentId, setSelectedParentId] = useState<string | null>(parentId);
   const [error, setError] = useState('');
-  
+
   useEffect(() => {
     if (folder) {
       setName(folder.name);
@@ -35,69 +32,68 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
       setSelectedParentId(parentId);
     }
   }, [folder, parentId]);
-  
+
   const validateForm = () => {
     if (!name.trim()) {
       setError(t('folders.form.nameRequired'));
       return false;
     }
-    
+
     // Prevent circular references
     if (folder && selectedParentId === folder.id) {
       setError('A folder cannot be its own parent');
       return false;
     }
-    
+
     setError('');
     return true;
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm() || !user?.id) return;
-    
+
+    console.log('Submitting folder:', { name, selectedParentId }, validateForm(), user?.username);
+    if (!validateForm() || !user?.username) return;
+
     try {
       if (folder) {
-        await updateFolder(user.id, folder.id, name, selectedParentId);
+        await updateFolder(folder.id, { name, parentId: selectedParentId });
         toast.success(t('folders.notifications.updated'));
       } else {
-        await addFolder(user.id, name, selectedParentId);
+        await addFolder({ name, parentId: selectedParentId });
         toast.success(t('folders.notifications.added'));
       }
-      
+
       onClose();
     } catch (error) {
       console.error('Error saving folder:', error);
       toast.error(t('common.error'));
     }
   };
-  
+
   // Get available parent folders (exclude current folder and its children)
   const getAvailableParents = (currentFolderId?: string): Folder[] => {
     if (!currentFolderId) return folders;
-    
+
     const isDescendant = (folder: Folder, targetId: string): boolean => {
       if (folder.id === targetId) return true;
-      const children = folders.filter(f => f.parentId === folder.id);
-      return children.some(child => isDescendant(child, targetId));
+      const children = folders.filter((f) => f.parentId === folder.id);
+      return children.some((child) => isDescendant(child, targetId));
     };
-    
-    return folders.filter(f => !isDescendant(f, currentFolderId));
+
+    return folders.filter((f) => !isDescendant(f, currentFolderId));
   };
-  
+
   const availableParents = getAvailableParents(folder?.id);
-  
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-      
+
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="w-full max-w-md rounded-lg bg-invertedText shadow-xl">
+        <DialogPanel className="w-full max-w-md rounded-lg bg-invertedText shadow-xl">
           <div className="flex items-center justify-between p-4 border-b border-lightBorder">
-            <Dialog.Title className="text-lg font-medium text-mainText">
-              {folder ? t('folders.edit') : t('folders.add')}
-            </Dialog.Title>
+            <DialogTitle className="text-lg font-medium text-mainText">{folder ? t('folders.edit') : t('folders.add')}</DialogTitle>
             <button
               onClick={onClose}
               className="text-mainText/70 hover:text-mainText transition-colors duration-200"
@@ -107,7 +103,7 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
               <X className="h-5 w-5" />
             </button>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="p-4">
             <div className="space-y-4">
               <div>
@@ -120,8 +116,7 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={`mt-1 block w-full rounded-md shadow-sm text-mainText ${
-                    error ? 'border-danger focus:border-danger focus:ring-danger' : 
-                    'border-lightBorder focus:border-primary focus:ring-primary'
+                    error ? 'border-danger focus:border-danger focus:ring-danger' : 'border-lightBorder focus:border-primary focus:ring-primary'
                   }`}
                   placeholder="Enter folder name"
                   aria-label="Folder Name"
@@ -129,7 +124,7 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
                 />
                 {error && <p className="mt-1 text-sm text-danger">{error}</p>}
               </div>
-              
+
               <div>
                 <label htmlFor="parent" className="block text-sm font-medium text-mainText">
                   Parent Folder
@@ -151,7 +146,7 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
                 </select>
               </div>
             </div>
-            
+
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 type="button"
@@ -172,7 +167,7 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
               </button>
             </div>
           </form>
-        </Dialog.Panel>
+        </DialogPanel>
       </div>
     </Dialog>
   );

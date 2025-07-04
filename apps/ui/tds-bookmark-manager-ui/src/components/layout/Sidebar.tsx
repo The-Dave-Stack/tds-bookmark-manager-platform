@@ -6,10 +6,12 @@ import { NavLink } from 'react-router-dom';
 
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
+import { useFolderStore } from '../../stores/folderStore';
 import ConfirmDialog from '../common/ConfirmDialog';
 import FolderModal from '../folders/FolderModal';
 
 import type { FolderWithChildren } from '../../api/types';
+
 
 interface SidebarProps {
   isOpen: boolean;
@@ -135,7 +137,8 @@ const FolderItem = ({ folder, level, onAddSubfolder, onEdit, onDelete, bookmarkC
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { t } = useTranslation();
-  const { folders, bookmarks, fetchFolders, deleteFolder } = useBookmarkStore();
+  const { bookmarks } = useBookmarkStore();
+  const { folders, fetchFolders, deleteFolder } = useFolderStore();
   const { user } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
@@ -145,8 +148,8 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (user?.id) {
-      fetchFolders(user.id);
+    if (user?.username) {
+      fetchFolders();
     }
   }, [user, fetchFolders]);
   
@@ -204,10 +207,10 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   };
 
   const confirmDeleteFolder = async () => {
-    if (!user?.id || !folderToDelete) return;
+    if (!user?.username || !folderToDelete) return;
 
     try {
-      await deleteFolder(user.id, folderToDelete.id);
+      await deleteFolder(folderToDelete.id);
       setFolderToDelete(null);
       setIsDeleteDialogOpen(false);
     } catch (error) {

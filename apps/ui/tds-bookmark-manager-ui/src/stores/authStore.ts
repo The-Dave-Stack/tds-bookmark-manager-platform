@@ -1,8 +1,8 @@
 import { CreateUserDto, LoginUserDto, Role } from '@tds/tds-bm-common';
-import { create } from 'zustand';
 
-import { api } from '../api';
 import { UserType } from '../api/types';
+import { api } from '../api';
+import { create } from 'zustand';
 
 interface AuthState {
   user: UserType | null;

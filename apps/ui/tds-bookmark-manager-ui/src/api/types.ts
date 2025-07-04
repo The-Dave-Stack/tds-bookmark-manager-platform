@@ -1,7 +1,6 @@
-import { DateRange } from "../components/statistics/DateRangeSelector";
-
 import type { Bookmark, CreateBookmarkDto, CreateFolderDto, CreateUserDto, Folder, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, TokenDto, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto, User } from "@tds/tds-bm-common";
 
+import { DateRange } from "../components/statistics/DateRangeSelector";
 
 export interface UserType extends User {
   token?: string;
@@ -9,12 +8,16 @@ export interface UserType extends User {
 }
 
 export interface BookmarkType extends Bookmark {
-  userEmail: string;
+  userEmail?: string;
 }
 
 export interface FolderType extends Folder {
-  userEmail: string;
-  bookmarkCount: number;
+  userEmail?: string;
+  clickCount: number;
+}
+
+export interface FolderWithChildren extends FolderType {
+  children: FolderWithChildren[];
 }
 
 export interface ApiInterface {
