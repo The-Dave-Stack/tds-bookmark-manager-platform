@@ -4,8 +4,8 @@ export interface Bookmark {
   title: string;
   folderId: string | undefined;
   faviconUrl?: string;
-  clickCount: number;
+  clickCount?: number;
   isHidden: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

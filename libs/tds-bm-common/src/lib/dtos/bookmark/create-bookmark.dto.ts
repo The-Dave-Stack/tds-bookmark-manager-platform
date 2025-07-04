@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID, IsUrl } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID, IsUrl } from 'class-validator';
 
 export class CreateBookmarkDto {
   @IsUrl({}, { message: 'Must be a valid URL' })
@@ -9,7 +9,15 @@ export class CreateBookmarkDto {
   @IsOptional()
   title?: string;
 
+  @IsUrl({}, { message: 'Must be a valid URL' })
+  @IsOptional()
+  faviconUrl?: string; // Optional, no validation needed
+
   @IsUUID()
   @IsOptional()
   folderId?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isHidden?: boolean;
 }

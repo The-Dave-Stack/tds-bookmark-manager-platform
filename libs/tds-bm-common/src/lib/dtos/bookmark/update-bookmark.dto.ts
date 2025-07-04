@@ -9,6 +9,10 @@ export class UpdateBookmarkDto {
   @IsOptional()
   title?: string;
 
+  @IsUrl({}, { message: 'Must be a valid URL' })
+  @IsOptional()
+  faviconUrl?: string; // Optional, no validation needed
+
   @IsUUID()
   @IsOptional()
   folderId?: string | null; // Allow null to move to root
