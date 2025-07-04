@@ -4,11 +4,14 @@ import { CreateFolderDto, UpdateFolderDto } from '@tds/tds-bm-common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../auth/decorators/user.decorator';
 import { UserEntity } from '../users/entities/user.entity';
+import { PinoLogger } from 'nestjs-pino';
 
 @UseGuards(JwtAuthGuard)
 @Controller('folders')
 export class FoldersController {
-  constructor(private readonly foldersService: FoldersService) {}
+  constructor(private readonly foldersService: FoldersService, private readonly logger: PinoLogger) {
+    this.logger.setContext(FoldersController.name);
+  }
 
   @Post()
   create(@Body() createFolderDto: CreateFolderDto, @User() user: UserEntity) {
@@ -17,6 +20,7 @@ export class FoldersController {
 
   @Get()
   findAll(@User() user: UserEntity) {
+    this.logger.debug(`Finding all folders for user %o`, user);
     return this.foldersService.findAllByUser(user);
   }
 

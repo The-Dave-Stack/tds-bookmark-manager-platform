@@ -1,8 +1,10 @@
 import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { APP_GUARD } from '@nestjs/core';
 import { AdminModule } from './admin/admin.module';
+import { ApiRedirectMiddleware } from './common/middlewares/redirect.middleware';
 import { AuthModule } from './auth/auth.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -10,7 +12,6 @@ import { CsrfGuard } from './auth/guards/csrf.guard';
 import { EmailModule } from './email/email.module';
 import { FoldersModule } from './folders/folders.module';
 import { LoggerModule } from 'nestjs-pino';
-import { Module } from '@nestjs/common';
 import { StatisticsModule } from './statistics/statistics.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
@@ -29,7 +30,7 @@ import { validationSchema } from './config/validation.schema';
       envFilePath: process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env',
       ignoreEnvFile: process.env.NODE_ENV === 'docker' || process.env.NODE_ENV === 'production',
       validationSchema: validationSchema,
-      validationOptions: { abortEarly: true }
+      validationOptions: { abortEarly: true },
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(databaseConfig)],
@@ -111,7 +112,6 @@ import { validationSchema } from './config/validation.schema';
     WebhookModule,
     EmailModule,
   ],
-  controllers: [],
   providers: [
     {
       provide: APP_GUARD,
@@ -123,4 +123,8 @@ import { validationSchema } from './config/validation.schema';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ApiRedirectMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

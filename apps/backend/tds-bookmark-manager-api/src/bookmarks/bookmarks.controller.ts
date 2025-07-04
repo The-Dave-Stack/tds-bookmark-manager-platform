@@ -4,11 +4,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../auth/decorators/user.decorator';
 import { UserEntity } from '../users/entities/user.entity';
 import { CreateBookmarkDto, UpdateBookmarkDto } from '@tds/tds-bm-common';
+import { PinoLogger } from 'nestjs-pino';
 
 @UseGuards(JwtAuthGuard)
 @Controller('bookmarks')
 export class BookmarksController {
-  constructor(private readonly bookmarksService: BookmarksService) {}
+  constructor(private readonly bookmarksService: BookmarksService, private readonly logger: PinoLogger) {
+    this.logger.setContext(BookmarksController.name);
+  }
 
   @Post()
   create(@Body() createBookmarkDto: CreateBookmarkDto, @User() user: UserEntity) {
@@ -21,6 +24,7 @@ export class BookmarksController {
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: 'createdAt' | 'title' | 'clickCount',
   ) {
+    this.logger.debug(`Finding all bookmarks for user %o with search: ${search}, sortBy: ${sortBy}`, user);
     return this.bookmarksService.findAllByUser(user, search, sortBy);
   }
 

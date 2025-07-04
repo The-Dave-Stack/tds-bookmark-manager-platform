@@ -3,6 +3,7 @@
 
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, PinoLogger } from 'nestjs-pino';
+import { NextFunction, Request, Response } from 'express';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 
 import { AppModule } from './app.module';
@@ -22,6 +23,21 @@ async function bootstrap() {
   // Create the NestJS application with buffered logs
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const configService = app.get(ConfigService);
+
+  // --- Universal Root/Non-API Path Redirection Middleware ---
+  // This middleware ensures that any request not explicitly starting with '/api'
+  // (which is your global API prefix) is redirected to the Swagger documentation.
+  // This acts as a default "landing page" for non-API traffic.
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    // Check if the request path does NOT start with '/api'
+    // Also, ensure it's not already '/api-docs' to prevent endless redirects
+    if (!req.path.startsWith('/api') && req.path !== '/api-docs') {
+      // Perform a 301 Permanent Redirect to indicate the resource has moved definitively.
+      return res.redirect(301, '/api-docs');
+    }
+    next(); // Pass the request to the next middleware in the chain
+  });
+  // --- End Universal Root/Non-API Path Redirection Middleware ---
 
   // Use cookieParser to manage Cookies
   app.use(cookieParser());

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { FolderEntity } from './entities/folder.entity';
 import { UserEntity } from '../users/entities/user.entity';
@@ -33,8 +33,23 @@ export class FoldersService {
     return this.foldersRepository.save(folder);
   }
 
-  findAllByUser(user: UserEntity): Promise<FolderEntity[]> {
-    return this.foldersRepository.find({ where: { user: { id: user.id } } });
+  async findAllByUser(user: UserEntity): Promise<FolderEntity[]> {
+    const folders = await this.foldersRepository.find({ where: { user: { id: user.id } }, relations: ['bookmarks'] });
+    const now = new Date();
+    const rootBookmarks = await this.bookmarksRepository.find({ where: { folder: IsNull(), user: { id: user.id } } });
+    this.logger.debug(`Found ${rootBookmarks.length} root bookmarks for user %o: %o`, user, rootBookmarks);
+    const rootFolder: FolderEntity = {
+      id: 'root',
+      name: 'Root Folder',
+      user: user,
+      parentId: undefined,
+      bookmarks: rootBookmarks,
+      createdAt: now,
+      updatedAt: now
+    };
+    const foldersWithRoot = [rootFolder, ...folders];
+    this.logger.debug(`Found ${foldersWithRoot.length} folders for user %o: %o`, user, foldersWithRoot);
+    return foldersWithRoot;
   }
 
   async findOne(id: string, userId: string): Promise<FolderEntity> {
