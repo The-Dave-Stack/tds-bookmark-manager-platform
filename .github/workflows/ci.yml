@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - develop
   # Runs the workflow on any new pull request or when a pull request is updated.
   pull_request:
 
