@@ -39,8 +39,8 @@ export class FoldersService {
     const rootBookmarks = await this.bookmarksRepository.find({ where: { folder: IsNull(), user: { id: user.id } } });
     this.logger.debug(`Found ${rootBookmarks.length} root bookmarks for user %o: %o`, user, rootBookmarks);
     const rootFolder: FolderEntity = {
-      id: 'root',
-      name: 'Root Folder',
+      id: 'unorganized',
+      name: 'Unorganized',
       user: user,
       parentId: undefined,
       bookmarks: rootBookmarks,

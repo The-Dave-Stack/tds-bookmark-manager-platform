@@ -1,17 +1,14 @@
+import { Archive, ChevronDown, ChevronRight, Edit, FolderIcon, FolderPlus, MoreHorizontal, Trash, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Archive, ChevronDown, ChevronRight, Edit, FolderIcon, FolderPlus, MoreHorizontal, Trash, X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import ConfirmDialog from '../common/ConfirmDialog';
+import FolderModal from '../folders/FolderModal';
+import type { FolderWithChildren } from '../../api/types';
 import { NavLink } from 'react-router-dom';
-
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
 import { useFolderStore } from '../../stores/folderStore';
-import ConfirmDialog from '../common/ConfirmDialog';
-import FolderModal from '../folders/FolderModal';
-
-import type { FolderWithChildren } from '../../api/types';
-
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -155,11 +152,12 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   
   // Build folder hierarchy with bookmark counts
   const folderHierarchy = useMemo(() => {
+    console.log('[Sidebar] Building folder hierarchy...', bookmarks, folders);
     const getFolderBookmarkCount = (folderId: string): number => {
       return bookmarks.filter(b => b.folderId === folderId && !b.isHidden).length;
     };
 
-    const buildHierarchy = (parentId: string | null): FolderWithChildren[] => {
+    const buildHierarchy = (parentId: string | null | undefined): FolderWithChildren[] => {
       return folders
         .filter(folder => folder.parentId === parentId)
         .map(folder => ({
@@ -169,7 +167,10 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         }));
     };
     
-    return buildHierarchy(null);
+    const hierarchy = buildHierarchy(undefined);
+    hierarchy.push(...buildHierarchy(null));
+    console.log('[Sidebar] Folder Hierarchy:', hierarchy);
+    return hierarchy;
   }, [folders, bookmarks]);
   
   useEffect(() => {

@@ -119,7 +119,7 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
   
   // Build folder hierarchy
   const folderHierarchy = useMemo(() => {
-    const buildHierarchy = (parentId: string | null): FolderWithChildren[] => {
+    const buildHierarchy = (parentId: string | null | undefined): FolderWithChildren[] => {
       return folders
         .filter(folder => folder.parentId === parentId)
         .map(folder => ({
@@ -128,7 +128,10 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
         }));
     };
     
-    return buildHierarchy(null);
+    const hierarchy = buildHierarchy(undefined);
+    hierarchy.push(...buildHierarchy(null));
+    console.log('[BookmarkModal] Folder Hierarchy:', hierarchy);
+    return hierarchy;
   }, [folders]);
   
   const validateForm = () => {
@@ -158,12 +161,14 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
     if (!validateForm() || !user?.username) return;
     
     try {
+      const adaptedFolderId = folderId && folderId.toLowerCase() === 'unorganized' ? undefined : folderId;
+
       if (bookmark) {
         await updateBookmark(bookmark.id, {
           url,
           title,
           faviconUrl,
-          folderId
+          folderId: adaptedFolderId
         });
         toast.success(t('bookmarks.notifications.updated'));
       } else {
@@ -171,7 +176,7 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
           url,
           title,
           faviconUrl,
-          folderId,
+          folderId: adaptedFolderId,
           isHidden: false
         });
         toast.success(t('bookmarks.notifications.added'));
@@ -282,14 +287,14 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
                   {t('bookmarks.form.folder')}
                 </label>
                 <div className="mt-1 border border-lightBorder rounded-md max-h-48 overflow-y-auto">
-                  <div
+                  {/* <div
                     className={`px-3 py-2 cursor-pointer hover:bg-lightBg transition-colors duration-200 ${
                       !folderId ? 'bg-primary/10 text-primary' : 'text-mainText'
                     }`}
                     onClick={() => setFolderId(undefined)}
                   >
                     {t('bookmarks.form.noFolder')}
-                  </div>
+                  </div> */}
                   {folderHierarchy.map((folder) => (
                     <FolderOption
                       key={folder.id}

@@ -137,7 +137,6 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
                   data-testid="parent-folder-select"
                   aria-label="Parent Folder"
                 >
-                  <option value="">Root (No parent)</option>
                   {availableParents.map((folder) => (
                     <option key={folder.id} value={folder.id}>
                       {folder.name}
