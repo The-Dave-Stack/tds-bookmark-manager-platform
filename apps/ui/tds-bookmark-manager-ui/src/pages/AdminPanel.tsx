@@ -1,3 +1,4 @@
+import { User as AdminUser, Role } from "@tds/tds-bm-common";
 import { User, UserCog } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -6,12 +7,6 @@ import { api } from '../api';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
 import { useTranslation } from 'react-i18next';
-
-interface AdminUser {
-  id: string;
-  email: string;
-  role: 'user' | 'admin';
-}
 
 const AdminPanel = () => {
   const { t } = useTranslation();
@@ -38,13 +33,13 @@ const AdminPanel = () => {
     fetchUsers();
   }, [user, t]);
   
-  const handleRoleChange = async (userId: string, currentRole: 'user' | 'admin') => {
+  const handleRoleChange = async (userId: string, currentRole: Role) => {
     if (!user?.username) return;
     
-    const newRole = currentRole === 'user' ? 'admin' : 'user';
+    const newRole = currentRole === Role.USER ? Role.ADMIN : Role.USER;
     
     try {
-      await api.updateUserRole(userId, newRole);
+      await api.updateUserRole(userId, { roles: [newRole] });
       
       setUsers(users.map(u => 
         u.id === userId ? { ...u, role: newRole } : u
@@ -94,7 +89,7 @@ const AdminPanel = () => {
                     {t('admin.userTable.email')}
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-mainText/70 uppercase tracking-wider">
-                    {t('admin.userTable.role')}
+                    {t('admin.userTable.roles')}
                   </th>
                   <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-mainText/70 uppercase tracking-wider">
                     {t('admin.userTable.actions')}
@@ -103,9 +98,9 @@ const AdminPanel = () => {
               </thead>
               <tbody className="bg-invertedText divide-y divide-lightBorder">
                 {users.map((adminUser) => (
-                  <tr key={adminUser.id} className="hover:bg-lightBg transition-colors duration-200">
+                  <tr key={adminUser.username} className="hover:bg-lightBg transition-colors duration-200">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-mainText/70">
-                      {adminUser.id.substring(0, 8)}...
+                      {adminUser.username.substring(0, 8)}...
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -121,16 +116,16 @@ const AdminPanel = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        adminUser.role === 'admin' 
+                        adminUser.roles.includes(Role.ADMIN) 
                           ? 'bg-primary/10 text-primary' 
                           : 'bg-success/10 text-success'
                       }`}>
-                        {adminUser.role}
+                        {adminUser.roles}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
-                        onClick={() => handleRoleChange(adminUser.id, adminUser.role)}
+                        onClick={() => handleRoleChange(adminUser.email, Role.ADMIN)}
                         className="text-primary hover:text-secondary transition-colors duration-200"
                       >
                         {t('admin.changeRole.button')}

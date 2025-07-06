@@ -1,14 +1,13 @@
-import { useState } from 'react';
-
-import { Plus, Bookmark } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { Bookmark, Plus } from 'lucide-react';
 
 import BookmarkGrid from '../components/bookmarks/BookmarkGrid';
 import BookmarkModal from '../components/bookmarks/BookmarkModal';
 import MostClickedBookmarks from '../components/bookmarks/MostClickedBookmarks';
 import UserStats from '../components/statistics/UserStats';
 import { useBookmarkStore } from '../stores/bookmarkStore';
+import { useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardProps {
   isArchived?: boolean;
@@ -49,7 +48,7 @@ const Dashboard = ({ isArchived = false }: DashboardProps) => {
       </div>
       
       {!isArchived && !folderId && (
-        <div className="space-y-6">
+        <div className="space-y-6 mb-6">
           <UserStats />
           <MostClickedBookmarks />
         </div>

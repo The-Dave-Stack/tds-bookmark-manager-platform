@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-
+import { Role } from '@tds/tds-bm-common';
 import { useAuthStore } from '../../stores/authStore';
 
 interface AdminRouteProps {
@@ -13,7 +13,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user?.role !== 'admin') {
+  if (!user?.roles.includes(Role.ADMIN)) {
     return <Navigate to="/" replace />;
   }
 

@@ -24,7 +24,7 @@ interface FolderOptionProps {
 
 const FolderOption = ({ folder, level, selectedFolderId, onSelect }: FolderOptionProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  
+
   return (
     <div>
       <div
@@ -42,26 +42,16 @@ const FolderOption = ({ folder, level, selectedFolderId, onSelect }: FolderOptio
             }}
             className="p-1 hover:bg-lightBorder rounded mr-1"
           >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
+            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
         )}
         <span className="truncate">{folder.name}</span>
       </div>
-      
+
       {isExpanded && folder.children.length > 0 && (
         <div>
           {folder.children.map((child) => (
-            <FolderOption
-              key={child.id}
-              folder={child}
-              level={level + 1}
-              selectedFolderId={selectedFolderId}
-              onSelect={onSelect}
-            />
+            <FolderOption key={child.id} folder={child} level={level + 1} selectedFolderId={selectedFolderId} onSelect={onSelect} />
           ))}
         </div>
       )}
@@ -74,14 +64,14 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
   const { user } = useAuthStore();
   const { addBookmark, updateBookmark } = useBookmarkStore();
   const { folders } = useFolderStore();
-  
+
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
   const [faviconUrl, setFaviconUrl] = useState('');
   const [folderId, setFolderId] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState({
     url: '',
-    title: ''
+    title: '',
   });
 
   // Try to extract favicon from URL
@@ -93,7 +83,7 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
       return '';
     }
   };
-  
+
   useEffect(() => {
     if (bookmark) {
       setUrl(bookmark.url);
@@ -116,97 +106,89 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
       setFaviconUrl(getFaviconUrl(url));
     }
   }, [url, faviconUrl]);
-  
+
   // Build folder hierarchy
   const folderHierarchy = useMemo(() => {
     const buildHierarchy = (parentId: string | null | undefined): FolderWithChildren[] => {
       return folders
-        .filter(folder => folder.parentId === parentId)
-        .map(folder => ({
+        .filter((folder) => folder.parentId === parentId)
+        .map((folder) => ({
           ...folder,
-          children: buildHierarchy(folder.id)
+          children: buildHierarchy(folder.id),
         }));
     };
-    
+
     const hierarchy = buildHierarchy(undefined);
     hierarchy.push(...buildHierarchy(null));
     console.log('[BookmarkModal] Folder Hierarchy:', hierarchy);
     return hierarchy;
   }, [folders]);
-  
+
   const validateForm = () => {
     let valid = true;
     const newErrors = {
       url: '',
-      title: ''
+      title: '',
     };
-    
+
     if (!url.trim()) {
       newErrors.url = t('bookmarks.form.urlRequired');
       valid = false;
     }
-    
+
     if (!title.trim()) {
       newErrors.title = t('bookmarks.form.titleRequired');
       valid = false;
     }
-    
+
     setErrors(newErrors);
     return valid;
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm() || !user?.username) return;
-    
+
     try {
-      const adaptedFolderId = folderId && folderId.toLowerCase() === 'unorganized' ? undefined : folderId;
+      const updatedBookmark = {
+        url,
+        title,
+        faviconUrl,
+        folderId: folderId && folderId.toLowerCase() === 'unorganized' ? undefined : folderId,
+      };
 
       if (bookmark) {
-        await updateBookmark(bookmark.id, {
-          url,
-          title,
-          faviconUrl,
-          folderId: adaptedFolderId
-        });
+        await updateBookmark(bookmark.id, { ...bookmark, ...updatedBookmark });
         toast.success(t('bookmarks.notifications.updated'));
       } else {
         await addBookmark({
-          url,
-          title,
-          faviconUrl,
-          folderId: adaptedFolderId,
-          isHidden: false
+          ...updatedBookmark,
+          isHidden: false,
         });
         toast.success(t('bookmarks.notifications.added'));
       }
-      
+
       onClose();
     } catch (error) {
       console.error('Error saving bookmark:', error);
       toast.error(t('common.error'));
     }
   };
-  
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-      
+
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="w-full max-w-md rounded-lg bg-invertedText shadow-xl">
           <div className="flex items-center justify-between p-4 border-b border-lightBorder">
-            <Dialog.Title className="text-lg font-medium text-mainText">
-              {bookmark ? t('bookmarks.form.edit') : t('bookmarks.add')}
-            </Dialog.Title>
-            <button
-              onClick={onClose}
-              className="text-mainText/70 hover:text-mainText transition-colors duration-200"
-            >
+            <Dialog.Title className="text-lg font-medium text-mainText">{bookmark ? t('bookmarks.form.edit') : t('bookmarks.add')}</Dialog.Title>
+            <button onClick={onClose} className="text-mainText/70 hover:text-mainText transition-colors duration-200">
               <X className="h-5 w-5" />
             </button>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="p-4">
             <div className="space-y-4">
               <div>
@@ -219,14 +201,13 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   className={`mt-1 block w-full rounded-md shadow-sm text-mainText ${
-                    errors.url ? 'border-danger focus:border-danger focus:ring-danger' : 
-                    'border-lightBorder focus:border-primary focus:ring-primary'
+                    errors.url ? 'border-danger focus:border-danger focus:ring-danger' : 'border-lightBorder focus:border-primary focus:ring-primary'
                   }`}
                   placeholder="https://example.com"
                 />
                 {errors.url && <p className="mt-1 text-sm text-danger">{errors.url}</p>}
               </div>
-              
+
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-mainText">
                   {t('bookmarks.form.title')}
@@ -237,8 +218,7 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className={`mt-1 block w-full rounded-md shadow-sm text-mainText ${
-                    errors.title ? 'border-danger focus:border-danger focus:ring-danger' : 
-                    'border-lightBorder focus:border-primary focus:ring-primary'
+                    errors.title ? 'border-danger focus:border-danger focus:ring-danger' : 'border-lightBorder focus:border-primary focus:ring-primary'
                   }`}
                 />
                 {errors.title && <p className="mt-1 text-sm text-danger">{errors.title}</p>}
@@ -269,7 +249,8 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
                           if (parent) {
                             const fallback = document.createElement('div');
                             fallback.className = 'w-4 h-4 flex items-center justify-center';
-                            fallback.innerHTML = '<svg class="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
+                            fallback.innerHTML =
+                              '<svg class="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
                             parent.appendChild(fallback);
                           }
                         }}
@@ -277,37 +258,21 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
                     </div>
                   )}
                 </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  {t('bookmarks.form.faviconHelp')}
-                </p>
+                <p className="mt-1 text-xs text-gray-500">{t('bookmarks.form.faviconHelp')}</p>
               </div>
-              
+
               <div>
                 <label htmlFor="folder" className="block text-sm font-medium text-mainText mb-1">
                   {t('bookmarks.form.folder')}
                 </label>
                 <div className="mt-1 border border-lightBorder rounded-md max-h-48 overflow-y-auto">
-                  {/* <div
-                    className={`px-3 py-2 cursor-pointer hover:bg-lightBg transition-colors duration-200 ${
-                      !folderId ? 'bg-primary/10 text-primary' : 'text-mainText'
-                    }`}
-                    onClick={() => setFolderId(undefined)}
-                  >
-                    {t('bookmarks.form.noFolder')}
-                  </div> */}
                   {folderHierarchy.map((folder) => (
-                    <FolderOption
-                      key={folder.id}
-                      folder={folder}
-                      level={0}
-                      selectedFolderId={folderId}
-                      onSelect={setFolderId}
-                    />
+                    <FolderOption key={folder.id} folder={folder} level={0} selectedFolderId={folderId} onSelect={setFolderId} />
                   ))}
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 type="button"

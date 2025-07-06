@@ -233,7 +233,7 @@
     "userTable": {
       "id": "ID",
       "email": "Email",
-      "role": "Role",
+      "roles": "Roles",
       "actions": "Actions"
     },
     "changeRole": {
