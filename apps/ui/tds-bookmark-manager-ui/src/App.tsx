@@ -1,20 +1,19 @@
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
-import { Navigate, Route, Routes } from 'react-router-dom';
-
-import { api } from './api';
-import AdminRoute from './components/auth/AdminRoute';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import LoadingScreen from './components/common/LoadingScreen';
-import Layout from './components/layout/Layout';
 import AdminPanel from './pages/AdminPanel';
+import AdminRoute from './components/auth/AdminRoute';
 import AdminSetup from './pages/AdminSetup';
 import Dashboard from './pages/Dashboard';
 import LandingPage from './pages/LandingPage';
+import Layout from './components/layout/Layout';
+import LoadingScreen from './components/common/LoadingScreen';
 // Components
 import Login from './pages/Login';
 import ProfileSettings from './pages/ProfileSettings';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import Register from './pages/Register';
+import { api } from './api';
 import { useAuthStore } from './stores/authStore';
 
 function App() {
@@ -33,6 +32,7 @@ function App() {
           setNeedsAdminSetup(true);
         } else {
           // If an admin exists, check if the current user has a valid session cookie
+          console.log('Admin exists, checking auth state...');
           await checkAuth();
         }
       } catch (error) {

@@ -1,3 +1,4 @@
+import type { ApiInterface, BookmarkType, FolderType, UserType } from './types';
 import {
   CreateBookmarkDto,
   CreateFolderDto,
@@ -10,13 +11,10 @@ import {
   UpdateFolderDto,
   UpdateUserRoleDto,
 } from '@tds/tds-bm-common';
-import axios from 'axios';
+
 import Cookies from 'js-cookie';
-
 import { DateRange } from '../components/statistics/DateRangeSelector';
-
-
-import type { ApiInterface, BookmarkType, FolderType, UserType } from './types';
+import axios from 'axios';
 
 // Get the API URL from the global window object injected at runtime.
 const apiUrl = (window as any).TDS_CONFIG?.API_URL || 'http://localhost:3000/api/v1';
@@ -77,7 +75,9 @@ export const api: ApiInterface = {
     return response.data;
   },
   async getProfile(): Promise<UserType> {
-    throw new Error('Function not implemented.');
+    console.log('[apiService] Fetching user profile');
+    const response = await apiClient.get(`/auth/profile`);
+    return response.data;
   },
 
   // --- Bookmarks ---
