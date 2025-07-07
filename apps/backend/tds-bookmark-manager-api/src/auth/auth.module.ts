@@ -4,6 +4,7 @@ import { ApiKeyStrategy } from './strategies/api-key.strategy';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { EmailModule } from '../email/email.module';
+import { JwtConfig } from '../config/jwt.config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -18,11 +19,17 @@ import { UsersModule } from '../users/users.module';
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule], // Importa ConfigModule si aún no es global
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'), // Cargar el secreto desde variables de entorno
-        signOptions: { expiresIn: '1d' }, // Configurar la expiración del token
-      }),
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const jwtConfig = configService.get<JwtConfig>('jwt');
+        if (!jwtConfig) {
+          throw new Error('JWT configuration is not defined');
+        }
+        return {
+          secret: jwtConfig.secret,
+          signOptions: { expiresIn: jwtConfig.expiresIn },
+        }
+      },
       inject: [ConfigService],
     }),
   ],

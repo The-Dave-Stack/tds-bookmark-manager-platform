@@ -16,6 +16,15 @@ function getPostgresConfig(): DataSourceOptions {
   };
 }
 
+export interface PostgresConfig {
+  type: 'postgres';
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  database: string;
+}
+
 export default registerAs('database', (): DataSourceOptions => {
   const config = getPostgresConfig();
   pinoLogger.info(`Using 'postgres' database configuration: %o.`, config);

@@ -1,5 +1,10 @@
 import { registerAs } from '@nestjs/config';
 
+export interface JwtConfig {
+  secret: string;
+  expiresIn: string;
+}
+
 export default registerAs(
   'jwt',
   (): Record<string, any> => ({
