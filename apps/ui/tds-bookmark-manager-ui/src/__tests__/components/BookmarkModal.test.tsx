@@ -1,10 +1,11 @@
+
+import toast from 'react-hot-toast';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '../test-utils';
 
 import BookmarkModal from '../../components/bookmarks/BookmarkModal';
-import toast from 'react-hot-toast';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
+import { cleanup, fireEvent, render, screen } from '../test-utils';
 
 vi.mock('../../stores/authStore');
 vi.mock('../../stores/bookmarkStore');
@@ -31,13 +32,19 @@ describe('BookmarkModal', () => {
     updatedAt: new Date().toISOString()
   };
 
+  let mockAddBookmark: ReturnType<typeof vi.fn>;
+  let mockUpdateBookmark: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
+    mockAddBookmark = vi.fn();
+    mockUpdateBookmark = vi.fn();
+
     (useAuthStore as any).mockReturnValue({ user: mockUser });
-    (useBookmarkStore as any).mockReturnValue({
-      addBookmark: vi.fn(),
-      updateBookmark: vi.fn(),
+    (useBookmarkStore as any).mockImplementation(() => ({
+      addBookmark: mockAddBookmark,
+      updateBookmark: mockUpdateBookmark,
       folders: [] // Provide an empty array for folders to prevent TypeError
-    });
+    }));
     vi.clearAllMocks();
   });
 
@@ -79,7 +86,6 @@ describe('BookmarkModal', () => {
 
   it('handles bookmark creation', async () => {
     const onClose = vi.fn();
-    const { addBookmark } = useBookmarkStore();
     
     render(<BookmarkModal isOpen={true} onClose={onClose} />);
     
@@ -93,10 +99,10 @@ describe('BookmarkModal', () => {
     const submitButton = screen.getByRole('button', { name: 'bookmarks.form.submit' });
     await fireEvent.click(submitButton);
     
-    expect(addBookmark).toHaveBeenCalledWith(mockUser.id, {
+    expect(mockAddBookmark).toHaveBeenCalledWith(mockUser.id, {
       url: 'https://example.com',
       title: 'Test Bookmark',
-      faviconUrl: 'https://example.com/favicon.ico', // Added faviconUrl expectation
+      faviconUrl: 'https://example.com/favicon.ico',
       folderId: undefined,
       isHidden: false
     });
@@ -106,13 +112,12 @@ describe('BookmarkModal', () => {
 
   it('handles bookmark update', async () => {
     const onClose = vi.fn();
-    const { updateBookmark } = useBookmarkStore();
     
     render(
       <BookmarkModal 
         isOpen={true} 
         onClose={onClose}
-        bookmark={mockBookmark} // Changed bookmarkToEdit to bookmark
+        bookmark={mockBookmark}
       />
     );
     
@@ -123,10 +128,10 @@ describe('BookmarkModal', () => {
     const submitButton = screen.getByRole('button', { name: 'bookmarks.form.submit' });
     await fireEvent.click(submitButton);
     
-    expect(updateBookmark).toHaveBeenCalledWith(mockUser.id, mockBookmark.id, {
+    expect(mockUpdateBookmark).toHaveBeenCalledWith(mockUser.id, mockBookmark.id, {
       url: mockBookmark.url,
       title: 'Updated Title',
-      faviconUrl: mockBookmark.faviconUrl, // Added faviconUrl expectation
+      faviconUrl: mockBookmark.faviconUrl,
       folderId: mockBookmark.folderId
     });
     expect(onClose).toHaveBeenCalled();

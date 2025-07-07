@@ -1,12 +1,14 @@
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useEffect, useState } from 'react';
 
-import type { FolderType as Folder } from '../../api/types';
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+
 import { useAuthStore } from '../../stores/authStore';
 import { useFolderStore } from '../../stores/folderStore';
-import { useTranslation } from 'react-i18next';
+
+import type { FolderType as Folder } from '../../api/types';
 
 interface FolderModalProps {
   isOpen: boolean;

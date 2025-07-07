@@ -1,9 +1,10 @@
-import { CreateBookmarkDto, UpdateBookmarkDto } from '@tds/tds-bm-common';
+import { CreateBookmarkDto, Role, UpdateBookmarkDto } from '@tds/tds-bm-common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { BookmarksController } from './bookmarks.controller';
 import { BookmarksService } from './bookmarks.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PinoLogger } from 'nestjs-pino';
 import { UserEntity } from '../users/entities/user.entity';
 import { of } from 'rxjs';
 
@@ -26,10 +27,16 @@ describe('BookmarksController', () => {
     id: 'user-uuid-123',
     email: 'test@example.com',
     username: 'testuser',
-    roles: ['USER'],
+    roles: [Role.USER],
     isActive: true,
     passwordHash: 'hashedpassword',
     createdAt: new Date(),
+  };
+  const mockPinoLogger = {
+    setContext: jest.fn(),
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -40,6 +47,7 @@ describe('BookmarksController', () => {
           provide: BookmarksService,
           useValue: mockBookmarksService,
         },
+        { provide: PinoLogger, useValue: mockPinoLogger },
       ],
     })
     // Mock the JwtAuthGuard to always allow access for controller tests

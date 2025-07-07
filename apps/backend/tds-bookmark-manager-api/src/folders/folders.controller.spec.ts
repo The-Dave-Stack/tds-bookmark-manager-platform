@@ -1,9 +1,10 @@
-import { CreateFolderDto, UpdateFolderDto } from '@tds/tds-bm-common';
+import { CreateFolderDto, Role, UpdateFolderDto } from '@tds/tds-bm-common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { FoldersController } from './folders.controller';
 import { FoldersService } from './folders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PinoLogger } from 'nestjs-pino';
 import { UserEntity } from '../users/entities/user.entity';
 import { of } from 'rxjs';
 
@@ -23,10 +24,16 @@ describe('FoldersController', () => {
     id: 'user-uuid-123',
     email: 'test@example.com',
     username: 'testuser',
-    roles: ['USER'],
+    roles: [Role.USER],
     isActive: true,
     passwordHash: 'hashedpassword',
     createdAt: new Date(),
+  };
+  const mockPinoLogger = {
+    setContext: jest.fn(),
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -37,6 +44,7 @@ describe('FoldersController', () => {
           provide: FoldersService,
           useValue: mockFoldersService,
         },
+        { provide: PinoLogger, useValue: mockPinoLogger },
       ],
     })
     .overrideGuard(JwtAuthGuard)

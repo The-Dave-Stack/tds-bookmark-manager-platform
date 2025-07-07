@@ -35,6 +35,7 @@ describe('AuthService', () => {
   };
   const mockPinoLogger = {
     setContext: jest.fn(),
+    debug: jest.fn(),
     info: jest.fn(),
     warn: jest.fn(),
   };
@@ -110,7 +111,6 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return an access token and user data for a valid user', async () => {
-      const loginUserDto: LoginUserDto = { email: 'test@test.com', password: 'testpassword' };
       const mockUserWithoutPassword: UserWithoutPassword = {
         username: 'testuser',
         email: 'test@test.com',
@@ -122,9 +122,8 @@ describe('AuthService', () => {
       (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(mockUserWithoutPassword);
       mockJwtService.sign.mockReturnValue('mock-token');
 
-      const result = await authService.login(loginUserDto);
+      const result = await authService.login(mockUserWithoutPassword);
 
-      expect(usersService.validateUserCredentials).toHaveBeenCalledWith(loginUserDto);
       expect(jwtService.sign).toHaveBeenCalledWith({
         username: mockUserWithoutPassword.username,
         sub: mockUserWithoutPassword.email,
@@ -134,15 +133,6 @@ describe('AuthService', () => {
         access_token: 'mock-token',
         ...mockUserWithoutPassword,
       });
-    });
-
-    it('should throw UnauthorizedException if credentials are invalid', async () => {
-      const loginUserDto: LoginUserDto = { email: 'invalid@test.com', password: 'wrongpassword' };
-      (usersService.validateUserCredentials as jest.Mock).mockResolvedValue(undefined);
-
-      await expect(authService.login(loginUserDto)).rejects.toThrow(UnauthorizedException);
-      expect(usersService.validateUserCredentials).toHaveBeenCalledWith(loginUserDto);
-      expect(jwtService.sign).not.toHaveBeenCalled();
     });
   });
 

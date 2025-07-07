@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
+import { PinoLogger } from 'nestjs-pino';
 import { Reflector } from '@nestjs/core';
 import { Response } from 'express';
 import { RolesGuard } from './guards/roles.guard';
@@ -38,6 +39,12 @@ describe('AuthController', () => {
     lastName: 'User',
     roles: [Role.USER],
   };
+  const mockPinoLogger = {
+    setContext: jest.fn(),
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,6 +54,7 @@ describe('AuthController', () => {
           provide: AuthService,
           useValue: mockAuthService,
         },
+        { provide: PinoLogger, useValue: mockPinoLogger },
         // Mock AuthGuard for local and jwt strategies
         {
           provide: AuthGuard('local'),

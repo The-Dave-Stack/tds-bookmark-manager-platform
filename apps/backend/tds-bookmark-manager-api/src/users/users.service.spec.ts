@@ -4,6 +4,7 @@ import { ArrayContains, Repository } from 'typeorm';
 import { Role, UserWithoutPassword } from '@tds/tds-bm-common'; // Import UserWithoutPassword DTO
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
 import { NotFoundException } from '@nestjs/common'; // Import NotFoundException
 import { PinoLogger } from 'nestjs-pino';
@@ -85,6 +86,9 @@ describe('UsersService', () => {
             }),
           },
         },
+        {
+          provide: CACHE_MANAGER, useValue: {}
+        }
       ],
     }).compile();
 
