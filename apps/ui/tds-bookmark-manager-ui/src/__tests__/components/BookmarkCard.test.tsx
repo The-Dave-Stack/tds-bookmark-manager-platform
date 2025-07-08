@@ -1,4 +1,6 @@
+import { Role } from '@tds/tds-bm-common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 
 import BookmarkCard from '../../components/bookmarks/BookmarkCard';
 import { useAuthStore } from '../../stores/authStore';
@@ -25,10 +27,11 @@ describe('BookmarkCard', () => {
 
   const mockUser = {
     id: 'user-id',
+    username: 'testuser',
     email: 'test@example.com',
     firstName: 'Test',
     lastName: 'User',
-    role: 'user'
+    roles: [Role.USER]
   };
 
   beforeEach(() => {
@@ -55,12 +58,13 @@ describe('BookmarkCard', () => {
 
   it('handles visit site click', async () => {
     const { incrementClickCount } = useBookmarkStore();
-    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    // Explicitly cast window to Window to resolve TypeScript error if any
+    const openSpy = vi.spyOn(window as Window, 'open').mockImplementation(() => null);
     
     render(<BookmarkCard bookmark={mockBookmark} />);
     
     const visitButton = screen.getByTestId(`visit-site-button-${mockBookmark.id}`);
-    await fireEvent.click(visitButton);
+    fireEvent.click(visitButton);
     
     await waitFor(() => {
         expect(incrementClickCount).toHaveBeenCalledWith('test-id');
@@ -75,10 +79,10 @@ describe('BookmarkCard', () => {
     render(<BookmarkCard bookmark={mockBookmark} />);
 
     const menuButton = screen.getByTestId(`menu-button-${mockBookmark.id}`);
-    await fireEvent.click(menuButton);
+    fireEvent.click(menuButton);
 
     const archiveButton = screen.getByTestId(`archive-button-${mockBookmark.id}`);
-    await fireEvent.click(archiveButton);
+    fireEvent.click(archiveButton);
 
     await waitFor(() => {
         expect(updateBookmark).toHaveBeenCalledWith('test-id', { isHidden: true });
@@ -90,13 +94,13 @@ describe('BookmarkCard', () => {
     render(<BookmarkCard bookmark={mockBookmark} />);
 
     const menuButton = screen.getByTestId(`menu-button-${mockBookmark.id}`);
-    await fireEvent.click(menuButton);
+    fireEvent.click(menuButton);
 
     const deleteButton = screen.getByTestId(`delete-button-${mockBookmark.id}`);
-    await fireEvent.click(deleteButton);
+    fireEvent.click(deleteButton);
 
     const confirmButton = screen.getByRole('button', { name: 'common.confirmDelete.confirm' });
-    await fireEvent.click(confirmButton);
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
         expect(deleteBookmark).toHaveBeenCalledWith('test-id');

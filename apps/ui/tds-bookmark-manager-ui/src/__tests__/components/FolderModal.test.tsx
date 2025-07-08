@@ -1,12 +1,38 @@
+import { Role } from '@tds/tds-bm-common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '../test-utils';
+
 
 import FolderModal from '../../components/folders/FolderModal';
 import { useAuthStore } from '../../stores/authStore';
-import { useBookmarkStore } from '../../stores/bookmarkStore';
+import { cleanup, fireEvent, render, screen } from '../test-utils';
+
+const { mockAddFolder, mockUpdateFolder } = vi.hoisted(() => {
+  return {
+    mockAddFolder: vi.fn(),
+    mockUpdateFolder: vi.fn(),
+  };
+});
 
 vi.mock('../../stores/authStore');
-vi.mock('../../stores/bookmarkStore');
+vi.mock('../../stores/folderStore', () => ({
+  useFolderStore: () => ({
+    addFolder: mockAddFolder,
+    updateFolder: mockUpdateFolder,
+    folders: [],
+    loading: false,
+    error: null,
+    fetchFolders: vi.fn(),
+    deleteFolder: vi.fn(),
+  }),
+}));
+
+// We also need to mock useBookmarkStore as it's used in FolderModal for folder hierarchy
+vi.mock('../../stores/bookmarkStore', () => ({
+  useBookmarkStore: () => ({
+    folders: [], // Provide mock folders for bookmarkStore
+  }),
+}));
+
 vi.mock('react-hot-toast');
 
 describe('FolderModal', () => {
@@ -14,10 +40,11 @@ describe('FolderModal', () => {
 
   const mockUser = {
     id: 'user-id',
+    username: 'testuser',
     email: 'test@example.com',
     firstName: 'Test',
     lastName: 'User',
-    role: 'user'
+    roles: [Role.USER],
   };
 
   const mockFolders = [
@@ -26,20 +53,13 @@ describe('FolderModal', () => {
   ];
 
   let unmount: () => void;
-  let mockAddFolder: ReturnType<typeof vi.fn>;
-  let mockUpdateFolder: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockAddFolder = vi.fn();
-    mockUpdateFolder = vi.fn();
-
+    // Reset mocks before each test
+    mockAddFolder.mockClear();
+    mockUpdateFolder.mockClear();
     (useAuthStore as any).mockReturnValue({ user: mockUser });
-    (useBookmarkStore as any).mockImplementation(() => ({
-      folders: mockFolders,
-      addFolder: mockAddFolder,
-      updateFolder: mockUpdateFolder
-    }));
-    vi.clearAllMocks();
+    vi.clearAllMocks(); // This will clear other mocks like react-hot-toast
   });
 
   afterEach(() => {
@@ -78,7 +98,7 @@ describe('FolderModal', () => {
     const submitButton = screen.getByText('folders.form.submit');
     await fireEvent.click(submitButton);
     
-    expect(mockAddFolder).toHaveBeenCalledWith('user-id', 'New Folder', null);
+    expect(mockAddFolder).toHaveBeenCalledWith({ name: 'New Folder', parentId: null });
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -100,7 +120,7 @@ describe('FolderModal', () => {
     const submitButton = screen.getByText('folders.form.submit');
     await fireEvent.click(submitButton);
     
-    expect(mockUpdateFolder).toHaveBeenCalledWith('user-id', 'folder-1', 'Updated Folder', null);
+    expect(mockUpdateFolder).toHaveBeenCalledWith('folder-1', { name: 'Updated Folder', parentId: null });
     expect(onClose).toHaveBeenCalled();
   });
 });

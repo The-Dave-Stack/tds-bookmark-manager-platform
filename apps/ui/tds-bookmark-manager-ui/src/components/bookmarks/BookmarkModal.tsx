@@ -1,13 +1,15 @@
-import type { BookmarkType as Bookmark, FolderWithChildren } from '../../api/types';
-import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Dialog } from '@headlessui/react';
+import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
 import { useFolderStore } from '../../stores/folderStore';
-import { useTranslation } from 'react-i18next';
+
+import type { BookmarkType as Bookmark, FolderWithChildren } from '../../api/types';
 
 interface BookmarkModalProps {
   isOpen: boolean;
@@ -159,13 +161,10 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
       };
 
       if (bookmark) {
-        await updateBookmark(bookmark.id, { ...bookmark, ...updatedBookmark });
+        await updateBookmark(bookmark.id, updatedBookmark);
         toast.success(t('bookmarks.notifications.updated'));
       } else {
-        await addBookmark({
-          ...updatedBookmark,
-          isHidden: false,
-        });
+        await addBookmark({ ...updatedBookmark, isHidden: false });
         toast.success(t('bookmarks.notifications.added'));
       }
 
