@@ -14,7 +14,7 @@
     "build:lib:common": "nx run @tds/tds-bm-common:build",
     "build:ui": "nx run @tds/tds-bookmark-manager-ui:build",
     "clean": "run-s nx:reset clean:lib:common clean:api clean:ui clean:export",
-    "clean:all": "run-s nx:reset clean:lib:common clean:ui clean:api clean:all:cmd",
+    "clean:all": "run-s nx:reset clean:lib:common clean:ui clean:api clean:all:cmd clean:export",
     "clean:all:cmd": "rimraf node_modules package-lock.json",
     "clean:api": "rimraf apps/backend/tds-bookmark-manager-api/dist apps/backend/tds-bookmark-manager-api/dist-migrations apps/backend/tds-bookmark-manager-api/test-output apps/backend/tds-bookmark-manager-api/out-tsc",
     "clean:export": "rimraf export",
