@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import FolderModal from '../../components/folders/FolderModal';
 import { useAuthStore } from '../../stores/authStore';
-import { cleanup, fireEvent, render, screen } from '../test-utils';
+import { act, cleanup, fireEvent, render, screen } from '../test-utils';
 
 const { mockAddFolder, mockUpdateFolder } = vi.hoisted(() => {
   return {
@@ -48,8 +48,8 @@ describe('FolderModal', () => {
   };
 
   const mockFolders = [
-    { id: 'folder-1', name: 'Folder 1', userId: 'user-id', parentId: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), bookmarkCount: 0, clickCount: 0 },
-    { id: 'folder-2', name: 'Folder 2', userId: 'user-id', parentId: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), bookmarkCount: 0, clickCount: 0 }
+    { id: 'folder-1', name: 'Folder 1', userId: 'user-id', parentId: null, createdAt: new Date(), updatedAt: new Date(), bookmarkCount: 0, clickCount: 0 },
+    { id: 'folder-2', name: 'Folder 2', userId: 'user-id', parentId: null, createdAt: new Date(), updatedAt: new Date(), bookmarkCount: 0, clickCount: 0 }
   ];
 
   let unmount: () => void;
@@ -82,7 +82,9 @@ describe('FolderModal', () => {
     ({ unmount } = render(<FolderModal isOpen={true} onClose={mockOnClose} />));
     
     const submitButton = screen.getByText('folders.form.submit');
-    await fireEvent.click(submitButton);
+    await act(async () => {
+      await fireEvent.click(submitButton);
+    });
     
     expect(screen.getByText('folders.form.nameRequired')).toBeInTheDocument();
   });
@@ -93,10 +95,14 @@ describe('FolderModal', () => {
     ({ unmount } = render(<FolderModal isOpen={true} onClose={onClose} />));
     
     const nameInput = screen.getByTestId('folder-name-input');
-    await fireEvent.change(nameInput, { target: { value: 'New Folder' } });
+    await act(async () => {
+      await fireEvent.change(nameInput, { target: { value: 'New Folder' } });
+    });
     
     const submitButton = screen.getByText('folders.form.submit');
-    await fireEvent.click(submitButton);
+    await act(async () => {
+      await fireEvent.click(submitButton);
+    });
     
     expect(mockAddFolder).toHaveBeenCalledWith({ name: 'New Folder', parentId: null });
     expect(onClose).toHaveBeenCalled();
@@ -115,10 +121,14 @@ describe('FolderModal', () => {
     ));
     
     const nameInput = screen.getByTestId('folder-name-input');
-    await fireEvent.change(nameInput, { target: { value: 'Updated Folder' } });
+    await act(async () => {
+      await fireEvent.change(nameInput, { target: { value: 'Updated Folder' } });
+    });
     
     const submitButton = screen.getByText('folders.form.submit');
-    await fireEvent.click(submitButton);
+    await act(async () => {
+      await fireEvent.click(submitButton);
+    });
     
     expect(mockUpdateFolder).toHaveBeenCalledWith('folder-1', { name: 'Updated Folder', parentId: null });
     expect(onClose).toHaveBeenCalled();
