@@ -5,6 +5,9 @@ import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
+import InputField from '../common/InputField';
+import PrimaryButton from '../common/PrimaryButton';
+import SecondaryButton from '../common/SecondaryButton';
 import { useAuthStore } from '../../stores/authStore';
 import { useFolderStore } from '../../stores/folderStore';
 
@@ -108,24 +111,17 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
 
           <form onSubmit={handleSubmit} className="p-4">
             <div className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-mainText">
-                  {t('folders.form.name')}
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className={`mt-1 block w-full rounded-md shadow-sm text-mainText ${
-                    error ? 'border-danger focus:border-danger focus:ring-danger' : 'border-lightBorder focus:border-primary focus:ring-primary'
-                  }`}
-                  placeholder="Enter folder name"
-                  aria-label="Folder Name"
-                  data-testid="folder-name-input"
-                />
-                {error && <p className="mt-1 text-sm text-danger">{error}</p>}
-              </div>
+              <InputField
+                id="name"
+                label={t('folders.form.name')}
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter folder name"
+                error={error}
+                aria-label="Folder Name"
+                data-testid="folder-name-input"
+              />
 
               <div>
                 <label htmlFor="parent" className="block text-sm font-medium text-mainText">
@@ -139,6 +135,7 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
                   data-testid="parent-folder-select"
                   aria-label="Parent Folder"
                 >
+                  <option value="">{t('folders.form.noParent')}</option> {/* Add an option for no parent */}
                   {availableParents.map((folder) => (
                     <option key={folder.id} value={folder.id}>
                       {folder.name}
@@ -149,23 +146,12 @@ const FolderModal = ({ isOpen, onClose, folder, parentId = null }: FolderModalPr
             </div>
 
             <div className="mt-6 flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-mainText bg-lightBg hover:bg-lightBorder rounded-md transition-colors duration-200"
-                data-testid="cancel-button"
-                aria-label="Cancel"
-              >
+              <SecondaryButton onClick={onClose} data-testid="cancel-button" aria-label="Cancel">
                 {t('folders.form.cancel')}
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm font-medium text-invertedText bg-primary hover:bg-secondary rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
-                aria-label="Save Folder"
-                id="save-folder-button"
-              >
+              </SecondaryButton>
+              <PrimaryButton type="submit" aria-label="Save Folder" id="save-folder-button">
                 {t('folders.form.submit')}
-              </button>
+              </PrimaryButton>
             </div>
           </form>
         </DialogPanel>

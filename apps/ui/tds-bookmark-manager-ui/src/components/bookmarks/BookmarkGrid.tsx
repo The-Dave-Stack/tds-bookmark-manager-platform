@@ -1,8 +1,11 @@
 import { useState, useMemo } from 'react';
 
-import { Search, SortDesc } from 'lucide-react';
+import { SortDesc } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import SearchInput from '../common/SearchInput';
+import EmptyState from '../common/EmptyState';
+import SelectInput from '../common/SelectInput';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
 
 import BookmarkCard from './BookmarkCard';
@@ -46,11 +49,15 @@ const BookmarkGrid = ({ folderFilter, showArchived = false }: BookmarkGridProps)
     // Sort bookmarks
     return result.sort((a, b) => {
       if (sortBy === 'date') {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
       } else if (sortBy === 'title') {
         return a.title.localeCompare(b.title);
       } else if (sortBy === 'clicks') {
-        return b.clickCount - a.clickCount;
+        const clicksA = a.clickCount ?? 0;
+        const clicksB = b.clickCount ?? 0;
+        return clicksB - clicksA;
       }
       return 0;
     });
@@ -63,43 +70,28 @@ const BookmarkGrid = ({ folderFilter, showArchived = false }: BookmarkGridProps)
   return (
     <div>
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder={t('bookmarks.search')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-        
+        <SearchInput
+          placeholder={t('bookmarks.search')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
         <div className="sm:w-48">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <SortDesc className="h-5 w-5 text-gray-400" />
-            </div>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'date' | 'title' | 'clicks')}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none"
-            >
-              <option value="date">{t('bookmarks.sort.date')}</option>
-              <option value="title">{t('bookmarks.sort.title')}</option>
-              <option value="clicks">{t('bookmarks.sort.clicks')}</option>
-            </select>
-          </div>
+          <SelectInput
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as 'date' | 'title' | 'clicks')}
+            options={[
+              { value: 'date', label: t('bookmarks.sort.date') },
+              { value: 'title', label: t('bookmarks.sort.title') },
+              { value: 'clicks', label: t('bookmarks.sort.clicks') },
+            ]}
+            icon={<SortDesc className="h-5 w-5 text-gray-400" />}
+          />
         </div>
       </div>
       
       {filteredBookmarks.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">
-            {showArchived ? t('bookmarks.emptyArchived') : t('bookmarks.empty')}
-          </p>
-        </div>
+        <EmptyState message={showArchived ? t('bookmarks.emptyArchived') : t('bookmarks.empty')} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredBookmarks.map((bookmark) => (

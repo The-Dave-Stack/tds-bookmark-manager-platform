@@ -4,13 +4,14 @@ import { Archive, Edit, ExternalLink, MoreHorizontal, RotateCcw, Trash } from 'l
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
+import DropdownMenu from '../common/DropdownMenu';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
 import ConfirmDialog from '../common/ConfirmDialog';
 
 import BookmarkModal from './BookmarkModal';
 
-import type { Bookmark } from '../../api/types';
+import type { BookmarkType as Bookmark } from '../../api/types';
 
 interface BookmarkCardProps {
   bookmark: Bookmark;
@@ -100,72 +101,53 @@ const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {
               <h3 className="font-medium text-gray-900 truncate max-w-[200px]">{bookmark.title}</h3>
             </div>
             
-            <div className="relative">
+            <DropdownMenu
+              trigger={
+                <button
+                  className="p-1 rounded-full text-gray-500 hover:bg-gray-100"
+                  aria-label="Menu"
+                  data-testid={`menu-button-${bookmark.id}`}
+                >
+                  <MoreHorizontal className="h-5 w-5" />
+                </button>
+              }
+            >
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMenu(!showMenu);
-                }}
-                className="p-1 rounded-full text-gray-500 hover:bg-gray-100"
-                aria-label="Menu"
-                data-testid={`menu-button-${bookmark.id}`}
+                onClick={() => setIsEditModalOpen(true)}
+                className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                data-testid={`edit-button-${bookmark.id}`}
               >
-                <MoreHorizontal className="h-5 w-5" />
+                <Edit className="h-4 w-4 mr-2" />
+                {t('bookmarks.actions.edit')}
               </button>
-              
-              {showMenu && (
-                <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 ring-1 ring-black ring-opacity-5">
-                  <div className="py-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsEditModalOpen(true);
-                        setShowMenu(false);
-                      }}
-                      className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      data-testid={`edit-button-${bookmark.id}`}
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      {t('bookmarks.actions.edit')}
-                    </button>
-                    
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleArchive();
-                      }}
-                      className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      data-testid={`archive-button-${bookmark.id}`}
-                    >
-                      {bookmark.isHidden ? (
-                        <>
-                          <RotateCcw className="h-4 w-4 mr-2" />
-                          {t('bookmarks.actions.unarchive')}
-                        </>
-                      ) : (
-                        <>
-                          <Archive className="h-4 w-4 mr-2" />
-                          {t('bookmarks.actions.archive')}
-                        </>
-                      )}
-                    </button>
-                    
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsDeleteDialogOpen(true);
-                        setShowMenu(false);
-                      }}
-                      className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                      data-testid={`delete-button-${bookmark.id}`}
-                    >
-                      <Trash className="h-4 w-4 mr-2" />
-                      {t('bookmarks.actions.delete')}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+
+              <button
+                onClick={toggleArchive}
+                className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                data-testid={`archive-button-${bookmark.id}`}
+              >
+                {bookmark.isHidden ? (
+                  <>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    {t('bookmarks.actions.unarchive')}
+                  </>
+                ) : (
+                  <>
+                    <Archive className="h-4 w-4 mr-2" />
+                    {t('bookmarks.actions.archive')}
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                data-testid={`delete-button-${bookmark.id}`}
+              >
+                <Trash className="h-4 w-4 mr-2" />
+                {t('bookmarks.actions.delete')}
+              </button>
+            </DropdownMenu>
           </div>
           
           <p className="mt-2 text-sm text-gray-500 truncate">{bookmark.url}</p>
