@@ -1,5 +1,22 @@
-// main.ts - Application entry point for NestJS API
-// This file bootstraps the NestJS application, sets up global middlewares, logging, validation, CORS, security headers, and Swagger documentation.
+/**
+ * main.ts
+ *
+ * Purpose:
+ * - Application entry point for the NestJS API.
+ *
+ * Logic Overview:
+ * - Bootstraps the NestJS application.
+ * - Sets up global middlewares (cookie-parser, redirection for non-API paths).
+ * - Configures logging (PinoLogger).
+ * - Enables global validation pipe for DTOs.
+ * - Configures CORS, Helmet for security headers, and global API prefix.
+ * - Enables API versioning.
+ * - Sets up Swagger (OpenAPI) for API documentation.
+ * - Starts the application listener.
+ *
+ * Last Updated:
+ * 2025-07-15 by AI Assistant
+ */
 
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, PinoLogger } from 'nestjs-pino';
@@ -13,6 +30,11 @@ import cookieParser from 'cookie-parser';
 import { getPinoLoggerOptions } from './logger/config';
 import helmet from 'helmet';
 
+/**
+ * Bootstraps the NestJS application.
+ * This function initializes the application, configures global settings,
+ * and starts the server.
+ */
 async function bootstrap() {
   // Log all environment variables before starting the application
   // Only log in non-production environments for security

@@ -1,3 +1,17 @@
+/**
+ * users.service.ts
+ *
+ * Purpose:
+ * - Provides business logic and data access operations for user management.
+ *
+ * Logic Overview:
+ * - Handles user creation, retrieval, role updates, password hashing, and password reset functionalities.
+ * - Interacts with the `UserEntity` repository and integrates with caching and logging.
+ *
+ * Last Updated:
+ * 2025-07-15 by AI Assistant
+ */
+
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 
@@ -13,6 +27,11 @@ import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 
+/**
+ * Service responsible for all user-related business logic and database interactions.
+ * It handles operations such as user creation, retrieval, role management,
+ * password hashing, and password reset processes.
+ */
 @Injectable()
 export class UsersService {
   constructor(
@@ -25,6 +44,10 @@ export class UsersService {
     this.logger.setContext(UsersService.name);
   }
 
+  /**
+   * Checks if there are any administrators in the system.
+   * @returns {Promise<boolean>} True if at least one admin exists, false otherwise.
+   */
   async hasAdmins(): Promise<boolean> {
     // TODO: Use a better approach
     const dbType = this.configService.get<string>('database.type');
@@ -37,6 +60,12 @@ export class UsersService {
     return adminCount > 0;
   }
 
+  /**
+   * Sets up the first administrator user in the system.
+   * This method is typically called during initial application setup.
+   * @param {CreateUserDto} createUserDto - The data for creating the admin user.
+   * @returns {Promise<UserWithoutPassword>} The created admin user, excluding sensitive data.
+   */
   async setupAdmin(createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
     // TODO: move to utils
     this.cacheManager.stores.forEach(async (store: any) => {
@@ -57,6 +86,15 @@ export class UsersService {
     return adminUser;
   }
 
+  /**
+   * Finds a single user by their email address.
+   * Overloaded to allow fetching with or without the password hash.
+   * @param {Pick<User, 'email'>} data - Object containing the user's email.
+   * @param {object} [options] - Options for the query.
+   * @param {boolean} [options.withoutPassword] - If true, returns `UserWithoutPassword` DTO; otherwise, returns `UserEntity`.
+   * @returns {Promise<UserEntity | UserWithoutPassword>} The found user entity or DTO.
+   * @throws {NotFoundException} If no user is found with the given email.
+   */
   findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: false }): Promise<UserEntity>;
   findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: true }): Promise<UserWithoutPassword>;
   async findOneByEmail(data: Pick<User, 'email'>, options?: { withoutPassword: boolean }): Promise<UserWithoutPassword | UserEntity> {
@@ -74,14 +112,18 @@ export class UsersService {
     return mapEntityToDto<UserEntity, UserWithoutPassword>(userEntity, UserWithoutPassword);
   }
 
+  /**
+   * Retrieves all user entities from the database.
+   * @returns {Promise<UserEntity[]>} An array of all user entities.
+   */
   async findAll(): Promise<UserEntity[]> {
     return this.usersRepository.find();
   }
 
   /**
    * Finds all users and returns them without their password hash.
-   * Intended for admin use.
-   * @returns {Promise<UserWithoutPassword[]>}
+   * Intended for admin use to display user lists securely.
+   * @returns {Promise<UserWithoutPassword[]>} An array of user DTOs without sensitive data.
    */
   async findAllForAdmin(): Promise<UserWithoutPassword[]> {
     this.logger.debug('Finding all users for admin panel');
@@ -89,16 +131,23 @@ export class UsersService {
     return users.map((user) => mapEntityToDto(user, UserWithoutPassword));
   }
 
+  /**
+   * Finds a single user by their API token.
+   * @param {string} token - The API token to search for.
+   * @returns {Promise<UserEntity | null>} The found user entity or null if not found.
+   */
   async findOneByApiToken(token: string): Promise<UserEntity | null> {
     return this.usersRepository.findOneBy({ apiToken: token });
   }
 
   /**
    * Updates the roles of a specific user.
-   * Prevents the last admin from having their ADMIN role removed.
+   * Prevents the last admin from having their ADMIN role removed to ensure system integrity.
    * @param {string} id - The ID of the user to update.
-   * @param {Role[]} roles - The new array of roles.
+   * @param {Role[]} roles - The new array of roles to assign to the user.
    * @returns {Promise<UserWithoutPassword>} The updated user without password hash.
+   * @throws {NotFoundException} If the user with the given ID is not found.
+   * @throws {ForbiddenException} If an attempt is made to remove the last administrator role.
    */
   async updateRole(id: string, roles: Role[]): Promise<UserWithoutPassword> {
     this.logger.debug(`Attempting to update roles for user ID: ${id}`);
@@ -124,6 +173,12 @@ export class UsersService {
     return mapEntityToDto(updatedUser, UserWithoutPassword);
   }
 
+  /**
+   * Creates a new user account.
+   * Hashes the provided password and generates a unique API token for the user.
+   * @param {Partial<CreateUserDto & Pick<User, 'roles'>>} data - The data for creating the user, including optional roles.
+   * @returns {Promise<UserWithoutPassword>} The created user, excluding sensitive data.
+   */
   async create(data: Partial<CreateUserDto & Pick<User, 'roles'>>): Promise<UserWithoutPassword> {
     const date = new Date();
     const newUser: UserEntity = {
@@ -145,6 +200,12 @@ export class UsersService {
     return userWithoutPassword;
   }
 
+  /**
+   * Generates a password reset token for a user and saves it with an expiration date.
+   * @param {string} email - The email of the user requesting a password reset.
+   * @returns {Promise<string>} The generated password reset token.
+   * @throws {NotFoundException} If the user with the given email is not found.
+   */
   async createPasswordResetToken(email: string): Promise<string> {
     const user = await this.usersRepository.findOneBy({ email });
     if (!user) {
@@ -166,6 +227,14 @@ export class UsersService {
     return token;
   }
 
+  /**
+   * Resets a user's password using a valid reset token.
+   * Invalidates the token after successful reset.
+   * @param {string} token - The password reset token.
+   * @param {string} newPass - The new password for the user.
+   * @returns {Promise<UserEntity>} The updated user entity.
+   * @throws {BadRequestException} If the token is invalid or has expired.
+   */
   async resetUserPassword(token: string, newPass: string): Promise<UserEntity> {
     const user = await this.usersRepository.findOne({
       where: {
@@ -185,6 +254,11 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  /**
+   * Validates user login credentials (email and password).
+   * @param {Pick<User, 'email' | 'password'>} credentials - The user's email and password.
+   * @returns {Promise<UserWithoutPassword | undefined>} The user DTO if credentials are valid, otherwise undefined.
+   */
   async validateUserCredentials(credentials: Pick<User, 'email' | 'password'>): Promise<UserWithoutPassword | undefined> {
     this.logger.debug(`[validateUserCredentials] Login attempt for the user: %o`, credentials);
     let userEntity: UserEntity;
@@ -207,10 +281,21 @@ export class UsersService {
     return loggedUser;
   }
 
+  /**
+   * Hashes a plain text password using bcrypt.
+   * @param {string} password - The plain text password to hash.
+   * @returns {Promise<string>} The hashed password.
+   */
   async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
   }
 
+  /**
+   * Compares a plain text password with a hashed password.
+   * @param {string} password - The plain text password.
+   * @param {string} hash - The hashed password to compare against.
+   * @returns {Promise<boolean>} True if the passwords match, false otherwise.
+   */
   async comparePassword(password: string, hash: string): Promise<boolean> {
     return await bcrypt.compare(password, hash);
   }
