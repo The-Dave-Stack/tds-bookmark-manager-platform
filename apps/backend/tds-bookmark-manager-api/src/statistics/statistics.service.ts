@@ -1,9 +1,27 @@
+/**
+ * statistics.service.ts
+ *
+ * Purpose:
+ * - Provides business logic for retrieving application-wide statistics.
+ *
+ * Logic Overview:
+ * - Gathers data on total users, total bookmarks, total clicks, and top users by bookmark/click count.
+ * - Interacts directly with `UserEntity` and `BookmarkEntity` repositories using TypeORM's QueryBuilder.
+ *
+ * Last Updated:
+ * 2025-07-15 by AI Assistant
+ */
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { BookmarkEntity } from '../bookmarks/entities/bookmark.entity';
 
+/**
+ * Service responsible for generating various statistics about the application's usage.
+ * This includes global metrics and insights into user activity.
+ */
 @Injectable()
 export class StatisticsService {
     constructor(
@@ -13,6 +31,12 @@ export class StatisticsService {
         private readonly bookmarksRepository: Repository<BookmarkEntity>,
     ) {}
 
+    /**
+     * Retrieves a comprehensive set of statistics for the administration panel.
+     * Includes total users, total bookmarks, total clicks, average bookmarks per user,
+     * and a list of top users by bookmark and click count.
+     * @returns {Promise<object>} An object containing various statistics.
+     */
     async getAdminStatistics() {
         const totalUsers = await this.usersRepository.count();
         const totalBookmarks = await this.bookmarksRepository.count();

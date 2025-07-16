@@ -1,3 +1,18 @@
+/**
+ * app.module.ts
+ *
+ * Purpose:
+ * - Defines the root module of the TDS Bookmark Manager API.
+ *
+ * Logic Overview:
+ * - Imports and configures all major modules, including configuration, database, logging,
+ *   rate limiting, authentication, and feature modules.
+ * - Sets up global guards (ThrottlerGuard, CsrfGuard) and middleware (ApiRedirectMiddleware).
+ *
+ * Last Updated:
+ * 2025-07-15 by AI Assistant
+ */
+
 import { ConfigModule, ConfigService, ConfigType } from '@nestjs/config';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -21,6 +36,11 @@ import databaseConfig from './config/database.config';
 import { randomBytes } from 'crypto';
 import { validationSchema } from './config/validation.schema';
 
+/**
+ * The root module of the TDS Bookmark Manager API.
+ * This module orchestrates the application's structure by importing and configuring
+ * all necessary feature modules, global configurations, and cross-cutting concerns.
+ */
 @Module({
   imports: [
     CacheModule.register({ isGlobal: true }),
@@ -124,6 +144,11 @@ import { validationSchema } from './config/validation.schema';
   ],
 })
 export class AppModule implements NestModule {
+  /**
+   * Configures middleware for the application.
+   * Applies the `ApiRedirectMiddleware` to all routes.
+   * @param {MiddlewareConsumer} consumer The middleware consumer.
+   */
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(ApiRedirectMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
   }

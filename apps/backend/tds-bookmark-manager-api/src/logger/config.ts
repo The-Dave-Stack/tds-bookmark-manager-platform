@@ -1,5 +1,23 @@
+/**
+ * config.ts
+ *
+ * Purpose:
+ * - Configures the Pino logger for the NestJS application.
+ *
+ * Logic Overview:
+ * - Provides different logging options for development and production environments,
+ *   including redaction of sensitive data and custom log properties.
+ *
+ * Last Updated:
+ * 2025-07-15 by AI Assistant
+ */
+
 import { Params } from 'nestjs-pino';
 
+/**
+ * Common options applied to both development and production Pino HTTP configurations.
+ * Includes redaction rules for sensitive information.
+ */
 const pinoHttpCommonOptions = {
   // Redact sensitive information from logs
   redact: {
@@ -12,6 +30,10 @@ const pinoHttpCommonOptions = {
   // },
 };
 
+/**
+ * Default Pino HTTP options for development environments.
+ * Configures pretty-printed logs for better readability during development.
+ */
 const pinoHttpDefaultOptions = {
   level: 'debug',
   transport: {
@@ -26,12 +48,24 @@ const pinoHttpDefaultOptions = {
   ...pinoHttpCommonOptions,
 };
 
+/**
+ * Pino HTTP options for production environments.
+ * Configures JSON logs by default for easier parsing by log aggregation systems.
+ */
 const pinoHttpProductionOptions = {
   level: 'info',
   transport: undefined, // Default to JSON in production
   ...pinoHttpCommonOptions,
 };
 
+/**
+ * Returns the appropriate Pino logger parameters based on the environment.
+ *
+ * @param {object} options - The options for configuring the logger.
+ * @param {string | undefined} options.env - The current environment (e.g., 'production', 'development').
+ * @param {string} options.context - The logging context, used for custom log properties.
+ * @returns {Params} The Pino logger parameters.
+ */
 export function getPinoLoggerOptions(options: { env: string | undefined; context: string }): Params {
   const pinoHttpOptions = ['production', 'docker'].includes(options.env as string) ? pinoHttpProductionOptions : pinoHttpDefaultOptions;
   return {
