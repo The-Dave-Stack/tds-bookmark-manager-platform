@@ -140,7 +140,9 @@
       "cancel": "Cancelar",
       "delete": "Eliminar",
       "urlRequired": "La URL es obligatoria",
-      "titleRequired": "El título es obligatorio"
+      "titleRequired": "El título es obligatorio",
+      "favicon": "URL de Favicon",
+      "faviconHelp": "Opcional: URL para un favicon personalizado (ej. https://example.com/favicon.ico)"
     },
     "actions": {
       "edit": "Editar",

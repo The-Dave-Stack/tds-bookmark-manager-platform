@@ -9,11 +9,13 @@ export interface UserType extends User {
 
 export interface BookmarkType extends Bookmark {
   userEmail?: string;
+  clickCount: number; // Added to match mock data and usage
 }
 
 export interface FolderType extends Folder {
   userEmail?: string;
   clickCount: number;
+  bookmarkCount: number; // Added to match mock data and usage
 }
 
 export interface FolderWithChildren extends FolderType {

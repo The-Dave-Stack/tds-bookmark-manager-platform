@@ -1,3 +1,28 @@
+/**
+ * Header.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `Header` component.
+ * - Verifies correct rendering based on user authentication and role, and handles user interactions like menu toggling and navigation.
+ *
+ * Logic Overview:
+ * 1. Mocks `react-i18next`, `react-router-dom` (specifically `useNavigate` and `Link`), `useAuthStore`, and `react-hot-toast` to isolate the component.
+ * 2. Uses `mockNavigate` to spy on navigation calls.
+ * 3. Uses `mockLogout` to spy on logout calls from `useAuthStore`.
+ * 4. Uses `beforeEach` to reset mocks and `afterEach` to clean up rendered components.
+ * 5. Tests:
+ *    - Renders correctly for logged-in non-admin users, showing email and no admin link.
+ *    - Renders admin link when the user is an admin.
+ *    - Calls `toggleSidebar` when the menu button is clicked.
+ *    - Opens and closes the user menu on click.
+ *    - Navigates to profile settings when the profile link is clicked.
+ *    - Navigates to admin panel when the admin link is clicked (as admin).
+ *    - Handles successful logout, calling `mockLogout`, showing success toast, and navigating to `/login`.
+ *    - Handles logout errors, calling `mockLogout`, showing error toast, and not navigating.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { Role } from '@tds/tds-bm-common';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import toast from 'react-hot-toast';

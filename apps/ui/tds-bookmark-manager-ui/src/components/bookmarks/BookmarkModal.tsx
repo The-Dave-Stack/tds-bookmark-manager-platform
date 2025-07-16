@@ -1,3 +1,33 @@
+/**
+ * BookmarkModal.tsx
+ *
+ * Purpose:
+ * - Provides a modal form for creating and editing bookmarks.
+ * - Handles input validation, favicon extraction, folder selection, and interaction with bookmark/folder stores.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for form fields (url, title, faviconUrl, folderId) and validation errors.
+ * 2. Uses `useTranslation` for internationalization.
+ * 3. Integrates with `useAuthStore`, `useBookmarkStore`, and `useFolderStore` for data management.
+ * 4. `getFaviconUrl`: Extracts a potential favicon URL from a given URL.
+ * 5. `useEffect` hooks:
+ *    - Initializes form fields when an existing `bookmark` is passed (edit mode) or resets for add mode.
+ *    - Attempts to extract favicon when the URL changes.
+ * 6. `folderHierarchy` (memoized with `useMemo`): Builds a hierarchical structure of folders for display in the dropdown.
+ * 7. `validateForm`: Performs client-side validation for URL and title fields.
+ * 8. `handleSubmit`:
+ *    - Prevents default form submission.
+ *    - Validates the form and checks for authenticated user.
+ *    - Constructs the bookmark object, handling the "unorganized" folder case (setting `folderId` to `undefined`).
+ *    - Calls `addBookmark` or `updateBookmark` based on whether a `bookmark` prop is provided.
+ *    - Shows success/error toasts and closes the modal.
+ * 9. Renders a `Dialog` from `@headlessui/react` for the modal structure.
+ * 10. Includes input fields for URL, Title, Favicon URL, and a folder selection dropdown.
+ * 11. `FolderOption` component: Recursively renders folder options with indentation and expand/collapse functionality for nested folders.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and improved folderId handling)
+ */
 import { useEffect, useMemo, useState } from 'react';
 
 import { Dialog } from '@headlessui/react';
@@ -52,7 +82,7 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
       setUrl(bookmark.url);
       setTitle(bookmark.title);
       setFaviconUrl(bookmark.faviconUrl || '');
-      setFolderId(bookmark.folderId);
+      setFolderId(bookmark.folderId === null ? undefined : bookmark.folderId); // Handle null folderId
     } else {
       // Reset form when bookmark is undefined (for add mode or after close)
       setUrl('');

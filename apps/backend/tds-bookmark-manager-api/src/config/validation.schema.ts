@@ -1,3 +1,18 @@
+/**
+ * validation.schema.ts
+ *
+ * Purpose:
+ * - Defines the Joi schema for validating environment variables.
+ *
+ * Logic Overview:
+ * - Ensures that all necessary environment variables are present and correctly formatted
+ *   before the application starts, providing clear error messages if a variable is missing or invalid.
+ * - Includes a conditional check to exclude email configuration requirements during database migrations.
+ *
+ * Last Updated:
+ * 2025-07-15 by AI Assistant
+ */
+
 import * as Joi from 'joi';
 
 //import { PinoLogger } from 'nestjs-pino';
@@ -6,7 +21,7 @@ import * as Joi from 'joi';
 //const pinoLogger = new PinoLogger(getPinoLoggerOptions({ env: process.env.NODE_ENV, context: 'validationSchema' }));
 
 /**
- * Defines the schema for environment variable validation using Joi.
+ * Defines the base schema for environment variable validation using Joi.
  * This ensures that the application does not start without the required
  * configuration, providing clear error messages if a variable is missing or invalid.
  */
@@ -39,6 +54,10 @@ let validationSchema = Joi.object({
 
 });
 
+/**
+ * Conditionally adds email configuration validation to the schema.
+ * Email configuration is only required when the application is not running in a 'migration' context.
+ */
 if (process.env.VALIDATION_CONTEXT !== 'migration') {
   validationSchema = validationSchema.concat(Joi.object({
     // --- NEW: Email Configuration ---

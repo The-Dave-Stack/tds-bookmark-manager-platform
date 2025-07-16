@@ -1,3 +1,23 @@
+/**
+ * dateUtils.test.ts
+ *
+ * Purpose:
+ * - Unit tests for the date utility functions (`formatDate`, `getDateRange`, `isWithinRange`).
+ * - Verifies that date formatting, range calculation, and range checking work as expected.
+ *
+ * Logic Overview:
+ * 1. Imports the utility functions from `../../utils/dateUtils`.
+ * 2. Tests `formatDate`:
+ *    - Asserts that a given Date object is formatted into a 'YYYY-MM-DD' string.
+ * 3. Tests `getDateRange`:
+ *    - Asserts that `lastHour` and `last24Hours` presets return correct start and end Date objects with the expected time difference.
+ * 4. Tests `isWithinRange`:
+ *    - Asserts that a date falls within a specified range.
+ *    - Asserts that dates outside the range are correctly identified.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { describe, it, expect } from 'vitest';
 
 import { formatDate, getDateRange, isWithinRange } from '../../utils/dateUtils';

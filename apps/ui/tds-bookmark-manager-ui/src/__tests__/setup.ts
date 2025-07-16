@@ -1,3 +1,20 @@
+/**
+ * setup.ts
+ *
+ * Purpose:
+ * - Global setup file for Vitest tests in the UI application.
+ * - Configures the testing environment, mocks browser APIs, and sets up global variables.
+ *
+ * Logic Overview:
+ * 1. Imports `@testing-library/jest-dom/vitest` for extended DOM matchers.
+ * 2. Uses `beforeAll` to set up `window.TDS_CONFIG` to simulate runtime configuration, making tests independent of actual API endpoints.
+ * 3. Mocks `window.matchMedia` to prevent errors related to media queries in a JSDOM environment.
+ * 4. Mocks `ResizeObserver` to avoid errors when components use this API.
+ * 5. Mocks `react-i18next` to provide a simplified `t` function for translations and mock `I18nextProvider`, ensuring tests don't rely on actual translation files.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 /* eslint-disable @typescript-eslint/no-empty-function */
 
 import '@testing-library/jest-dom/vitest';

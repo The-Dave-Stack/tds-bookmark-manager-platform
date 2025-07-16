@@ -1,3 +1,27 @@
+/**
+ * authStore.test.ts
+ *
+ * Purpose:
+ * - Unit tests for the Zustand authentication store (`useAuthStore`).
+ * - Verifies the correct behavior of login, logout, and authentication check functionalities.
+ *
+ * Logic Overview:
+ * 1. Mocks the `api` service to control its responses during tests.
+ * 2. Defines a mock user object for consistent test data.
+ * 3. Uses `beforeEach` to reset the store and clear mock calls before each test.
+ * 4. Tests the `login` function:
+ *    - Asserts that `api.login` is called with correct credentials.
+ *    - Verifies that `user` and `isAuthenticated` states are updated correctly on success.
+ * 5. Tests the `logout` function:
+ *    - Asserts that `api.logout` is called.
+ *    - Verifies that `user` is cleared and `isAuthenticated` is set to `false`.
+ * 6. Tests the `checkAuth` function:
+ *    - Verifies state updates when `api.getProfile` returns a user.
+ *    - Verifies state updates when `api.getProfile` throws an error (e.g., unauthorized).
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { LoginUserDto, Role } from '@tds/tds-bm-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 

@@ -1,3 +1,29 @@
+/**
+ * BookmarkCard.tsx
+ *
+ * Purpose:
+ * - Displays a single bookmark with its details (title, URL, favicon, click count).
+ * - Provides actions to visit, edit, archive/unarchive, and delete the bookmark.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for managing UI states like menu visibility, edit modal, and delete dialog.
+ * 2. Uses `useTranslation` for internationalization of all user-facing texts.
+ * 3. Integrates with `useAuthStore` to check user authentication before performing actions.
+ * 4. Integrates with `useBookmarkStore` to call `updateBookmark`, `deleteBookmark`, and `incrementClickCount`.
+ * 5. `toggleArchive`: Toggles the `isHidden` status of a bookmark and shows a success toast.
+ * 6. `handleDelete`: Triggers a confirmation dialog before deleting the bookmark and shows a success toast.
+ * 7. `handleVisit`: Increments the bookmark's click count and then opens the URL in a new tab. Includes error handling for click count increment.
+ * 8. Renders the bookmark card with:
+ *    - Favicon or a default icon.
+ *    - Bookmark title and URL.
+ *    - Click count.
+ *    - A "More" menu with options for Edit, Archive/Unarchive, and Delete.
+ * 9. Conditionally renders `BookmarkModal` for editing and `ConfirmDialog` for deletion.
+ * 10. Handles image loading errors for favicons by hiding the broken image.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { useState } from 'react';
 
 import { Archive, Edit, ExternalLink, MoreHorizontal, RotateCcw, Trash } from 'lucide-react';
@@ -11,10 +37,10 @@ import ConfirmDialog from '../common/ConfirmDialog';
 
 import BookmarkModal from './BookmarkModal';
 
-import type { BookmarkType as Bookmark } from '../../api/types';
+import type { BookmarkType } from '../../api/types'; // Changed to BookmarkType
 
 interface BookmarkCardProps {
-  bookmark: Bookmark;
+  bookmark: BookmarkType; // Changed to BookmarkType
 }
 
 const BookmarkCard = ({ bookmark }: BookmarkCardProps) => {

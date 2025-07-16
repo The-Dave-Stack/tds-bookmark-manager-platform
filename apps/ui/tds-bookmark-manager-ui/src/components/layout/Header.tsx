@@ -1,3 +1,25 @@
+/**
+ * Header.tsx
+ *
+ * Purpose:
+ * - Renders the main application header, including the app title, language switcher, and user menu.
+ * - Provides navigation links and handles user logout.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` to manage the visibility of the user dropdown menu.
+ * 2. Uses `useTranslation` for internationalization and `useNavigate` for programmatic routing.
+ * 3. Integrates with `useAuthStore` to get user information and the `logout` function.
+ * 4. `handleLogout`: Calls the `logout` function from the auth store, displays a success/error toast, and redirects to the login page.
+ * 5. Renders:
+ *    - A mobile-friendly menu button that toggles the sidebar.
+ *    - The application title and logo, which links to the home page.
+ *    - `LanguageSwitcher` component.
+ *    - A user menu with the user's email, which expands to show links to profile settings, admin panel (if applicable), and a logout button.
+ * 6. Conditionally renders the "Admin" link based on the user's roles.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { useState } from 'react';
 
 import { Role } from '@tds/tds-bm-common';

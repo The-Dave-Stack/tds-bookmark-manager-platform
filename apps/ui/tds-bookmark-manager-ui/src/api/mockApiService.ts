@@ -1,3 +1,25 @@
+/**
+ * mockApiService.ts
+ *
+ * Purpose:
+ * - Provides a mock implementation of the `ApiInterface` for frontend development and testing.
+ * - Simulates backend API calls with in-memory data and artificial delays.
+ *
+ * Logic Overview:
+ * 1. Imports necessary DTOs and types, along with `uuid` for ID generation.
+ * 2. Uses `mockData` (mockUsers, mockBookmarks, mockFolders) as the in-memory database.
+ * 3. Defines `MOCK_CURRENT_USER` to simulate a logged-in user session.
+ * 4. Implements all methods of `ApiInterface` with:
+ *    - `delay` to simulate network latency.
+ *    - Data manipulation on `mockUsers`, `mockBookmarks`, and `mockFolders`.
+ *    - Basic validation and error handling (e.g., "Invalid credentials", "User not found").
+ *    - Specific logic for creating, updating, and deleting entities.
+ *    - Handles `folderId` and `parentId` updates, including moving to root (undefined/null).
+ *    - Provides mock statistics for admin functionalities.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { CreateBookmarkDto, CreateFolderDto, CreateUserDto, ForgotPasswordDto, LoginUserDto, ResetPasswordDto, Role, UpdateBookmarkDto, UpdateFolderDto, UpdateUserRoleDto } from '@tds/tds-bm-common';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -153,6 +175,7 @@ export const mockApi: ApiInterface = {
       parentId: data.parentId || null,
       userEmail: MOCK_CURRENT_USER_EMAIL,
       bookmarkCount: 0,
+      clickCount: 0, // Added to match FolderType
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -198,7 +221,7 @@ export const mockApi: ApiInterface = {
     return {
       totalUsers: mockUsers.length,
       totalBookmarks: mockBookmarks.length,
-      totalClicks: mockBookmarks.reduce((sum, b) => sum + b.clickCount, 0),
+      totalClicks: mockBookmarks.reduce((sum, b) => sum + b.clickCount!, 0), // Use non-null assertion
       avgBookmarksPerUser: mockBookmarks.length / mockUsers.length,
       topUsers: [],
     };

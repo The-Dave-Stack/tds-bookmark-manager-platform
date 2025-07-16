@@ -1,3 +1,18 @@
+/**
+ * folders.service.ts
+ *
+ * Purpose:
+ * - Provides business logic and data access operations for folder management.
+ *
+ * Logic Overview:
+ * - Handles CRUD operations for folders, including creating, retrieving, updating, and deleting.
+ * - Manages relationships with bookmarks, especially when folders are deleted (moving bookmarks to root).
+ * - Includes a virtual "Unorganized" folder for bookmarks not assigned to any specific folder.
+ *
+ * Last Updated:
+ * 2025-07-15 by AI Assistant
+ */
+
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
@@ -7,6 +22,11 @@ import { UserEntity } from '../users/entities/user.entity';
 import { CreateFolderDto, UpdateFolderDto } from '@tds/tds-bm-common';
 import { BookmarkEntity } from '../bookmarks/entities/bookmark.entity';
 
+/**
+ * Service responsible for all folder-related business logic and database interactions.
+ * It handles operations such as creating, retrieving, updating, and deleting folders,
+ * and manages the association of bookmarks with folders.
+ */
 @Injectable()
 export class FoldersService {
   constructor(
@@ -19,6 +39,12 @@ export class FoldersService {
     this.logger.setContext(FoldersService.name);
   }
 
+  /**
+   * Creates a new folder for a given user.
+   * @param {CreateFolderDto} createFolderDto - The data for creating the folder.
+   * @param {UserEntity} user - The user entity who is creating the folder.
+   * @returns {Promise<FolderEntity>} The newly created folder entity.
+   */
   async create(createFolderDto: CreateFolderDto, user: UserEntity): Promise<FolderEntity> {
     const entityToCreate: Partial<FolderEntity> = {
       name: createFolderDto.name,
@@ -33,6 +59,12 @@ export class FoldersService {
     return this.foldersRepository.save(folder);
   }
 
+  /**
+   * Finds all folders for a specific user, including a virtual "Unorganized" folder
+   * that contains all bookmarks not assigned to any specific folder.
+   * @param {UserEntity} user - The user entity whose folders are to be found.
+   * @returns {Promise<FolderEntity[]>} An array of folder entities, including the "Unorganized" folder.
+   */
   async findAllByUser(user: UserEntity): Promise<FolderEntity[]> {
     const folders = await this.foldersRepository.find({ where: { user: { id: user.id } }, relations: ['bookmarks'] });
     const now = new Date();
@@ -52,6 +84,13 @@ export class FoldersService {
     return foldersWithRoot;
   }
 
+  /**
+   * Finds a single folder by its ID and ensures it belongs to the specified user.
+   * @param {string} id - The ID of the folder to find.
+   * @param {string} userId - The ID of the user who owns the folder.
+   * @returns {Promise<FolderEntity>} The found folder entity.
+   * @throws {NotFoundException} If the folder with the given ID is not found or does not belong to the user.
+   */
   async findOne(id: string, userId: string): Promise<FolderEntity> {
     const folder = await this.foldersRepository.findOne({ where: { id, user: { id: userId } } });
     if (!folder) {
@@ -60,6 +99,17 @@ export class FoldersService {
     return folder;
   }
 
+  /**
+   * Updates an existing folder.
+   * Prevents a folder from being set as its own parent.
+   * @param {string} id - The ID of the folder to update.
+   * @param {string} userId - The ID of the user who owns the folder.
+   * @param {UpdateFolderDto} updateFolderDto - The DTO containing the updated folder data.
+   * @returns {Promise<FolderEntity>} The updated folder entity.
+   * @throws {BadRequestException} If a folder attempts to set itself as its own parent.
+   * @throws {NotFoundException} If the folder is not found or does not belong to the user.
+   * @throws {InternalServerErrorException} If the folder could not be processed for update.
+   */
   async update(id: string, userId: string, updateFolderDto: UpdateFolderDto): Promise<FolderEntity> {
     const { parentId, ...restOfDto } = updateFolderDto;
 
@@ -91,6 +141,14 @@ export class FoldersService {
     return this.foldersRepository.save(preloadedFolder);
   }
 
+  /**
+   * Deletes a folder from the database.
+   * Before deletion, all bookmarks within the deleted folder are moved to the root (unassigned).
+   * @param {string} id - The ID of the folder to delete.
+   * @param {string} userId - The ID of the user who owns the folder.
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} If the folder is not found or could not be deleted.
+   */
   async remove(id: string, userId: string): Promise<void> {
     await this.findOne(id, userId); // Verifies ownership
 

@@ -1,3 +1,25 @@
+/**
+ * UserStats.tsx
+ *
+ * Purpose:
+ * - Displays personal usage statistics for the authenticated user's bookmarks.
+ * - Allows filtering statistics by a date range.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` to manage the selected `dateRange` for filtering.
+ * 2. Uses `useTranslation` for internationalization.
+ * 3. Integrates with `useBookmarkStore` to access the user's `bookmarks`.
+ * 4. `stats` (memoized with `useMemo`):
+ *    - Filters bookmarks based on the selected `dateRange` (using `createdAt`).
+ *    - Calculates `totalBookmarks`, `totalClicks`, `avgClicksPerBookmark`.
+ *    - Identifies the `mostClickedBookmark` within the filtered set.
+ * 5. Renders a `DateRangeSelector` component to allow users to choose a date range.
+ * 6. Displays key statistics (Total Bookmarks, Total Clicks, Avg Clicks per Bookmark, Most Clicked Bookmark) in a grid of cards.
+ * 7. Handles cases where no bookmarks are found within the selected range.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and non-null assertions)
+ */
 import { useMemo, useState } from 'react';
 
 import { BarChart3, TrendingUp, Clock, Bookmark } from 'lucide-react';
@@ -19,15 +41,15 @@ const UserStats = () => {
   
   const stats = useMemo(() => {
     const filteredBookmarks = bookmarks.filter(b => {
-      const bookmarkDate = new Date(b.createdAt);
+      const bookmarkDate = new Date(b.createdAt!); // Use non-null assertion
       return bookmarkDate >= dateRange.start && bookmarkDate <= dateRange.end;
     });
 
     const totalBookmarks = filteredBookmarks.length;
-    const totalClicks = filteredBookmarks.reduce((sum, b) => sum + b.clickCount, 0);
+    const totalClicks = filteredBookmarks.reduce((sum, b) => sum + b.clickCount!, 0); // Use non-null assertion
     const avgClicksPerBookmark = totalBookmarks ? (totalClicks / totalBookmarks).toFixed(1) : '0';
     const mostClickedBookmark = filteredBookmarks.length > 0 
-      ? filteredBookmarks.reduce((max, b) => b.clickCount > max.clickCount ? b : max)
+      ? filteredBookmarks.reduce((max, b) => b.clickCount! > max.clickCount! ? b : max) // Use non-null assertion
       : null;
     
     return {

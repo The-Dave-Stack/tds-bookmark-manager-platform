@@ -1,3 +1,23 @@
+/**
+ * apiService.test.ts
+ *
+ * Purpose:
+ * - Unit tests for the `mockApiService`.
+ * - Verifies the functionality of the mock API for various operations (Auth, User Management, Bookmarks).
+ *
+ * Logic Overview:
+ * 1. Imports necessary modules and the `mockApi` service directly for testing.
+ * 2. Preserves original mock data (`mockUsers`, `mockBookmarks`, `mockFolders`) to ensure tests are isolated and data is reset before each test.
+ * 3. Uses `beforeEach` to reset the mock data and clear mock calls.
+ * 4. Contains test suites for different API functionalities:
+ *    - **Auth:** Tests `updateProfile` for success and error cases.
+ *    - **User Management (Admin):** Tests `updateUserRole`.
+ *    - **Bookmarks:** Tests `getBookmarks`, `createBookmark`, `deleteBookmark`, and `incrementBookmarkClicks`.
+ * 5. Asserts expected outcomes, such as data updates, new data creation, and error handling.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { Role } from '@tds/tds-bm-common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -64,9 +84,17 @@ describe('mockApiService', () => {
 
     it('should increment bookmark click count', async () => {
         const bookmarkToUpdate = mockBookmarks.find(b => b.id === 'bookmark-1');
-        const initialClicks = bookmarkToUpdate!.clickCount;
+        
+        // Use a type guard to ensure bookmarkToUpdate is not undefined
+        if (bookmarkToUpdate === undefined) {
+          // If the bookmark is not found, the test should fail.
+          // This indicates an issue with the mock data or test setup.
+          throw new Error('Bookmark with ID "bookmark-1" not found in mock data.');
+        }
+
+        const initialClicks = bookmarkToUpdate.clickCount;
         await mockApi.incrementBookmarkClicks('bookmark-1');
-        expect(bookmarkToUpdate!.clickCount).toBe(initialClicks + 1);
+        expect(bookmarkToUpdate.clickCount).toBe(initialClicks + 1);
     });
   });
 

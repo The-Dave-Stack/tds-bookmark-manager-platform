@@ -1,3 +1,41 @@
+/**
+ * AdminSetup.tsx
+ *
+ * Purpose:
+ * - Provides a setup page for creating the initial administrator account for the system.
+ * - Includes a registration form with advanced password validation and error handling.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for all form fields (username, first name, last name, email, password, confirm password), password visibility, loading state, and validation errors.
+ * 2. Defines `PASSWORD_REQUIREMENTS` with regex and i18n labels for password strength validation.
+ * 3. Uses `useTranslation` for internationalization.
+ * 4. Integrates with `useAuthStore` to set the authenticated user after successful setup.
+ * 5. `getPasswordStrength`: Calculates a percentage score for password strength based on met requirements.
+ * 6. `getStrengthColor`: Returns Tailwind CSS classes for the password strength indicator bar.
+ * 7. `validateForm`: Performs client-side validation for all form fields:
+ *    - Checks for required fields (username, first name, last name, email, password, confirm password).
+ *    - Validates email format.
+ *    - Checks password against `PASSWORD_REQUIREMENTS`.
+ *    - Ensures password and confirm password match.
+ * 8. `handleSubmit`:
+ *    - Prevents default form submission.
+ *    - Calls `validateForm`; if invalid, stops execution.
+ *    - Sets `loading` state.
+ *    - Calls `api.setupAdmin` to create the admin user.
+ *    - On success, sets the user in `useAuthStore`, shows a success toast, and calls `onSetupComplete`.
+ *    - On error, logs the error and shows an error toast.
+ *    - Resets `loading` state in `finally` block.
+ * 9. Renders:
+ *    - A header with system setup message and `LanguageSwitcher`.
+ *    - A form with input fields for user details and password.
+ *    - Real-time password strength indicator and requirement checklist.
+ *    - Toggle buttons for password visibility.
+ *    - A submit button (disabled during loading).
+ *    - An important security note.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation, improved validation, and i18n for toasts)
+ */
 import { useState } from 'react';
 
 import { Bookmark, Check, Eye, EyeOff, Shield, X } from 'lucide-react';
@@ -76,7 +114,7 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
 
     let isValid = true;
 
-    if (!firstName.trim()) {
+    if (!username.trim()) { // Added username validation
       newErrors.username = t('auth.register.errors.usernameRequired');
       isValid = false;
     }
@@ -124,7 +162,6 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
     setLoading(true);
     
     try {
-      // TODO: add username to the form
       const adminUser = await api.setupAdmin({ username, email, password, firstName, lastName });
       setUser({
         username: adminUser.username,
@@ -135,11 +172,11 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
         apiToken: adminUser.apiToken,
         webhookUrl: adminUser.webhookUrl
       });
-      toast.success('Admin account created successfully!');
+      toast.success(t('auth.register.success')); // Used i18n key
       onSetupComplete(); // Notify parent that setup is complete
     } catch (error) {
       console.error('Admin setup error:', error);
-      toast.error('Failed to create admin account');
+      toast.error(t('auth.register.error')); // Used i18n key
     } finally {
       setLoading(false);
     }
@@ -369,7 +406,7 @@ const AdminSetup = ({ onSetupComplete }: AdminSetupProps) => {
                 disabled={loading}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-invertedText bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
-                {loading ? t('common.loading') : 'Create Administrator Account'}
+                {loading ? t('common.loading') : t('admin.setup.button')}
               </button>
             </div>
           </form>

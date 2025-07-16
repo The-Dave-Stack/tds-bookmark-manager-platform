@@ -1,3 +1,26 @@
+/**
+ * LandingPage.tsx
+ *
+ * Purpose:
+ * - Renders the public landing page for the application.
+ * - Introduces the bookmark manager, highlights key features, and encourages user registration/login.
+ *
+ * Logic Overview:
+ * 1. Uses `useTranslation` for internationalization of all content.
+ * 2. Uses `useNavigate` for programmatic navigation to login/register pages.
+ * 3. Defines `features` array with icons, titles, and descriptions for the features section.
+ * 4. Renders:
+ *    - A fixed navigation bar with app title, `LanguageSwitcher`, login, and register buttons.
+ *    - A hero section with a catchy title, subtitle, and a main call-to-action button.
+ *    - A features section showcasing key functionalities.
+ *    - A trust section emphasizing security and privacy.
+ *    - A call-to-action section with a prominent button to create an account.
+ *    - A footer with navigation links and copyright information.
+ * 5. All user-facing text is translated using `t()`.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and updated CTA button texts)
+ */
 import { ArrowRight, BarChart3, Bookmark, Folder, Link2, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -58,7 +81,7 @@ const LandingPage = () => {
                 onClick={() => navigate('/register')}
                 className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white font-medium transition-colors duration-200"
               >
-                {t('auth.register.title')}
+                {t('landing.hero.cta')} {/* Changed to landing.hero.cta */}
               </button>
             </div>
           </div>

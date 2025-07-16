@@ -1,3 +1,28 @@
+/**
+ * FolderModal.tsx
+ *
+ * Purpose:
+ * - Provides a modal form for creating and editing folders.
+ * - Handles input validation, parent folder selection, and interaction with the folder store.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for form fields (name, selectedParentId) and validation error.
+ * 2. Uses `useTranslation` for internationalization.
+ * 3. Integrates with `useAuthStore` and `useFolderStore` for data management.
+ * 4. `useEffect` hook: Initializes form fields when an existing `folder` is passed (edit mode) or sets `parentId` for new folders.
+ * 5. `validateForm`: Performs client-side validation for the folder name and prevents circular parent relationships.
+ * 6. `handleSubmit`:
+ *    - Prevents default form submission.
+ *    - Validates the form and checks for authenticated user.
+ *    - Calls `addFolder` or `updateFolder` based on whether a `folder` prop is provided.
+ *    - Shows success/error toasts and closes the modal.
+ * 7. `getAvailableParents`: Filters the list of folders to exclude the current folder and its descendants from being selected as a parent, preventing circular references.
+ * 8. Renders a `Dialog` from `@headlessui/react` for the modal structure.
+ * 9. Includes an input field for the folder name and a dropdown for selecting a parent folder.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { useEffect, useState } from 'react';
 
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';

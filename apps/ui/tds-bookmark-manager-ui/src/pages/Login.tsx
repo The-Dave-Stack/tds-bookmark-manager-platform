@@ -1,3 +1,32 @@
+/**
+ * Login.tsx
+ *
+ * Purpose:
+ * - Provides the user login interface.
+ * - Handles user authentication by interacting with the authentication store.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for email, password, loading state, and error messages.
+ * 2. Uses `useTranslation` for internationalization and `useNavigate` for redirection after login.
+ * 3. Integrates with `useAuthStore` to call the `login` function.
+ * 4. `handleSubmit`:
+ *    - Prevents default form submission.
+ *    - Performs basic client-side validation for empty fields.
+ *    - Sets `loading` state.
+ *    - Calls `login` from `useAuthStore`.
+ *    - On success, shows a success toast and navigates to the dashboard (`/`).
+ *    - On error, logs the error, sets an i18n error message, and shows an error toast.
+ *    - Resets `loading` state in `finally` block.
+ * 5. Renders:
+ *    - A header with app title and tagline, and `LanguageSwitcher`.
+ *    - A login form with email and password input fields.
+ *    - An error message display area.
+ *    - A submit button (disabled during loading).
+ *    - A link to the registration page.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and i18n for error messages)
+ */
 import { useState } from 'react';
 
 import toast from 'react-hot-toast';
@@ -27,7 +56,7 @@ const Login = () => {
     setError('');
 
     if (!email || !password) {
-      setError('Please enter email and password');
+      setError(t('auth.login.errors.emptyFields')); // Used i18n key
       return;
     }
 

@@ -1,3 +1,18 @@
+/**
+ * email.module.ts
+ *
+ * Purpose:
+ * - Defines the Email module for the API.
+ *
+ * Logic Overview:
+ * - Configures `@nestjs-modules/mailer` asynchronously using `ConfigService` to load SMTP settings
+ *   and template directory.
+ * - Provides `EmailService` for sending emails and exports it for use in other modules.
+ *
+ * Last Updated:
+ * 2025-07-16 by AI Assistant
+ */
+
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { EmailService } from './email.service';
@@ -6,6 +21,10 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { join } from 'path';
 
+/**
+ * NestJS module for handling email sending functionalities.
+ * This module sets up the mailer configuration and provides the `EmailService`.
+ */
 @Module({
   imports: [
     MailerModule.forRootAsync({
@@ -34,7 +53,7 @@ import { join } from 'path';
       inject: [ConfigService],
     }),
   ],
-  providers: [EmailService],
-  exports: [EmailService],
+  providers: [EmailService], // Provides EmailService for dependency injection
+  exports: [EmailService], // Exports EmailService to be available for other modules
 })
 export class EmailModule {}

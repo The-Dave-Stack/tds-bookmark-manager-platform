@@ -1,4 +1,29 @@
-
+/**
+ * BookmarkModal.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `BookmarkModal` component.
+ * - Verifies the functionality of creating and updating bookmarks through the modal form.
+ *
+ * Logic Overview:
+ * 1. Mocks `useBookmarkStore`, `useFolderStore`, `useAuthStore`, and `react-hot-toast` to isolate the modal's behavior.
+ * 2. Uses `vi.hoisted` to create hoisted mocks for `addBookmark` and `updateBookmark` functions.
+ * 3. Defines mock `user` and `bookmark` objects for consistent test data.
+ * 4. Uses `beforeEach` to reset mocks and `afterEach` to clean up rendered components.
+ * 5. Tests `bookmark creation`:
+ *    - Renders the modal in creation mode.
+ *    - Simulates user input for URL and title.
+ *    - Clicks the submit button.
+ *    - Asserts that `addBookmark` is called with the correct data, `onClose` is triggered, and a success toast is shown.
+ * 6. Tests `bookmark update`:
+ *    - Renders the modal in update mode with an existing bookmark.
+ *    - Simulates user input for the title.
+ *    - Clicks the submit button.
+ *    - Asserts that `updateBookmark` is called with the correct bookmark ID and updated data, `onClose` is triggered, and a success toast is shown.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { Role } from '@tds/tds-bm-common';
 import toast from 'react-hot-toast';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
