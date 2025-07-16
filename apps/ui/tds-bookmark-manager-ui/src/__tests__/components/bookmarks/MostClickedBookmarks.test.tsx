@@ -112,7 +112,7 @@ describe('MostClickedBookmarks', () => {
     if (visitButton) {
       fireEvent.click(visitButton);
       expect(window.open).toHaveBeenCalledWith('http://b.com', '_blank');
-      expect(mockIncrementClickCount).toHaveBeenCalledWith(mockUser.apiToken, '2');
+      expect(mockIncrementClickCount).toHaveBeenCalledWith('2');
     } else {
       throw new Error('Visit button not found for Bookmark B');
     }
