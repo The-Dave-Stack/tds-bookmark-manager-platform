@@ -1,3 +1,17 @@
+/**
+ * index.css
+ *
+ * Purpose:
+ * - Imports Tailwind CSS base, components, and utilities.
+ * - Serves as the main entry point for global styles in the React application.
+ *
+ * Logic Overview:
+ * - Uses Tailwind's `@tailwind` directives to inject its pre-generated styles.
+ * - No custom CSS rules are defined directly in this file; all styling is handled via Tailwind utility classes.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
