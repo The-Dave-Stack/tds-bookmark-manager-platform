@@ -1,3 +1,28 @@
+/**
+ * MostClickedBookmarks.tsx
+ *
+ * Purpose:
+ * - Displays a list of the top 5 most clicked non-hidden bookmarks.
+ * - Allows users to visit these bookmarks and tracks their clicks.
+ *
+ * Logic Overview:
+ * 1. Uses `useTranslation` for internationalization.
+ * 2. Integrates with `useBookmarkStore` to access `bookmarks` and `incrementClickCount`.
+ * 3. Integrates with `useAuthStore` to get the current `user` (specifically `apiToken`).
+ * 4. `topBookmarks` (memoized with `useMemo`):
+ *    - Filters out bookmarks that are hidden.
+ *    - Sorts the remaining bookmarks by `clickCount` in descending order.
+ *    - Slices the array to get only the top 5.
+ * 5. `handleVisit`:
+ *    - Checks if `user.apiToken` exists before proceeding.
+ *    - Opens the bookmark URL in a new tab.
+ *    - Calls `incrementClickCount` (from `useBookmarkStore`) to update the click count in the background.
+ * 6. Renders `null` if there are no top bookmarks to display.
+ * 7. Renders a card-like structure for each top bookmark, including favicon (with error handling for broken images), title, and click count.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and fixed incrementClickCount call)
+ */
 import { useMemo } from 'react';
 
 import { ExternalLink } from 'lucide-react';
@@ -27,7 +52,7 @@ const MostClickedBookmarks = () => {
     window.open(url, '_blank');
     
     // Increment click count in the background
-    incrementClickCount(user.apiToken, id);
+    incrementClickCount(id); // Removed user.apiToken
   };
   
   if (topBookmarks.length === 0) {

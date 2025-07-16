@@ -1,3 +1,26 @@
+/**
+ * DateRangeSelector.tsx
+ *
+ * Purpose:
+ * - Provides a component for selecting a date range, either from predefined presets or a custom range.
+ * - Used for filtering data based on time, such as statistics.
+ *
+ * Logic Overview:
+ * 1. Defines `DateRange` type for consistency.
+ * 2. Defines `PRESET_RANGES` array with common time intervals (e.g., last hour, last 24 hours).
+ * 3. Uses `useState` to manage whether a custom range is selected (`isCustomRange`), and the `startDate`/`endDate` for custom ranges.
+ * 4. Uses `useTranslation` for internationalization of labels and options.
+ * 5. `handlePresetClick`: Sets `isCustomRange` to false and calculates the `start` and `end` dates based on the selected preset, then calls `onChange`.
+ * 6. `handleCustomRangeChange`: Calculates `start` and `end` dates from the input fields and calls `onChange`. Sets end date to end of day for inclusivity.
+ * 7. Renders:
+ *    - Buttons to switch between "Presets" and "Custom" modes.
+ *    - If `isCustomRange` is true, renders date input fields for start and end dates.
+ *    - If `isCustomRange` is false, renders buttons for each `PRESET_RANGES` option.
+ * 8. Ensures accessibility with `aria-label`, `role`, and `aria-selected` attributes.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { useState } from 'react';
 
 import { Calendar, Clock } from 'lucide-react';

@@ -2,6 +2,7 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./out-tsc/vitest",
+    "lib": ["dom", "es2020"],
     "types": [
       "vitest/globals",
       "vitest/importMeta",
@@ -9,7 +10,6 @@
       "node",
       "vitest",
       "@testing-library/jest-dom",
-      "dom",
       "@nx/react/typings/cssmodule.d.ts",
       "@nx/react/typings/image.d.ts"
     ],

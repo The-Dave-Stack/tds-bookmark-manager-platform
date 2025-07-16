@@ -1,3 +1,20 @@
+/**
+ * passwordValidation.test.ts
+ *
+ * Purpose:
+ * - Unit tests for the `validatePassword` utility function.
+ * - Ensures that password validation rules are correctly applied.
+ *
+ * Logic Overview:
+ * 1. Imports the `validatePassword` function from `../utils/passwordValidation`.
+ * 2. Defines a series of test cases to cover different password scenarios:
+ *    - A strong password that meets all requirements.
+ *    - Passwords failing specific requirements (uppercase, lowercase, number, special character, minimum length).
+ * 3. For each test case, it calls `validatePassword` and asserts the `isValid` status and the individual `requirements` flags.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { describe, it, expect } from 'vitest';
 
 import { validatePassword } from '../utils/passwordValidation';

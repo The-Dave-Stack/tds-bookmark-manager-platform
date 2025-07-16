@@ -1,3 +1,20 @@
+/**
+ * App.tsx
+ *
+ * Purpose:
+ * - Main application component responsible for routing and initial setup.
+ * - Handles authentication state and redirects based on user login status and admin setup.
+ *
+ * Logic Overview:
+ * 1. Initializes application by checking if an admin user exists.
+ * 2. If no admin exists, redirects to the AdminSetup page.
+ * 3. If an admin exists, checks the current user's authentication status.
+ * 4. Manages loading states and displays a loading screen during initialization.
+ * 5. Defines application routes using react-router-dom, including protected routes for authenticated users and admin-only routes.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
@@ -65,7 +82,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to="/bookmarks\" replace /> : <LandingPage />} />
+      <Route path="/" element={user ? <Navigate to="/bookmarks" replace /> : <LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/" element={
@@ -83,7 +100,7 @@ function App() {
           </AdminRoute>
         } />
       </Route>
-      <Route path="*" element={<Navigate to="/\" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

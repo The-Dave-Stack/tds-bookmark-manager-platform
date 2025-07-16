@@ -1,3 +1,37 @@
+/**
+ * ProfileSettings.tsx
+ *
+ * Purpose:
+ * - Provides a user interface for managing personal profile settings, including name, password, and webhook integration.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for form fields (first name, last name, new password, confirm password), password visibility, loading state, and validation errors.
+ * 2. Defines `PASSWORD_REQUIREMENTS` for password strength validation.
+ * 3. Uses `useTranslation` for internationalization.
+ * 4. Integrates with `useAuthStore` to get user data and the `updateProfile` function.
+ * 5. Derives `webhookUrl` and `apiToken` from the current user or mock values.
+ * 6. `bookmarkletCode`: Constructs a JavaScript bookmarklet for quick bookmarking, using the user's webhook URL and API token.
+ * 7. `getPasswordStrength` and `getStrengthColor`: Functions for displaying password strength feedback.
+ * 8. `validateForm`: Performs client-side validation for first name, last name, and new password (if provided).
+ * 9. `handleSubmit`:
+ *    - Prevents default form submission.
+ *    - Calls `validateForm`; if invalid, stops execution.
+ *    - Sets `loading` state.
+ *    - Constructs `updateData` object, including password only if provided.
+ *    - Calls `updateProfile` from `useAuthStore`.
+ *    - On success, shows a success toast, resets password fields.
+ *    - On error, logs the error and shows an error toast.
+ *    - Resets `loading` state in `finally` block.
+ * 10. `copyToClipboard`: Utility function to copy text to the clipboard and show a toast message.
+ * 11. Renders:
+ *    - A header with the profile settings title.
+ *    - A "Personal Information" section with input fields for first name, last name, and new password (with strength indicator and requirements).
+ *    - A "Webhook Integration" section displaying the webhook URL and API token with copy buttons.
+ *    - A bookmarklet link for easy bookmarking.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and i18n for bookmarklet copied message)
+ */
 import { useState } from 'react';
 
 import { User, Copy, Link, Eye, EyeOff, Check, X } from 'lucide-react';
@@ -403,7 +437,7 @@ const ProfileSettings = () => {
                     className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-invertedText bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
                     onClick={(e) => {
                       e.preventDefault();
-                      copyToClipboard(bookmarkletCode, 'Bookmarklet copied to clipboard!');
+                      copyToClipboard(bookmarkletCode, t('profile.webhookSection.bookmarklet.copied'));
                     }}
                   >
                     <Link className="h-4 w-4 mr-2" />

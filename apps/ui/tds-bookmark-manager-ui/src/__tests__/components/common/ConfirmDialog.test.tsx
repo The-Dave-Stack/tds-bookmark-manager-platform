@@ -1,3 +1,23 @@
+/**
+ * ConfirmDialog.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `ConfirmDialog` component.
+ * - Verifies correct rendering, styling, and interaction handling of the confirmation dialog.
+ *
+ * Logic Overview:
+ * 1. Defines `defaultProps` for the `ConfirmDialog` component, including mock functions for `onClose` and `onConfirm`.
+ * 2. Uses `beforeEach` to clear all mocks and `afterEach` to clean up the DOM after each test.
+ * 3. Tests:
+ *    - Renders correctly with default (destructive) styling, checking for title, message, buttons, and red button class.
+ *    - Renders correctly with non-destructive styling when `isDestructive` is false, checking for blue button class and absence of alert icon.
+ *    - Calls `onConfirm` and `onClose` when the confirm button is clicked.
+ *    - Calls `onClose` and does not call `onConfirm` when the cancel button is clicked.
+ *    - Does not render the dialog when `isOpen` is false.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

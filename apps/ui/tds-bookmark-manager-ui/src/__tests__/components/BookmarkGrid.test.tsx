@@ -1,4 +1,27 @@
-
+/**
+ * BookmarkGrid.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `BookmarkGrid` component.
+ * - Verifies correct rendering of bookmarks, search functionality, sorting, and bookmark actions.
+ *
+ * Logic Overview:
+ * 1. Mocks `useAuthStore` and `useBookmarkStore` to control authentication and bookmark data.
+ * 2. Uses `vi.hoisted` to create hoisted mocks for `useBookmarkStore` functions, allowing them to be spied upon.
+ * 3. Defines `mockBookmarks` with a sample bookmark for testing.
+ * 4. Uses `beforeEach` to reset mocks and `afterEach` to clean up rendered components.
+ * 5. Tests:
+ *    - Renders bookmarks correctly.
+ *    - Filters bookmarks based on search input.
+ *    - Handles sorting changes.
+ *    - Verifies `incrementClickCount` and `window.open` on bookmark visit.
+ *    - Verifies `updateBookmark` on archive toggle.
+ *    - Verifies `deleteBookmark` on bookmark deletion, including confirmation.
+ *    - Tests `updateBookmark` for image updates.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and updated mock data types)
+ */
 import { Role } from '@tds/tds-bm-common';
 import toast from 'react-hot-toast';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,6 +37,7 @@ const mockBookmarks = [
     title: 'Test Bookmark',
     clickCount: 0,
     isHidden: false,
+    folderId: undefined, // Added as it's a required property in BookmarkType
     createdAt: new Date(), // Use Date object
     updatedAt: new Date(), // Add updatedAt as Date object
   },

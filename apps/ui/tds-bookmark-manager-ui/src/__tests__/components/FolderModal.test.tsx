@@ -1,3 +1,29 @@
+/**
+ * FolderModal.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `FolderModal` component.
+ * - Verifies the functionality of creating and updating folders through the modal form.
+ *
+ * Logic Overview:
+ * 1. Mocks `useAuthStore`, `useFolderStore`, and `react-hot-toast` to isolate the modal's behavior.
+ * 2. Uses `vi.hoisted` to create hoisted mocks for `addFolder` and `updateFolder` functions.
+ * 3. Defines mock `user` and `folders` arrays for consistent test data.
+ * 4. Uses `beforeEach` to reset mocks and `afterEach` to clean up rendered components.
+ * 5. Tests `create folder` form rendering and validation.
+ * 6. Tests `folder creation`:
+ *    - Simulates user input for folder name.
+ *    - Clicks the submit button.
+ *    - Asserts that `addFolder` is called with the correct data and `onClose` is triggered.
+ * 7. Tests `folder update`:
+ *    - Renders the modal in update mode with an existing folder.
+ *    - Simulates user input for the folder name.
+ *    - Clicks the submit button.
+ *    - Asserts that `updateFolder` is called with the correct folder ID and updated data, and `onClose` is triggered.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and updated mock data types)
+ */
 import { Role } from '@tds/tds-bm-common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -48,8 +74,8 @@ describe('FolderModal', () => {
   };
 
   const mockFolders = [
-    { id: 'folder-1', name: 'Folder 1', userId: 'user-id', parentId: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), bookmarkCount: 0, clickCount: 0 },
-    { id: 'folder-2', name: 'Folder 2', userId: 'user-id', parentId: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), bookmarkCount: 0, clickCount: 0 }
+    { id: 'folder-1', name: 'Folder 1', userId: 'user-id', parentId: null, createdAt: new Date(), updatedAt: new Date(), bookmarkCount: 0, clickCount: 0 },
+    { id: 'folder-2', name: 'Folder 2', userId: 'user-id', parentId: null, createdAt: new Date(), updatedAt: new Date(), bookmarkCount: 0, clickCount: 0 }
   ];
 
   let unmount: () => void;

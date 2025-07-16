@@ -1,3 +1,24 @@
+/**
+ * bookmarkStore.test.ts
+ *
+ * Purpose:
+ * - Unit tests for the Zustand bookmark store (`useBookmarkStore`).
+ * - Verifies the correct behavior of fetching, adding, updating, deleting, and tracking clicks for bookmarks.
+ *
+ * Logic Overview:
+ * 1. Mocks the `api` service to control its responses during tests.
+ * 2. Defines a mock bookmark object for consistent test data.
+ * 3. Uses `beforeEach` to reset the store state and clear mock calls before each test.
+ * 4. Tests `fetchBookmarks`: asserts API call and state update.
+ * 5. Tests `addBookmark`: asserts API call and state update with new bookmark.
+ * 6. Tests `updateBookmark`: asserts API call and state update for an existing bookmark.
+ * 7. Tests `deleteBookmark`: asserts API call and state update (bookmark removal).
+ * 8. Tests `incrementClickCount`: asserts API call and optimistic state update for click count.
+ * 9. Tests error handling during `fetchBookmarks`.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { api } from '../api';
@@ -12,17 +33,17 @@ describe('Bookmark Store', () => {
     id: 'test-bookmark-id',
     url: 'https://example.com',
     title: 'Test Bookmark',
+    folderId: undefined, // Changed from null to undefined based on TypeScript error
     clickCount: 0,
     isHidden: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(), // Changed from string to Date object
+    updatedAt: new Date(), // Changed from string to Date object
   };
 
   beforeEach(() => {
     // Reset store state and mock calls before each test
     useBookmarkStore.setState({
       bookmarks: [],
-      folders: [],
       loading: false,
       error: null,
     });

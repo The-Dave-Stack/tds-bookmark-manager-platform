@@ -1,3 +1,24 @@
+/**
+ * LanguageSwitcher.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `LanguageSwitcher` component.
+ * - Verifies correct rendering of the language switcher, dropdown functionality, and language change events.
+ *
+ * Logic Overview:
+ * 1. Mocks `react-i18next`'s `useTranslation` hook to control the current language and spy on `changeLanguage`.
+ * 2. Uses `beforeEach` to reset mocks and `afterEach` to clean up rendered components.
+ * 3. Tests:
+ *    - Renders the current language (English by default) correctly.
+ *    - Opens and closes the language dropdown on button click.
+ *    - Calls `changeLanguage` with the correct locale when a language option is clicked.
+ *    - Renders the current language correctly when it is Spanish.
+ *    - Defaults to English if an unsupported language is set.
+ *    - Applies active styling to the currently selected language option in the dropdown.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
