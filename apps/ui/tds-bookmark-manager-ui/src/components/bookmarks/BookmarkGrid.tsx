@@ -1,3 +1,26 @@
+/**
+ * BookmarkGrid.tsx
+ *
+ * Purpose:
+ * - Displays a grid of bookmarks, with filtering, searching, and sorting capabilities.
+ * - Integrates with `useBookmarkStore` to fetch and manage bookmark data.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for `searchQuery` and `sortBy` state management.
+ * 2. Uses `useTranslation` for internationalization.
+ * 3. Uses `useBookmarkStore` to access `bookmarks` and `loading` state.
+ * 4. `filteredBookmarks` (memoized with `useMemo`):
+ *    - Filters bookmarks based on `showArchived` prop (to display only archived or non-archived).
+ *    - Filters by `folderFilter` to show bookmarks within a specific folder.
+ *    - Filters by `searchQuery` (case-insensitive search on title and URL).
+ *    - Sorts the filtered results by `date` (default), `title`, or `clicks`.
+ * 5. Renders a loading indicator if `loading` is true.
+ * 6. Renders a search input field and a sort dropdown.
+ * 7. Conditionally renders a message for empty results or the `BookmarkCard` components in a grid layout.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { useState, useMemo } from 'react';
 
 import { Search, SortDesc } from 'lucide-react';
@@ -46,11 +69,11 @@ const BookmarkGrid = ({ folderFilter, showArchived = false }: BookmarkGridProps)
     // Sort bookmarks
     return result.sort((a, b) => {
       if (sortBy === 'date') {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime(); // Use non-null assertion
       } else if (sortBy === 'title') {
         return a.title.localeCompare(b.title);
       } else if (sortBy === 'clicks') {
-        return b.clickCount - a.clickCount;
+        return b.clickCount! - a.clickCount!; // Use non-null assertion
       }
       return 0;
     });

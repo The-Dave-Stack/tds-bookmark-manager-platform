@@ -1,3 +1,24 @@
+/**
+ * LanguageSwitcher.tsx
+ *
+ * Purpose:
+ * - Provides a UI component for users to switch between supported languages (English and Spanish).
+ * - Integrates with `react-i18next` for language management.
+ *
+ * Logic Overview:
+ * 1. Defines `LANGUAGES` object mapping language codes to their names and flags.
+ * 2. Uses `useState` to manage the dropdown's open/closed state.
+ * 3. Uses `useTranslation` to access the current language and `changeLanguage` function from `i18n`.
+ * 4. `currentLanguage`: Determines the currently active language, defaulting to English if an unsupported language is set.
+ * 5. `changeLanguage`: Updates the `i18n` language and closes the dropdown.
+ * 6. Renders a main button displaying the current language's flag and name, which toggles the dropdown.
+ * 7. Conditionally renders a dropdown menu when `isOpen` is true.
+ * 8. Maps over `LANGUAGES` to render each language option as a clickable button within the dropdown.
+ * 9. Applies active styling to the currently selected language option.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { useState } from 'react';
 
 import { Globe, ChevronDown } from 'lucide-react';

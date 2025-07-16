@@ -1,3 +1,22 @@
+/**
+ * Layout.tsx
+ *
+ * Purpose:
+ * - Defines the main layout structure for authenticated users in the application.
+ * - Includes the header, sidebar, and a main content area where nested routes are rendered.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` to manage the open/closed state of the sidebar.
+ * 2. Uses `useAuthStore` to check if a user is logged in; if not, it renders `null` (assuming `ProtectedRoute` handles redirection).
+ * 3. `toggleSidebar`: Toggles the `sidebarOpen` state.
+ * 4. Renders:
+ *    - `Header` component, passing `toggleSidebar` as a prop.
+ *    - `Sidebar` component, passing its `isOpen` state and a `onClose` function.
+ *    - A `main` content area where `Outlet` renders the current nested route's component.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { useState } from 'react';
 
 import { Outlet } from 'react-router-dom';

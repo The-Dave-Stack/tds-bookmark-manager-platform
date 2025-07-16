@@ -1,3 +1,40 @@
+/**
+ * Register.tsx
+ *
+ * Purpose:
+ * - Provides the user registration interface.
+ * - Handles new user account creation with advanced password validation.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for all form fields (first name, last name, email, password, confirm password), password visibility, loading state, and validation errors.
+ * 2. Defines `PASSWORD_REQUIREMENTS` with regex and i18n labels for password strength validation.
+ * 3. Uses `useTranslation` for internationalization and `useNavigate` for redirection after registration.
+ * 4. Integrates with `useAuthStore` to call the `register` function.
+ * 5. `getPasswordStrength` and `getStrengthColor`: Functions for displaying password strength feedback.
+ * 6. `validateForm`: Performs client-side validation for all form fields:
+ *    - Checks for required fields.
+ *    - Validates email format.
+ *    - Checks password against `PASSWORD_REQUIREMENTS`.
+ *    - Ensures password and confirm password match.
+ * 7. `handleSubmit`:
+ *    - Prevents default form submission.
+ *    - Calls `validateForm`; if invalid, stops execution.
+ *    - Sets `loading` state.
+ *    - Calls `register` from `useAuthStore` with a `CreateUserDto` object.
+ *    - On success, shows a success toast and navigates to the dashboard (`/`).
+ *    - On error, logs the error and attempts to translate specific API error messages (e.g., email already exists) or falls back to a generic error toast.
+ *    - Resets `loading` state in `finally` block.
+ * 8. Renders:
+ *    - A header with app title and tagline, and `LanguageSwitcher`.
+ *    - A registration form with input fields for user details and password.
+ *    - Real-time password strength indicator and requirement checklist.
+ *    - Toggle buttons for password visibility.
+ *    - A submit button (disabled during loading).
+ *    - A link to the login page.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and corrected register call)
+ */
 import { useState } from 'react';
 
 import { Bookmark, Check, Eye, EyeOff, X } from 'lucide-react';
@@ -27,6 +64,7 @@ const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuthStore();
 
+  const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,6 +74,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({
+    username: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -59,6 +98,7 @@ const Register = () => {
 
   const validateForm = () => {
     const newErrors = {
+      username: '',
       firstName: '',
       lastName: '',
       email: '',
@@ -67,6 +107,11 @@ const Register = () => {
     };
 
     let isValid = true;
+
+    if (!username.trim()) {
+      newErrors.username = t('auth.register.errors.usernameRequired');
+      isValid = false;
+    }
 
     if (!firstName.trim()) {
       newErrors.firstName = t('auth.register.errors.firstNameRequired');
@@ -111,7 +156,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register(email, password, firstName, lastName);
+      await register({ username, email, password, firstName, lastName });
       toast.success(t('auth.register.success'));
       navigate('/');
     } catch (error) {
@@ -156,6 +201,22 @@ const Register = () => {
           <h3 className="text-lg font-medium text-mainText mb-6">{t('auth.register.title')}</h3>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-mainText">
+                {t('auth.username')}
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={`mt-1 block w-full rounded-md shadow-sm ${
+                  errors.username ? 'border-danger focus:border-danger focus:ring-danger' : 'border-lightBorder focus:border-primary focus:ring-primary'
+                }`}
+                placeholder={t('auth.register.usernamePlaceholder')}
+              />
+              {errors.username && <p className="mt-1 text-sm text-danger">{errors.username}</p>}
+            </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-mainText">

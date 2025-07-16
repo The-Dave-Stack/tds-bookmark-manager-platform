@@ -1,3 +1,21 @@
+/**
+ * apiService.ts
+ *
+ * Purpose:
+ * - Provides a centralized API client for interacting with the backend.
+ * - Implements the `ApiInterface` by making actual HTTP requests using Axios.
+ * - Handles CSRF token injection for secure requests.
+ *
+ * Logic Overview:
+ * 1. Retrieves the API URL from `window.TDS_CONFIG` (injected at runtime) or defaults to localhost.
+ * 2. Creates an Axios instance with the base URL and `withCredentials` for cookie handling.
+ * 3. Configures an Axios request interceptor to automatically include the `X-CSRF-Token` from `js-cookie`.
+ * 4. Implements all methods defined in `ApiInterface` (System, Auth, User, Bookmarks, Folders, Admin) by making corresponding Axios calls to the backend endpoints.
+ * 5. Throws errors for unimplemented functions (`forgotPassword`, `resetPassword`) as per MVP scope.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import type { ApiInterface, BookmarkType, FolderType, UserType } from './types';
 import {
   CreateBookmarkDto,

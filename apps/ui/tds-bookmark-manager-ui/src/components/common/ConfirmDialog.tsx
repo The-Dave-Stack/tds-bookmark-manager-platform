@@ -1,3 +1,21 @@
+/**
+ * ConfirmDialog.tsx
+ *
+ * Purpose:
+ * - Renders a customizable confirmation dialog using `@headlessui/react`.
+ * - Supports destructive (e.g., delete) and non-destructive (e.g., confirm action) styling.
+ *
+ * Logic Overview:
+ * 1. Uses `Dialog` component from `@headlessui/react` for accessibility and modal behavior.
+ * 2. Accepts props for `isOpen`, `onClose`, `onConfirm`, `title`, `message`, `confirmText`, `cancelText`, and `isDestructive`.
+ * 3. `handleConfirm`: Calls both `onConfirm` and `onClose` when the confirm button is clicked.
+ * 4. Conditionally renders an `AlertTriangle` icon and applies red styling for destructive actions.
+ * 5. Applies blue styling for non-destructive actions.
+ * 6. Renders two buttons: one for canceling (closes the dialog) and one for confirming (triggers `onConfirm` and closes).
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { Dialog } from '@headlessui/react';
 import { AlertTriangle } from 'lucide-react';
 

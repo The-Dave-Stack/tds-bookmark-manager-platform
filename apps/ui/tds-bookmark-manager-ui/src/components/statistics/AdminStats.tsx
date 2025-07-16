@@ -1,3 +1,25 @@
+/**
+ * AdminStats.tsx
+ *
+ * Purpose:
+ * - Displays various administrative statistics for the bookmark manager platform.
+ * - Allows filtering statistics by a date range.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` to manage the `AdminStatistics` data, loading state, and selected `dateRange`.
+ * 2. Uses `useTranslation` for internationalization.
+ * 3. Integrates with `useAuthStore` to check if the user is authenticated (and implicitly, an admin, as this component is rendered via `AdminRoute`).
+ * 4. `useEffect` hook: Fetches admin statistics from the API whenever the `user` or `dateRange` changes.
+ *    - Sets `loading` state during the API call.
+ *    - Handles success by updating `stats` state and error by showing a toast.
+ * 5. Renders a `DateRangeSelector` component to allow users to choose a date range for the statistics.
+ * 6. Displays key statistics (Total Users, Total Bookmarks, Total Clicks, Avg Bookmarks per User) in a grid of cards.
+ * 7. Renders a table of "Top Users" with their email, bookmark count, and click count.
+ * 8. Shows a loading indicator while data is being fetched.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { BookmarkIcon, MousePointerClick, TrendingUp, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 

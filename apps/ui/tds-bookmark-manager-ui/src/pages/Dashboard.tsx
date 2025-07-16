@@ -1,3 +1,25 @@
+/**
+ * Dashboard.tsx
+ *
+ * Purpose:
+ * - Serves as the main dashboard for authenticated users, displaying bookmarks and related features.
+ * - Supports filtering bookmarks by folder and showing archived bookmarks.
+ *
+ * Logic Overview:
+ * 1. Uses `useTranslation` for internationalization.
+ * 2. Uses `useParams` to extract `folderId` from the URL for folder-specific views.
+ * 3. Uses `useState` to manage the visibility of the `BookmarkModal`.
+ * 4. Integrates with `useFolderStore` to get folder data for displaying the current folder's name.
+ * 5. Renders:
+ *    - A dynamic title that changes based on whether archived bookmarks are shown or a specific folder is selected.
+ *    - An "Add Bookmark" button (not shown for archived view).
+ *    - Conditionally renders `UserStats` and `MostClickedBookmarks` if not in archived view and no specific folder is selected.
+ *    - `BookmarkGrid` component, passing `folderId` and `isArchived` props for filtering.
+ *    - `BookmarkModal` for adding new bookmarks.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and corrected folder store import)
+ */
 import { Bookmark, Plus } from 'lucide-react';
 
 import BookmarkGrid from '../components/bookmarks/BookmarkGrid';
@@ -5,6 +27,7 @@ import BookmarkModal from '../components/bookmarks/BookmarkModal';
 import MostClickedBookmarks from '../components/bookmarks/MostClickedBookmarks';
 import UserStats from '../components/statistics/UserStats';
 import { useBookmarkStore } from '../stores/bookmarkStore';
+import { useFolderStore } from '../stores/folderStore'; // Corrected import
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +39,7 @@ interface DashboardProps {
 const Dashboard = ({ isArchived = false }: DashboardProps) => {
   const { t } = useTranslation();
   const { folderId } = useParams<{ folderId: string }>();
-  const { folders } = useBookmarkStore();
+  const { folders } = useFolderStore(); // Corrected from useBookmarkStore
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Get current folder name if applicable

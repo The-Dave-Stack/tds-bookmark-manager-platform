@@ -1,3 +1,31 @@
+/**
+ * Sidebar.tsx
+ *
+ * Purpose:
+ * - Renders the main application sidebar for authenticated users.
+ * - Displays navigation links for all bookmarks, archived bookmarks, and a hierarchical list of folders.
+ * - Provides functionality to add, edit, and delete folders.
+ *
+ * Logic Overview:
+ * 1. Uses `useState` for managing modal/dialog visibility and selected folder states.
+ * 2. Uses `useTranslation` for internationalization.
+ * 3. Integrates with `useBookmarkStore`, `useFolderStore`, and `useAuthStore` for data management.
+ * 4. `useEffect` hook: Fetches folders when the user is authenticated.
+ * 5. `folderHierarchy` (memoized with `useMemo`):
+ *    - Builds a nested structure of folders, calculating the number of non-hidden bookmarks within each folder.
+ *    - Ensures correct parent-child relationships.
+ * 6. `useEffect` for `handleClickOutside`: Closes the sidebar when a click occurs outside of it (for mobile/overlay).
+ * 7. `handleAddSubfolder`, `handleEditFolder`, `handleDeleteFolder`: Functions to set state for opening modals/dialogs with relevant folder data.
+ * 8. `confirmDeleteFolder`: Handles the actual deletion of a folder after confirmation.
+ * 9. Renders:
+ *    - Main navigation links for "All Bookmarks" and "Archived" (with counts).
+ *    - A section for folders with an "Add Folder" button.
+ *    - A recursive `FolderItem` component to display the folder hierarchy.
+ * 10. Conditionally renders `FolderModal` for adding/editing folders and `ConfirmDialog` for deleting folders.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { Archive, ChevronDown, ChevronRight, Edit, FolderIcon, FolderPlus, MoreHorizontal, Trash, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
