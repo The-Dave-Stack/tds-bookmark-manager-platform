@@ -1,3 +1,25 @@
+/**
+ * MostClickedBookmarks.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `MostClickedBookmarks` component.
+ * - Verifies correct rendering of the top most-clicked bookmarks, handling of hidden bookmarks, and click tracking.
+ *
+ * Logic Overview:
+ * 1. Mocks `react-i18next` to control translations and `useBookmarkStore`/`useAuthStore` to control bookmark and user data.
+ * 2. Defines `mockBookmarks` with various click counts and hidden states for comprehensive testing.
+ * 3. Uses `beforeEach` to reset mocks and `afterEach` to clean up rendered components and restore mocks.
+ * 4. Tests:
+ *    - Renders null if no non-hidden bookmarks are available.
+ *    - Renders the top 5 most clicked non-hidden bookmarks, sorted by click count.
+ *    - Verifies that `window.open` is called and `incrementClickCount` is triggered when a bookmark is clicked (if `apiToken` exists).
+ *    - Ensures `incrementClickCount` is not called if `apiToken` is missing.
+ *    - Checks for default icon rendering when `faviconUrl` is undefined.
+ *    - Handles favicon image errors by hiding the image.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and updated mock data types)
+ */
 /// <reference types="vitest/globals" />
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, afterEach, type Mock } from 'vitest';
@@ -28,13 +50,13 @@ vi.mock('../../../stores/authStore', () => ({
 
 describe('MostClickedBookmarks', () => {
   const mockBookmarks = [
-    { id: '1', title: 'Bookmark A', url: 'http://a.com', clickCount: 10, isHidden: false, faviconUrl: 'http://a.com/fav.ico' },
-    { id: '2', title: 'Bookmark B', url: 'http://b.com', clickCount: 20, isHidden: false, faviconUrl: 'http://b.com/fav.ico' },
-    { id: '3', title: 'Bookmark C', url: 'http://c.com', clickCount: 5, isHidden: false, faviconUrl: 'http://c.com/fav.ico' },
-    { id: '4', title: 'Bookmark D', url: 'http://d.com', clickCount: 15, isHidden: true, faviconUrl: 'http://d.com/fav.ico' }, // Hidden
-    { id: '5', title: 'Bookmark E', url: 'http://e.com', clickCount: 25, isHidden: false, faviconUrl: 'http://e.com/fav.ico' },
-    { id: '6', title: 'Bookmark F', url: 'http://f.com', clickCount: 30, isHidden: false, faviconUrl: undefined }, // No favicon
-    { id: '7', title: 'Bookmark G', url: 'http://g.com', clickCount: 12, isHidden: false, faviconUrl: 'http://g.com/fav.ico' },
+    { id: '1', title: 'Bookmark A', url: 'http://a.com', clickCount: 10, isHidden: false, faviconUrl: 'http://a.com/fav.ico', userId: 'user-id', folderId: undefined, createdAt: new Date(), updatedAt: new Date() },
+    { id: '2', title: 'Bookmark B', url: 'http://b.com', clickCount: 20, isHidden: false, faviconUrl: 'http://b.com/fav.ico', userId: 'user-id', folderId: undefined, createdAt: new Date(), updatedAt: new Date() },
+    { id: '3', title: 'Bookmark C', url: 'http://c.com', clickCount: 5, isHidden: false, faviconUrl: 'http://c.com/fav.ico', userId: 'user-id', folderId: undefined, createdAt: new Date(), updatedAt: new Date() },
+    { id: '4', title: 'Bookmark D', url: 'http://d.com', clickCount: 15, isHidden: true, faviconUrl: 'http://d.com/fav.ico', userId: 'user-id', folderId: undefined, createdAt: new Date(), updatedAt: new Date() }, // Hidden
+    { id: '5', title: 'Bookmark E', url: 'http://e.com', clickCount: 25, isHidden: false, faviconUrl: 'http://e.com/fav.ico', userId: 'user-id', folderId: undefined, createdAt: new Date(), updatedAt: new Date() },
+    { id: '6', title: 'Bookmark F', url: 'http://f.com', clickCount: 30, isHidden: false, faviconUrl: undefined, userId: 'user-id', folderId: undefined, createdAt: new Date(), updatedAt: new Date() }, // No favicon
+    { id: '7', title: 'Bookmark G', url: 'http://g.com', clickCount: 12, isHidden: false, faviconUrl: 'http://g.com/fav.ico', userId: 'user-id', folderId: undefined, createdAt: new Date(), updatedAt: new Date() },
   ];
 
   const mockIncrementClickCount = vi.fn();
@@ -59,7 +81,7 @@ describe('MostClickedBookmarks', () => {
 
   it('renders null if there are no non-hidden bookmarks', () => {
     (useBookmarkStore as unknown as Mock).mockReturnValue({
-      bookmarks: [{ id: '1', title: 'Hidden', url: 'http://hidden.com', clickCount: 1, isHidden: true }],
+      bookmarks: [{ id: '1', title: 'Hidden', url: 'http://hidden.com', clickCount: 1, isHidden: true, userId: 'user-id', folderId: undefined, createdAt: new Date(), updatedAt: new Date() }],
       incrementClickCount: mockIncrementClickCount,
     });
     const { container } = render(<MostClickedBookmarks />);

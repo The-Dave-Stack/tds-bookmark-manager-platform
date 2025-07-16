@@ -1,3 +1,22 @@
+/**
+ * DateRangeSelector.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `DateRangeSelector` component.
+ * - Verifies the rendering of date preset options and the functionality of selecting presets and custom date ranges.
+ *
+ * Logic Overview:
+ * 1. Mocks the `onChange` callback function to track component interactions.
+ * 2. Uses `beforeEach` to render the component and `afterEach` to clean up.
+ * 3. Tests:
+ *    - Renders preset options (e.g., "Last Hour", "Last 24 Hours").
+ *    - Handles preset selection: simulates a click on a preset button and asserts that `onChange` is called with valid `Date` objects.
+ *    - Switches to custom date range: simulates a click on the "Custom" button and asserts that date input fields appear.
+ *    - Handles custom date range changes: simulates input into start and end date fields and asserts that `onChange` is called.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import DateRangeSelector from '../../components/statistics/DateRangeSelector';

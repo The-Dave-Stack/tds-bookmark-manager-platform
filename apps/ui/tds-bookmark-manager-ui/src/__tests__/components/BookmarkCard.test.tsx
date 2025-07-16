@@ -1,3 +1,28 @@
+/**
+ * BookmarkCard.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the `BookmarkCard` component.
+ * - Verifies correct rendering of bookmark information and interaction handling (visit, archive, delete).
+ *
+ * Logic Overview:
+ * 1. Mocks `useAuthStore`, `useBookmarkStore`, and `react-hot-toast` to isolate component behavior.
+ * 2. Defines mock `bookmark` and `user` objects for consistent test data.
+ * 3. Uses `beforeEach` to reset mock states and clear mock calls before each test.
+ * 4. Tests rendering of bookmark details (title, URL, click count).
+ * 5. Tests `visit site` functionality:
+ *    - Mocks `window.open` to prevent actual navigation.
+ *    - Asserts that `incrementClickCount` is called and `window.open` is called with correct arguments.
+ * 6. Tests `archive toggle` functionality:
+ *    - Simulates menu interaction and click on the archive button.
+ *    - Asserts that `updateBookmark` is called with `isHidden: true`.
+ * 7. Tests `delete` functionality:
+ *    - Simulates menu interaction, click on delete, and confirmation dialog interaction.
+ *    - Asserts that `deleteBookmark` is called.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation and updated mock data types)
+ */
 import { Role } from '@tds/tds-bm-common';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -21,8 +46,9 @@ describe('BookmarkCard', () => {
     faviconUrl: 'https://example.com/favicon.ico',
     clickCount: 0,
     isHidden: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    folderId: undefined, // Added as it's a required property in BookmarkType
+    createdAt: new Date(), // Changed to Date object
+    updatedAt: new Date() // Changed to Date object
   };
 
   const mockUser = {

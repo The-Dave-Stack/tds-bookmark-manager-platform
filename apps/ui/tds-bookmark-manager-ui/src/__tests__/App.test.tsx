@@ -1,3 +1,19 @@
+/**
+ * App.test.tsx
+ *
+ * Purpose:
+ * - Unit tests for the main App component.
+ * - Verifies correct routing and rendering based on authentication state and admin status.
+ *
+ * Logic Overview:
+ * 1. Mocks `useAuthStore` and `react-i18next` to control authentication state and translations.
+ * 2. Uses `MemoryRouter` to simulate browser navigation for testing routes.
+ * 3. Tests various scenarios: unauthenticated access, authenticated user access, and admin access.
+ * 4. Asserts that the correct pages/components are rendered or redirects occur as expected.
+ *
+ * Last Updated:
+ * 2025-07-16 by Cline (Added file header documentation)
+ */
 import { render, screen } from '@testing-library/react';
 import { Link, MemoryRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
