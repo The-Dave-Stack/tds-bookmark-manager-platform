@@ -66,19 +66,23 @@ describe('ConfirmDialog', () => {
     expect(screen.queryByTestId('alert-triangle-icon')).not.toBeInTheDocument();
   });
 
-  it('calls onConfirm and onClose when confirm button is clicked', () => {
+  it('calls onConfirm and onClose when confirm button is clicked', async () => {
     render(<ConfirmDialog {...defaultProps} />);
     
-    fireEvent.click(screen.getByText(defaultProps.confirmText));
+    await act(async () => {
+      fireEvent.click(screen.getByText(defaultProps.confirmText));
+    });
     
     expect(defaultProps.onConfirm).toHaveBeenCalledTimes(1);
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onClose when cancel button is clicked', () => {
+  it('calls onClose when cancel button is clicked', async () => {
     render(<ConfirmDialog {...defaultProps} />);
     
-    fireEvent.click(screen.getByText(defaultProps.cancelText));
+    await act(async () => {
+      fireEvent.click(screen.getByText(defaultProps.cancelText));
+    });
     
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
     expect(defaultProps.onConfirm).not.toHaveBeenCalled();

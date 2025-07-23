@@ -30,7 +30,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import BookmarkModal from '../../components/bookmarks/BookmarkModal';
 import { useAuthStore } from '../../stores/authStore';
-import { cleanup, fireEvent, render, screen } from '../test-utils';
+import { act, cleanup, fireEvent, render, screen } from '../test-utils';
 
 const { mockAddBookmark, mockUpdateBookmark } = vi.hoisted(() => {
   return {
@@ -99,15 +99,17 @@ describe('BookmarkModal', () => {
 
     render(<BookmarkModal isOpen={true} onClose={mockOnClose} />);
     
-    await fireEvent.change(screen.getByLabelText('bookmarks.form.url'), {
-      target: { value: 'https://example.com' }
+    await act(async () => {
+      await fireEvent.change(screen.getByLabelText('bookmarks.form.url'), {
+        target: { value: 'https://example.com' }
+      });
+      await fireEvent.change(screen.getByLabelText('bookmarks.form.title'), {
+        target: { value: 'Test Bookmark' }
+      });
+      
+      const submitButton = screen.getByRole('button', { name: 'bookmarks.form.submit' });
+      await fireEvent.click(submitButton);
     });
-    await fireEvent.change(screen.getByLabelText('bookmarks.form.title'), {
-      target: { value: 'Test Bookmark' }
-    });
-    
-    const submitButton = screen.getByRole('button', { name: 'bookmarks.form.submit' });
-    await fireEvent.click(submitButton);
     
     expect(mockAddBookmark).toHaveBeenCalledWith({
       url: 'https://example.com',
@@ -125,12 +127,14 @@ describe('BookmarkModal', () => {
 
     render(<BookmarkModal isOpen={true} onClose={mockOnClose} bookmark={mockBookmark} />);
     
-    await fireEvent.change(screen.getByLabelText('bookmarks.form.title'), {
-      target: { value: 'Updated Title' }
+    await act(async () => {
+      await fireEvent.change(screen.getByLabelText('bookmarks.form.title'), {
+        target: { value: 'Updated Title' }
+      });
+      
+      const submitButton = screen.getByRole('button', { name: 'bookmarks.form.submit' });
+      await fireEvent.click(submitButton);
     });
-    
-    const submitButton = screen.getByRole('button', { name: 'bookmarks.form.submit' });
-    await fireEvent.click(submitButton);
     
     expect(mockUpdateBookmark).toHaveBeenCalledWith(mockBookmark.id, {
       url: 'https://example.com',

@@ -35,9 +35,14 @@ import { ChevronDown, ChevronRight, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
+import InputField from '../common/InputField';
+import PrimaryButton from '../common/PrimaryButton';
+import SecondaryButton from '../common/SecondaryButton';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
 import { useFolderStore } from '../../stores/folderStore';
+
+import FolderOption from '../folders/FolderOption';
 
 import type { BookmarkType as Bookmark, FolderWithChildren } from '../../api/types';
 
@@ -46,50 +51,6 @@ interface BookmarkModalProps {
   onClose: () => void;
   bookmark?: Bookmark;
 }
-
-interface FolderOptionProps {
-  folder: FolderWithChildren;
-  level: number;
-  selectedFolderId: string | undefined;
-  onSelect: (folderId: string) => void;
-}
-
-const FolderOption = ({ folder, level, selectedFolderId, onSelect }: FolderOptionProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  return (
-    <div>
-      <div
-        className={`flex items-center px-3 py-2 cursor-pointer hover:bg-lightBg transition-colors duration-200 ${
-          selectedFolderId === folder.id ? 'bg-primary/10 text-primary' : 'text-mainText'
-        }`}
-        style={{ paddingLeft: `${(level + 1) * 1}rem` }}
-        onClick={() => onSelect(folder.id)}
-      >
-        {folder.children.length > 0 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsExpanded(!isExpanded);
-            }}
-            className="p-1 hover:bg-lightBorder rounded mr-1"
-          >
-            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-        )}
-        <span className="truncate">{folder.name}</span>
-      </div>
-
-      {isExpanded && folder.children.length > 0 && (
-        <div>
-          {folder.children.map((child) => (
-            <FolderOption key={child.id} folder={child} level={level + 1} selectedFolderId={selectedFolderId} onSelect={onSelect} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
   const { t } = useTranslation();
@@ -220,51 +181,37 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
 
           <form onSubmit={handleSubmit} className="p-4">
             <div className="space-y-4">
-              <div>
-                <label htmlFor="url" className="block text-sm font-medium text-mainText">
-                  {t('bookmarks.form.url')}
-                </label>
-                <input
-                  type="url"
-                  id="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className={`mt-1 block w-full rounded-md shadow-sm text-mainText ${
-                    errors.url ? 'border-danger focus:border-danger focus:ring-danger' : 'border-lightBorder focus:border-primary focus:ring-primary'
-                  }`}
-                  placeholder="https://example.com"
-                />
-                {errors.url && <p className="mt-1 text-sm text-danger">{errors.url}</p>}
-              </div>
+              <InputField
+                id="url"
+                label={t('bookmarks.form.url')}
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://example.com"
+                error={errors.url}
+              />
 
-              <div>
-                <label htmlFor="title" className="block text-sm font-medium text-mainText">
-                  {t('bookmarks.form.title')}
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className={`mt-1 block w-full rounded-md shadow-sm text-mainText ${
-                    errors.title ? 'border-danger focus:border-danger focus:ring-danger' : 'border-lightBorder focus:border-primary focus:ring-primary'
-                  }`}
-                />
-                {errors.title && <p className="mt-1 text-sm text-danger">{errors.title}</p>}
-              </div>
+              <InputField
+                id="title"
+                label={t('bookmarks.form.title')}
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                error={errors.title}
+              />
 
               <div>
                 <label htmlFor="faviconUrl" className="block text-sm font-medium text-mainText">
                   {t('bookmarks.form.favicon')}
                 </label>
                 <div className="flex items-center space-x-2">
-                  <input
-                    type="url"
+                  <InputField
                     id="faviconUrl"
+                    type="url"
                     value={faviconUrl}
                     onChange={(e) => setFaviconUrl(e.target.value)}
-                    className="mt-1 block w-full rounded-md shadow-sm text-mainText border-lightBorder focus:border-primary focus:ring-primary"
                     placeholder="https://example.com/favicon.ico"
+                    label="" // Label is handled by the div above
                   />
                   {faviconUrl && (
                     <div className="flex-shrink-0 w-6 h-6 rounded bg-gray-100 flex items-center justify-center">
@@ -303,19 +250,12 @@ const BookmarkModal = ({ isOpen, onClose, bookmark }: BookmarkModalProps) => {
             </div>
 
             <div className="mt-6 flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-mainText bg-lightBg hover:bg-lightBorder rounded-md transition-colors duration-200"
-              >
+              <SecondaryButton onClick={onClose}>
                 {t('bookmarks.form.cancel')}
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm font-medium text-invertedText bg-primary hover:bg-secondary rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
-              >
+              </SecondaryButton>
+              <PrimaryButton type="submit">
                 {t('bookmarks.form.submit')}
-              </button>
+              </PrimaryButton>
             </div>
           </form>
         </Dialog.Panel>

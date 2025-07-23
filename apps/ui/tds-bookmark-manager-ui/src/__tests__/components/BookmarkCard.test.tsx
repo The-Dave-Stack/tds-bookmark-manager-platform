@@ -30,7 +30,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BookmarkCard from '../../components/bookmarks/BookmarkCard';
 import { useAuthStore } from '../../stores/authStore';
 import { useBookmarkStore } from '../../stores/bookmarkStore';
-import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '../test-utils';
 
 // Mock stores
 vi.mock('../../stores/authStore');
@@ -44,6 +44,7 @@ describe('BookmarkCard', () => {
     url: 'https://example.com',
     title: 'Test Bookmark',
     faviconUrl: 'https://example.com/favicon.ico',
+    folderId: undefined, // Explicitly set to null or undefined as per BookmarkType
     clickCount: 0,
     isHidden: false,
     folderId: undefined, // Added as it's a required property in BookmarkType
@@ -84,13 +85,14 @@ describe('BookmarkCard', () => {
 
   it('handles visit site click', async () => {
     const { incrementClickCount } = useBookmarkStore();
-    // Explicitly cast window to Window to resolve TypeScript error if any
-    const openSpy = vi.spyOn(window as Window, 'open').mockImplementation(() => null);
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
     
     render(<BookmarkCard bookmark={mockBookmark} />);
     
     const visitButton = screen.getByTestId(`visit-site-button-${mockBookmark.id}`);
-    fireEvent.click(visitButton);
+    await act(async () => {
+      fireEvent.click(visitButton);
+    });
     
     await waitFor(() => {
         expect(incrementClickCount).toHaveBeenCalledWith('test-id');
@@ -105,10 +107,14 @@ describe('BookmarkCard', () => {
     render(<BookmarkCard bookmark={mockBookmark} />);
 
     const menuButton = screen.getByTestId(`menu-button-${mockBookmark.id}`);
-    fireEvent.click(menuButton);
+    await act(async () => {
+      fireEvent.click(menuButton);
+    });
 
     const archiveButton = screen.getByTestId(`archive-button-${mockBookmark.id}`);
-    fireEvent.click(archiveButton);
+    await act(async () => {
+      fireEvent.click(archiveButton);
+    });
 
     await waitFor(() => {
         expect(updateBookmark).toHaveBeenCalledWith('test-id', { isHidden: true });
@@ -120,13 +126,19 @@ describe('BookmarkCard', () => {
     render(<BookmarkCard bookmark={mockBookmark} />);
 
     const menuButton = screen.getByTestId(`menu-button-${mockBookmark.id}`);
-    fireEvent.click(menuButton);
+    await act(async () => {
+      fireEvent.click(menuButton);
+    });
 
     const deleteButton = screen.getByTestId(`delete-button-${mockBookmark.id}`);
-    fireEvent.click(deleteButton);
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
 
     const confirmButton = screen.getByRole('button', { name: 'common.confirmDelete.confirm' });
-    fireEvent.click(confirmButton);
+    await act(async () => {
+      fireEvent.click(confirmButton);
+    });
 
     await waitFor(() => {
         expect(deleteBookmark).toHaveBeenCalledWith('test-id');
