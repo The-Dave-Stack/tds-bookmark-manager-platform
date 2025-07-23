@@ -95,3 +95,4 @@ When providing help, adhere to the following guidelines:
 -   **Testing**: When generating a new feature (e.g., a new NestJS controller or a React component), suggest or generate a corresponding test file (`.spec.ts` or `.test.tsx`).
 -   **Security**: Do not suggest storing secrets or sensitive keys in code. Remind to use the `ConfigService` in the backend.
 -   **State Management**: Favor Zustand for any new global state. Use component-level state (`useState`) for UI-specific, non-shared state.
+-   **Asynchronous Operations**: For long-running tasks (e.g., fetching metadata from a URL), recommend and implement asynchronous processing using message queues (e.g., RabbitMQ, SQS) to avoid blocking the main thread.

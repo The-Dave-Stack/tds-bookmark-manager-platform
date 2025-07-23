@@ -70,3 +70,27 @@ The project is a full-stack monorepo managed with Nx and pnpm, consisting of a N
 - **Folder Management**: Creating folders -> Assigning bookmarks to folders -> Renaming/Deleting folders.
 - **Webhook Integration**: Receiving external bookmark data -> Validating token -> Saving bookmark.
 - **Admin User Management**: Listing users -> Changing roles.
+
+## 6. Future Architectural Considerations
+
+### Frontend Mocking Strategy
+The current frontend relies on a `mockApiService.ts` for development without a live backend. While effective for initial development, this approach can lead to a divergence between the frontend's expectations and the actual backend implementation.
+
+**Recommendation**: Transition to a more robust mocking strategy using a library like **Mock Service Worker (MSW)**. MSW intercepts network requests at the network level, allowing the frontend to use the same API service code for both development (with mocks) and production (with the real API). This ensures a seamless transition and reduces the risk of integration issues.
+
+### API Gateway
+For enhanced scalability and better management of cross-cutting concerns, the introduction of an **API Gateway** is recommended as the application grows. An API Gateway would sit between the client applications (frontend) and the backend services.
+
+**Benefits**:
+-   **Centralized Authentication & Authorization**: Handle user authentication and authorization at the gateway level.
+-   **Rate Limiting & Throttling**: Protect backend services from being overwhelmed with requests.
+-   **Request Aggregation**: Consolidate multiple backend service calls into a single client request.
+-   **Simplified Client-Side Logic**: The frontend would only need to know about the gateway's endpoint, simplifying its API layer.
+
+### Asynchronous Operations
+For long-running or resource-intensive tasks, such as fetching metadata (title, favicon) from external URLs when creating a bookmark, the current synchronous approach could block the main thread and degrade user experience.
+
+**Recommendation**: Implement a **message queue** (e.g., RabbitMQ, AWS SQS) to handle these operations asynchronously.
+-   When a new bookmark is created, the API would publish a message to the queue.
+-   A separate worker service would consume messages from the queue, fetch the metadata, and update the bookmark record in the database.
+-   This decouples the long-running task from the initial user request, resulting in a more responsive and scalable application.

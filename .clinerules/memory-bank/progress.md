@@ -14,7 +14,7 @@
 ## 2. What's Left to Build (MVP V1.0)
 
 ### Frontend
-- Implement real API service integration (replace `mockApiService.ts` with `axios` calls to backend).
+- Implement real API service integration (replace `mockApiService.ts` with `axios` calls to backend). This is a high-priority task.
 - Complete UI for all functional requirements:
     - Landing page (FR-LP-001, FR-LP-002, FR-LP-003, FR-LP-004).
     - User registration (FR-001) with advanced password validation feedback.
